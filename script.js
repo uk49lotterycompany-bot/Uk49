@@ -10,7 +10,6 @@ function checkPass(){
     document.getElementById('loginBox').style.display='none';
     document.getElementById('adminPanel').style.display='block';
     loadVIPTable();
-    // Fill current winners in admin form
     document.getElementById('winner1Name').value = winners[0][0];
     document.getElementById('winner1Amount').value = winners[0][1];
     document.getElementById('winner2Name').value = winners[1][0];
@@ -26,7 +25,7 @@ function saveNums(){
   alert('Numbers Saved!')
 }
 
-// SAVE WINNERS - THIS UPDATES HOMEPAGE
+// SAVE WINNERS - UPDATES HOMEPAGE
 function saveWinners(){
   winners = [
     [document.getElementById('winner1Name').value, document.getElementById('winner1Amount').value],
@@ -73,28 +72,56 @@ function loadTicker(){
     ticker.innerHTML = `WINNER: ${winners[0][0]} won R${winners[0][1]}! | WINNER: ${winners[1][0]} won R${winners[1][1]}!`;
   }
 }
-
-// RUN THIS ON EVERY PAGE
 loadTicker();
 
-// MEMBER LOGIN
+// MEMBER LOGIN - FIXED STRICT
 function login(){
-  let code=document.getElementById('voucher').value; 
-  if(vouchers[code]&&!vouchers[code].used&&vouchers[code].type!='vip'){
-    vouchers[code].used=true; 
-    localStorage.setItem('vouchers',JSON.stringify(vouchers)); 
-    document.getElementById('normalArea').style.display='block'; 
-    document.getElementById('normalNums').innerText=results.normal||'No numbers yet';
-  }else alert('Invalid Voucher')
+  let code = document.getElementById('voucher').value.trim().toUpperCase(); 
+  
+  if(!vouchers[code]){
+    alert('INVALID CODE. Code does not exist');
+    document.getElementById('voucher').value = '';
+    return;
+  }
+  if(vouchers[code].used){
+    alert('THIS CODE WAS ALREADY USED');
+    document.getElementById('voucher').value = '';
+    return;
+  }
+  if(vouchers[code].type == 'vip'){
+    alert('THIS IS A VIP CODE. Please use VIP Login');
+    document.getElementById('voucher').value = '';
+    return;
+  }
+  
+  vouchers[code].used = true; 
+  localStorage.setItem('vouchers',JSON.stringify(vouchers)); 
+  document.getElementById('normalArea').style.display = 'block'; 
+  document.getElementById('normalNums').innerText = results.normal || 'No numbers yet';
 }
 
-// VIP LOGIN
+// VIP LOGIN - STRICT
 function vipLogin(){
-  let code=document.getElementById('voucher').value; 
-  if(vouchers[code]&&!vouchers[code].used&&vouchers[code].type=='vip'){
-    vouchers[code].used=true; 
-    localStorage.setItem('vouchers',JSON.stringify(vouchers)); 
-    document.getElementById('vipArea').style.display='block'; 
-    document.getElementById('vipNums').innerText=results.vip||'No VIP numbers yet';
-  }else alert('Invalid VIP Voucher')
+  let code = document.getElementById('voucher').value.trim().toUpperCase(); 
+  
+  if(!vouchers[code]){
+    alert('INVALID VIP CODE. Code does not exist');
+    document.getElementById('voucher').value = '';
+    return;
+  }
+  if(vouchers[code].used){
+    alert('THIS VIP CODE WAS ALREADY USED');
+    document.getElementById('voucher').value = '';
+    return;
+  }
+  if(vouchers[code].type!= 'vip'){
+    alert('THIS IS NOT A VIP CODE');
+    document.getElementById('voucher').value = '';
+    return;
+  }
+  
+  vouchers[code].used = true; 
+  localStorage.setItem('vouchers',JSON.stringify(vouchers)); 
+  document.getElementById('vipArea').style.display = 'block'; 
+  document.getElementById('vipNums').innerText = results.vip || 'No VIP numbers yet';
 }
