@@ -1,76 +1,22 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Uk49lottery number - VIP Daily Fixed Numbers</title>
-<style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',Arial,sans-serif}
-body{background:#0a0a0a;color:white}
-header{background:#000;padding:15px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid #1e90ff;position:sticky;top:0}
-.logo{display:flex;align-items:center;gap:10px;font-size:20px;font-weight:800}
-.logo img{width:40px;height:40px}
-.btn{padding:12px 24px;border-radius:10px;border:none;font-weight:700;cursor:pointer;font-size:15px;text-decoration:none;display:inline-block}
-.btn-blue{background:#1e90ff;color:white}
-.btn-gold{background:#FFD700;color:#000}
-.hero{text-align:center;padding:80px 20px;background:linear-gradient(135deg,#0a0a0a 0%,#1a1a2e 100%)}
-.hero img{width:120px;margin-bottom:20px}
-.hero h1{font-size:38px;color:#1e90ff;margin-bottom:15px}
-.pricing{display:flex;gap:20px;justify-content:center;padding:50px 20px;flex-wrap:wrap}
-.card{background:#1a1a1a;padding:30px;border-radius:18px;border:2px solid #1e90ff;width:300px;text-align:center}
-.price{font-size:36px;color:#1e90ff;font-weight:800;margin:15px 0}
-.voucher-box{background:#222;padding:40px 20px;text-align:center}
-.voucher-box input{padding:15px;width:90%;max-width:350px;border-radius:10px;border:2px solid #1e90ff;background:#111;color:white;font-size:16px;margin:10px}
-footer{text-align:center;padding:30px;background:#000;color:#666;font-size:13px}
-</style>
-</head>
+<html>
+<head><title>UK49 Lottery Company</title><link rel="stylesheet" href="style.css"></head>
 <body>
-<header>
-  <div class="logo"><img src="logo.jpg"> Uk49lottery number</div>
-  <a href="login.html" class="btn btn-blue">Member Login</a>
-</header>
+<div class="ticker">🔥 WINNER: Sarah M. won R2500! | 🔥 WINNER: John D. won R1800!</div>
+<header><img src="logo.jpg" class="logo"><h1>UK49 Lottery Company</h1></header>
 
-<section class="hero">
-  <img src="logo.jpg">
-  <h1>UK 49 DAILY FIXED NUMBERS</h1>
-  <p>Join Our VIP Group. Get Sure Predictions Every Day.</p>
-  <a href="#subscribe" class="btn btn-gold">Subscribe Now</a>
+<section class="packages">
+  <div class="card"><h2>Weekly</h2><p>R500</p><button onclick="alert('Buy 1Voucher/Blu and WhatsApp us')">Buy Now</button></div>
+  <div class="card"><h2>Monthly</h2><p>R2000</p><button onclick="alert('Buy 1Voucher/Blu and WhatsApp us')">Buy Now</button></div>
+  <div class="card vip"><h2>👑 VIP Monthly</h2><p>R5000</p><a href="vip-payment.html">VIP Payment</a></div>
 </section>
 
-<section class="pricing" id="subscribe">
-  <div class="card">
-    <h3 style="color:#FFD700">Weekly Package</h3>
-    <div class="price">R500</div>
-    <p>7 Days Access to Daily Numbers</p>
-  </div>
-  <div class="card">
-    <h3 style="color:#FFD700">Monthly Package</h3>
-    <div class="price">R2000</div>
-    <p>30 Days Access + Bonus Tips</p>
-  </div>
+<section class="payment">
+  <h2>How to Pay</h2><p>1. Buy <b>1Voucher</b> or <b>Blu Voucher</b> at Shoprite, Checkers</p>
+  <p>2. WhatsApp us the voucher code + package</p>
 </section>
-
-<section class="voucher-box">
-  <h2 style="color:#FFD700;margin-bottom:15px">Have a Voucher?</h2>
-  <input type="text" id="voucher" placeholder="Enter Voucher Code">
-  <br>
-  <button class="btn btn-blue" onclick="activate()">Activate Membership</button>
-  <p id="msg" style="margin-top:15px;color:#1e90ff"></p>
-</section>
-
-<footer>
-  <p>18+ ONLY | GAMBLE RESPONSIBLY</p>
-  <p>© 2026 Uk49lottery number</p>
-</footer>
-
-<script>
-function activate(){
-  let v = document.getElementById('voucher').value;
-  if(v === ''){alert('Enter voucher code'); return;}
-  localStorage.setItem('voucher', v);
-  document.getElementById('msg').innerText = 'Voucher Saved! Go to Member Login';
-  setTimeout(()=>{location.href='login.html'},1500)
-}
-</script>
+<div class="countdown">Next Draw In: <span id="timer"></span></div>
+<a href="login.html">Member Login</a>
+<script src="script.js"></script>
 </body>
 </html>
