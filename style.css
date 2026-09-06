@@ -1,150 +1,22 @@
-body {
-  background: #f5f8ff;
-  color: #1a1a1a;
-  font-family: 'Segoe UI', Arial, sans-serif;
-  margin: 0;
-  padding: 0;
-}
-
-/* TOP BAR */
-.ticker {
-  background: #0052cc;
-  color: #fff;
-  padding: 10px;
-  font-weight: bold;
-  font-size: 14px;
-  text-align: center;
-}
-
-/* HEADER */
-header {
-  background: linear-gradient(90deg, #004aad, #007bff);
-  padding: 30px 20px;
-  text-align: center;
-  color: white;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-}
-
-.logo {
-  width: 120px;
-  background: white;
-  border-radius: 50%;
-  padding: 10px;
-}
-
-h1 {
-  margin: 10px 0 0;
-  font-size: 28px;
-  letter-spacing: 1px;
-}
-
-/* PACKAGES */
-.packages {
-  display: flex;
-  justify-content: center;
-  gap: 25px;
-  flex-wrap: wrap;
-  padding: 40px 20px;
-}
-
-.card {
-  background: #fff;
-  border: 2px solid #007bff;
-  border-radius: 15px;
-  padding: 25px;
-  width: 280px;
-  box-shadow: 0 6px 15px rgba(0,123,255,0.15);
-  transition: transform 0.3s;
-}
-
-.card:hover {
-  transform: translateY(-5px);
-}
-
-.card h2 {
-  color: #004aad;
-  font-size: 22px;
-}
-
-.card p {
-  font-size: 24px;
-  font-weight: bold;
-  color: #007bff;
-}
-
-.card.vip {
-  border-color: #0052cc;
-  background: linear-gradient(135deg, #e6f0ff, #ffffff);
-}
-
-.card.vip h2 {
-  color: #0052cc;
-}
-
-/* BUTTONS */
-button, a {
-  background: #007bff;
-  color: #fff;
-  border: none;
-  padding: 12px 25px;
-  border-radius: 8px;
-  font-weight: bold;
-  text-decoration: none;
-  display: inline-block;
-  margin-top: 15px;
-  cursor: pointer;
-  transition: background 0.3s;
-}
-
-button:hover, a:hover {
-  background: #004aad;
-}
-
-/* PAYMENT SECTION */
-.payment {
-  background: #fff;
-  padding: 30px;
-  margin: 20px auto;
-  max-width: 700px;
-  border-radius: 15px;
-  border: 2px solid #007bff;
-  box-shadow: 0 4px 12px rgba(0,123,255,0.1);
-}
-
-.payment h2 {
-  color: #004aad;
-}
-
-/* COUNTDOWN */
-.countdown {
-  background: #004aad;
-  color: white;
-  font-size: 22px;
-  padding: 15px;
-  margin: 20px auto;
-  max-width: 400px;
-  border-radius: 10px;
-}
-
-#timer {
-  font-weight: bold;
-  font-size: 26px;
-}
-
-/* VIP BALANCE BOX */
-.balance {
-  background: #ffeb3b;
-  color: #000;
-  padding: 25px;
-  border-radius: 12px;
-  margin: 20px 0;
-  border: 3px solid #ffc107;
-}
-.balance h3 {
-  margin: 0;
-  color: #d32f2f;
-}
-.balance h1 {
-  font-size: 42px;
-  color: #d32f2f;
-}
+body {background: #f5f8ff; color: #1a1a1a; font-family: 'Segoe UI', Arial; margin: 0; text-align: center;}
+.ticker {background: #0052cc; color: #fff; padding: 10px; font-weight: bold;}
+header {background: linear-gradient(90deg, #004aad, #007bff); padding: 30px 20px; color: white;}
+.logo {width: 120px; background: white; border-radius: 50%; padding: 10px;}
+h1 {color: gold; margin: 10px 0;}
+.packages {display: flex; justify-content: center; gap: 25px; flex-wrap: wrap; padding: 40px 20px;}
+.card {background: #fff; border: 2px solid #007bff; border-radius: 15px; padding: 25px; width: 280px; box-shadow: 0 6px 15px rgba(0,123,255,0.15);}
+.card.vip {border: 3px solid #FFD700; background: linear-gradient(135deg, #FFF8E1, #ffffff);}
+.card.vip h2 {color: #B8860B;}
+.price {font-size: 28px; font-weight: bold; color: #007bff;}
+button, a {background: #007bff; color: #fff; border: none; padding: 12px 25px; border-radius: 8px; font-weight: bold; text-decoration: none; display: inline-block; margin-top: 15px; cursor: pointer;}
+.whatsapp-btn {background: #25D366; font-size: 18px;}
+.whatsapp-btn:hover {background: #128C7E;}
+.payment {background: #fff; padding: 30px; margin: 20px auto; max-width: 700px; border-radius: 15px; border: 2px solid #007bff;}
+.countdown {background: #004aad; color: white; font-size: 22px; padding: 15px; margin: 20px auto; max-width: 400px; border-radius: 10px;}
+.balance {background: #ffeb3b; color: #000; padding: 25px; border-radius: 12px; margin: 20px 0; border: 3px solid #ffc107;}
+.balance h1 {font-size: 42px; color: #d32f2f;}
+.admin-login {margin-top: 100px;}
+input, select {padding: 10px; margin: 5px; border-radius: 5px; border: 1px solid #ccc;}
+table {width: 100%; margin-top: 20px; border-collapse: collapse;}
+td, th {border: 1px solid #007bff; padding: 8px;}
+.numbers {font-size: 24px; color: #004aad; font-weight: bold; letter-spacing: 3px; margin: 20px;}
