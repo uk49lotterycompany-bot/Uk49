@@ -1,22 +1,53 @@
-<!DOCTYPE html>
+‪<!DOCTYPE html>
 <html>
-<head><title>UK49 Lottery Company</title><link rel="stylesheet" href="style.css"></head>
+<head>
+<title>UK49 Lottery Company</title>
+<link rel="stylesheet" href="style.css">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
 <body>
-<div class="ticker">🔥 WINNER: Sarah M. won R2500! | 🔥 WINNER: John D. won R1800!</div>
-<header><img src="logo.jpg" class="logo"><h1>UK49 Lottery Company</h1></header>
+<div class="ticker" id="ticker">🔥 WINNER: Loading...</div>
+
+<header>
+  <img src="logo.jpg" class="logo">
+  <h1>UK49 LOTTERY COMPANY</h1>
+  <p>Official UK49 Results & Predictions</p>
+</header>
 
 <section class="packages">
-  <div class="card"><h2>Weekly</h2><p>R500</p><button onclick="alert('Buy 1Voucher/Blu and WhatsApp us')">Buy Now</button></div>
-  <div class="card"><h2>Monthly</h2><p>R2000</p><button onclick="alert('Buy 1Voucher/Blu and WhatsApp us')">Buy Now</button></div>
-  <div class="card vip"><h2>👑 VIP Monthly</h2><p>R5000</p><a href="vip-payment.html">VIP Payment</a></div>
+  <div class="card">
+    <h2>Weekly Package</h2>
+    <p class="price">R500</p>
+    <p>7 Days Access to Normal Numbers</p>
+    <button onclick="alert('1. Buy 1Voucher R500\n2. WhatsApp code to Admin')">Buy Now</button>
+  </div>
+  <div class="card">
+    <h2>Monthly Package</h2>
+    <p class="price">R2000</p>
+    <p>30 Days Access to Normal Numbers</p>
+    <button onclick="alert('1. Buy 1Voucher R2000\n2. WhatsApp code to Admin')">Buy Now</button>
+  </div>
+  <div class="card vip">
+    <h2>👑 VIP Monthly</h2>
+    <p class="price">R5000</p>
+    <p>VIP Numbers + 1 Hour Early Access</p>
+    <a href="vip-payment.html">VIP Payment</a>
+  </div>
 </section>
 
 <section class="payment">
-  <h2>How to Pay</h2><p>1. Buy <b>1Voucher</b> or <b>Blu Voucher</b> at Shoprite, Checkers</p>
-  <p>2. WhatsApp us the voucher code + package</p>
+  <h2>How to Pay</h2>
+  <p>1. Buy <b>1Voucher</b> or <b>Blu Voucher</b> at Shoprite, Checkers, Spar</p>
+  <p>2. Send voucher code + Package to Admin</p>
+  <a href="https://wa.me/27810000000" target="_blank" class="whatsapp-btn">💬 Chat Admin on WhatsApp</a>
 </section>
-<div class="countdown">Next Draw In: <span id="timer"></span></div>
-<a href="login.html">Member Login</a>
+
+<div class="countdown">Next Draw In: <span id="timer">03:00:00</span></div>
+
+<footer>
+  <a href="login.html">Member Login</a> | <a href="vip-login.html">VIP Login</a>
+</footer>
+
 <script src="script.js"></script>
 </body>
 </html>
