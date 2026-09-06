@@ -2,12 +2,15 @@
 <html>
 <head><title>VIP Login</title><link rel="stylesheet" href="style.css"></head>
 <body>
+<div class="login-box">
 <h2>👑 VIP Login</h2>
 <input id="voucher" placeholder="VIP Voucher Code">
 <button onclick="vipLogin()">Login</button>
 <div id="vipArea" style="display:none">
-  <h2>VIP Numbers</h2><div id="vipNums"></div>
-  <h2>Unlocks 1 Hour Early</h2>
+  <h2>VIP Winning Numbers</h2>
+  <div id="vipNums" class="numbers"></div>
+  <p>Unlocks 1 Hour Before Normal Members</p>
+</div>
 </div>
 <script src="script.js"></script>
 </body>
