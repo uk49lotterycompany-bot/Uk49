@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin - Uk49lottery</title>
+<style>
+body{background:#0a0a0a;color:white;font-family:Arial;padding:20px}
+.box{background:#1a1a1a;padding:25px;border-radius:15px;margin:20px 0;border:1px solid #1e90ff}
+input,textarea,select{width:100%;padding:12px;margin:8px 0;background:#111;border:1px solid #1e90ff;color:white;border-radius:8px}
+.btn{background:#FFD700;color:#000;padding:12px 20px;border:none;border-radius:10px;font-weight:700;cursor:pointer}
+</style>
+</head>
+<body>
+<h1 style="color:#1e90ff;text-align:center">Admin Panel</h1>
+
+<div class="box">
+  <h3>1. Upload Today's Numbers</h3>
+  <input type="text" id="nums" placeholder="e.g: 12 - 23 - 34 - 41 - 45 - 49">
+  <button class="btn" onclick="saveNums()">Save Numbers</button>
+  <p id="s1"></p>
+</div>
+
+<div class="box">
+  <h3>2. Generate Voucher</h3>
+  <select id="type">
+    <option value="WK">Weekly - R500</option>
+    <option value="MN">Monthly - R2000</option>
+  </select>
+  <button class="btn" onclick="genVoucher()">Generate Voucher</button>
+  <p id="voucherOut" style="color:#FFD700;font-size:18px"></p>
+</div>
+
+<script>
+function saveNums(){
+  let n = document.getElementById('nums').value;
+  localStorage.setItem('todayNumbers', n);
+  document.getElementById('s1').innerText = 'Numbers Saved! Members can now see them.';
+}
+function genVoucher(){
+  let t = document.getElementById('type').value;
+  let code = 'UK49-' + t + '-' + Math.random().toString(36).substr(2,8).toUpperCase();
+  document.getElementById('voucherOut').innerText = 'Voucher: ' + code;
+}
+</script>
+</body>
+</html>
