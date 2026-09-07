@@ -25,14 +25,14 @@ function saveNums(){
   alert('Numbers Saved!')
 }
 
-// SAVE WINNERS - UPDATES HOMEPAGE
+// SAVE WINNERS
 function saveWinners(){
   winners = [
     [document.getElementById('winner1Name').value, document.getElementById('winner1Amount').value],
     [document.getElementById('winner2Name').value, document.getElementById('winner2Amount').value]
   ];
   localStorage.setItem('winners', JSON.stringify(winners));
-  alert('Ticker Updated! Go refresh homepage now')
+  alert('Ticker Updated! Refresh homepage to see it')
 }
 
 // GENERATE VOUCHERS
@@ -60,7 +60,7 @@ function postPayment(){
 function loadVIPTable(){
   let table = '<tr><th>Name</th><th>Phone</th><th>Balance</th><th>Status</th></tr>';
   let options = '';
-  vipMembers.forEach((m,i)=>{table += `<tr><td>${m.name}</td><td>${m.phone}</td><td>R${m.balance}</td><td>${m.status}</td></tr>`; options += `<option value="${i}">${m.name} - R${m.balance}</option>`;});
+  vipMembers.forEach((m,i)=>{table += `<td>${m.name}</td><td>${m.phone}</td><td>R${m.balance}</td><td>${m.status}</td></tr>`; options += `<option value="${i}">${m.name} - R${m.balance}</option>`;});
   document.getElementById('vipTable').innerHTML = table;
   document.getElementById('vipList').innerHTML = options;
 }
@@ -74,7 +74,7 @@ function loadTicker(){
 }
 loadTicker();
 
-// MEMBER LOGIN - FIXED STRICT
+// MEMBER LOGIN - SECURE NOW
 function login(){
   let code = document.getElementById('voucher').value.trim().toUpperCase(); 
   
@@ -100,7 +100,7 @@ function login(){
   document.getElementById('normalNums').innerText = results.normal || 'No numbers yet';
 }
 
-// VIP LOGIN - STRICT
+// VIP LOGIN - SECURE
 function vipLogin(){
   let code = document.getElementById('voucher').value.trim().toUpperCase(); 
   
