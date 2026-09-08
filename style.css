@@ -1,22 +1,30 @@
-body {background: #f5f8ff; color: #1a1a1a; font-family: 'Segoe UI', Arial; margin: 0; text-align: center;}
-.ticker {background: #0052cc; color: #fff; padding: 10px; font-weight: bold;}
-header {background: linear-gradient(90deg, #004aad, #007bff); padding: 30px 20px; color: white;}
-.logo {width: 120px; background: white; border-radius: 50%; padding: 10px;}
-h1 {color: gold; margin: 10px 0;}
-.packages {display: flex; justify-content: center; gap: 25px; flex-wrap: wrap; padding: 40px 20px;}
-.card {background: #fff; border: 2px solid #007bff; border-radius: 15px; padding: 25px; width: 280px; box-shadow: 0 6px 15px rgba(0,123,255,0.15);}
-.card.vip {border: 3px solid #FFD700; background: linear-gradient(135deg, #FFF8E1, #ffffff);}
-.card.vip h2 {color: #B8860B;}
-.price {font-size: 28px; font-weight: bold; color: #007bff;}
-button, a {background: #007bff; color: #fff; border: none; padding: 12px 25px; border-radius: 8px; font-weight: bold; text-decoration: none; display: inline-block; margin-top: 15px; cursor: pointer;}
-.whatsapp-btn {background: #25D366; font-size: 18px;}
-.whatsapp-btn:hover {background: #128C7E;}
-.payment {background: #fff; padding: 30px; margin: 20px auto; max-width: 700px; border-radius: 15px; border: 2px solid #007bff;}
-.countdown {background: #004aad; color: white; font-size: 22px; padding: 15px; margin: 20px auto; max-width: 400px; border-radius: 10px;}
-.balance {background: #ffeb3b; color: #000; padding: 25px; border-radius: 12px; margin: 20px 0; border: 3px solid #ffc107;}
-.balance h1 {font-size: 42px; color: #d32f2f;}
-.admin-login {margin-top: 100px;}
-input, select {padding: 10px; margin: 5px; border-radius: 5px; border: 1px solid #ccc;}
-table {width: 100%; margin-top: 20px; border-collapse: collapse;}
-td, th {border: 1px solid #007bff; padding: 8px;}
-.numbers {font-size: 24px; color: #004aad; font-weight: bold; letter-spacing: 3px; margin: 20px;}
+body {
+  font-family: Arial;
+  text-align: center;
+  background: #111;
+  color: gold;
+  padding: 20px;
+}
+input, textarea, button {
+  padding: 12px;
+  margin: 8px;
+  border-radius: 8px;
+  border: none;
+  font-size: 16px;
+}
+button {
+  background: gold;
+  color: black;
+  font-weight: bold;
+  cursor: pointer;
+}
+button:hover { background: #ffd700; }
+.ticker {
+  background: red;
+  color: white;
+  padding: 10px;
+  margin-bottom: 20px;
+  font-weight: bold;
+}
+#normalNums { color: lime; }
+hr { border: 1px solid gold; margin: 20px 0; }
