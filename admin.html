@@ -1,47 +1,31 @@
 <!DOCTYPE html>
 <html>
-<head><title>Admin Panel</title><link rel="stylesheet" href="style.css"></head>
+<head>
+  <title>Admin Panel</title>
+  <link rel="stylesheet" href="style.css">
+</head>
 <body>
-<div id="loginBox" class="admin-login">
-  <h2>Admin Login</h2>
-  <input id="pass" type="password" placeholder="Enter Password">
-  <button onclick="checkPass()">Login</button>
-</div>
+  <div id="loginBox">
+    <h2>Admin Login</h2>
+    <input id="pass" type="password" placeholder="Admin Password">
+    <button onclick="checkPass()">Login</button>
+  </div>
 
-<div id="adminPanel" style="display:none">
-  <h2>1. Upload Today's Numbers</h2>
-  <input id="normalNums" placeholder="Normal Numbers: 05-18-27-33-44-49">
-  <input id="vipNums" placeholder="VIP Numbers: 02-11-19-28-35-47">
-  <button onclick="saveNums()">Save Numbers</button>
+  <div id="adminPanel" style="display:none;">
+    <h2>ADMIN PANEL</h2>
 
-  <h2>2. FAKE WINNERS TICKER</h2>
-  <input id="winner1Name" placeholder="Winner 1 Name">
-  <input id="winner1Amount" placeholder="Amount R">
-  <input id="winner2Name" placeholder="Winner 2 Name">
-  <input id="winner2Amount" placeholder="Amount R">
-  <button onclick="saveWinners()">Update Ticker</button>
+    <h3>1. Post Today's Numbers</h3>
+    <textarea id="normalNums" rows="3" cols="30" placeholder="Enter numbers: 5 12 23 34 45 49"></textarea><br>
+    <button onclick="saveNums()">Save Numbers</button>
 
-  <h2>3. Generate Vouchers</h2>
-  <select id="type">
-    <option value="weekly">Weekly R500</option>
-    <option value="monthly">Monthly R2000</option>
-    <option value="vip">VIP Monthly R5000</option>
-  </select>
-  <button onclick="genVoucher()">Generate Voucher</button>
-  <div id="vouchers"></div>
+    <hr>
+    <h3>2. Add New Member</h3>
+    <input id="newUser" placeholder="Username">
+    <input id="newPass" placeholder="Password">
+    <button onclick="addMember()">Add Member</button>
+    <div id="memberList" style="margin-top:15px;"></div>
+  </div>
 
-  <h2>4. VIP BALANCE MANAGER</h2>
-  <input id="vipName" placeholder="VIP Name">
-  <input id="vipPhone" placeholder="VIP Phone">
-  <input id="vipBalance" type="number" placeholder="Starting Balance R">
-  <button onclick="addVIP()">Add VIP</button>
-  <br><br>
-  <select id="vipList"></select>
-  <input id="payAmount" type="number" placeholder="Amount Paid R">
-  <button onclick="postPayment()">Add Payment</button>
-  <h3>All VIP Members</h3>
-  <table id="vipTable"></table>
-</div>
-<script src="script.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
