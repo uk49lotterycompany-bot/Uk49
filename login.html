@@ -1,43 +1,23 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Member Area - Uk49lottery</title>
-<style>
-body{background:#0a0a0a;color:white;font-family:Arial;padding:20px;text-align:center}
-.box{background:#1a1a1a;padding:30px;border-radius:18px;border:2px solid #1e90ff;max-width:500px;margin:50px auto}
-.btn{background:#1e90ff;color:white;padding:14px 24px;border:none;border-radius:10px;font-weight:700;cursor:pointer;margin:10px}
-.numbers{background:#000;padding:20px;border-radius:15px;margin:20px 0;border:2px dashed #FFD700}
-.number{font-size:28px;color:#FFD700;font-weight:800;letter-spacing:8px}
-</style>
+  <title>Member Login</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<div class="box">
-  <img src="logo.jpg" width="80">
-  <h2 style="color:#1e90ff">Member Dashboard</h2>
-  
-  <div id="content">
-    <p>Enter your voucher to unlock today's numbers</p>
-    <input type="text" id="v" placeholder="Voucher Code" style="padding:12px;width:80%;background:#111;border:1px solid #1e90ff;color:white;border-radius:8px">
-    <br><button class="btn" onclick="check()">Unlock</button>
+  <h2>Member Login</h2>
+
+  <div id="loginForm">
+    <input id="username" placeholder="Enter Username"><br><br>
+    <input id="password" type="password" placeholder="Enter Password"><br><br>
+    <button onclick="login()">Login</button>
   </div>
 
-</div>
+  <div id="normalArea" style="display:none; margin-top:30px;">
+    <h3>TODAY'S WINNING NUMBERS</h3>
+    <p id="normalNums" style="font-size:32px; letter-spacing:10px; color:lime;"></p>
+  </div>
 
-<script>
-let todayNumbers = localStorage.getItem('todayNumbers') || "12 - 23 - 34 - 41 - 45 - 49";
-function check(){
-  let v = document.getElementById('v').value;
-  if(v !== ''){
-    document.getElementById('content').innerHTML = `
-      <h3 style="color:#FFD700">Today's UK 49 Numbers</h3>
-      <div class="numbers"><div class="number">${todayNumbers}</div></div>
-      <p style="color:#aaa;font-size:13px">Numbers update daily at 6pm</p>
-      <a href="admin.html"><button class="btn">Admin Panel</button></a>
-    `
-  } else {alert('Enter voucher')}
-}
-</script>
+  <script src="script.js"></script>
 </body>
 </html>
