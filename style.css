@@ -1,20 +1,22 @@
 body {
   font-family: Arial;
   text-align: center;
-  background: #000000; /* black background */
+  background: #000000; /* black base */
   color: #FFD700; /* gold text */
   padding: 20px;
   margin: 0;
-}
-
-.logo {
-  width: 120px;
-  margin: 10px auto;
-  display: block;
+  
+  /* LOGO AS BACKGROUND WATERMARK - USING.JPG */
+  background-image: url('logo.jpg');
+  background-repeat: no-repeat;
+  background-position: center;
+  background-attachment: fixed;
+  background-size: 350px 350px; /* change size here */
 }
 
 h1, h2, h3 {
   color: #FFD700;
+  text-shadow: 0 0 5px #000; /* makes text pop on logo */
 }
 
 input, textarea {
@@ -22,7 +24,7 @@ input, textarea {
   margin: 8px;
   border-radius: 8px;
   border: 2px solid #FFD700;
-  background: #111;
+  background: rgba(17, 17, 17, 0.9);
   color: #FFD700;
   font-size: 16px;
   width: 250px;
@@ -31,7 +33,7 @@ input, textarea {
 
 button {
   background: #FFD700;
-  color: #000000;
+  color: #000;
   font-weight: bold;
   cursor: pointer;
   width: 200px;
@@ -44,16 +46,17 @@ button {
 button:hover { background: #ffc107; }
 
 .ticker {
-  background: #FF0000; /* red like your screenshot */
+  background: rgba(255, 0, 0, 0.9); /* red ticker */
   color: white;
   padding: 12px;
   margin-bottom: 20px;
   font-weight: bold;
+  border-radius: 8px;
 }
 
 #normalNums {
   color: #FFD700;
-  background: #111;
+  background: rgba(17, 17, 17, 0.9);
   padding: 20px;
   border-radius: 10px;
   border: 3px solid #FFD700;
@@ -64,7 +67,7 @@ button:hover { background: #ffc107; }
 }
 
 .countdown-box {
-  background: #111;
+  background: rgba(0, 0, 0, 0.85); /* see through box */
   color: #FFD700;
   padding: 20px;
   border-radius: 15px;
@@ -72,16 +75,18 @@ button:hover { background: #ffc107; }
   width: 350px;
   max-width: 90%;
   border: 2px solid #FFD700;
+  backdrop-filter: blur(3px);
 }
 
 #countdown {
   font-size: 40px;
   font-weight: bold;
   letter-spacing: 3px;
-  color: #00ffcc; /* cyan timer to pop on black */
+  color: #00ffcc; /* cyan timer */
 }
 
 #drawTime {
   font-size: 18px;
   margin-bottom: 10px;
 }
+hr { border: 1px solid #FFD700; margin: 20px 0; }
