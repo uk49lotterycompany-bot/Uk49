@@ -1,22 +1,16 @@
 body {
   font-family: Arial;
   text-align: center;
-  background: #000000; /* black base */
+  background: #000000 url('logo.jpg') no-repeat center fixed;
+  background-size: 400px 400px; /* change 400 to make logo bigger/smaller */
   color: #FFD700; /* gold text */
   padding: 20px;
   margin: 0;
-  
-  /* LOGO AS BACKGROUND WATERMARK - USING.JPG */
-  background-image: url('logo.jpg');
-  background-repeat: no-repeat;
-  background-position: center;
-  background-attachment: fixed;
-  background-size: 350px 350px; /* change size here */
 }
 
-h1, h2, h3 {
+h1, h2, h3, p {
   color: #FFD700;
-  text-shadow: 0 0 5px #000; /* makes text pop on logo */
+  text-shadow: 0 0 5px #000; /* makes text readable on logo */
 }
 
 input, textarea {
@@ -24,7 +18,7 @@ input, textarea {
   margin: 8px;
   border-radius: 8px;
   border: 2px solid #FFD700;
-  background: rgba(17, 17, 17, 0.9);
+  background: rgba(17, 17, 17, 0.95);
   color: #FFD700;
   font-size: 16px;
   width: 250px;
@@ -46,7 +40,7 @@ button {
 button:hover { background: #ffc107; }
 
 .ticker {
-  background: rgba(255, 0, 0, 0.9); /* red ticker */
+  background: rgba(255, 0, 0, 0.95); /* red ticker */
   color: white;
   padding: 12px;
   margin-bottom: 20px;
@@ -55,8 +49,8 @@ button:hover { background: #ffc107; }
 }
 
 #normalNums {
-  color: #FFD700;
-  background: rgba(17, 17, 17, 0.9);
+  color: #00ffcc;
+  background: rgba(0, 0, 0, 0.9);
   padding: 20px;
   border-radius: 10px;
   border: 3px solid #FFD700;
@@ -67,7 +61,7 @@ button:hover { background: #ffc107; }
 }
 
 .countdown-box {
-  background: rgba(0, 0, 0, 0.85); /* see through box */
+  background: rgba(0, 0, 0, 0.9); /* dark box so logo shows behind */
   color: #FFD700;
   padding: 20px;
   border-radius: 15px;
@@ -75,7 +69,6 @@ button:hover { background: #ffc107; }
   width: 350px;
   max-width: 90%;
   border: 2px solid #FFD700;
-  backdrop-filter: blur(3px);
 }
 
 #countdown {
