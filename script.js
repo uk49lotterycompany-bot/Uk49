@@ -1,88 +1,85 @@
-const ADMIN_PASS = "Admin2025";
-let members = JSON.parse(localStorage.getItem('members')||'{}');
-let results = JSON.parse(localStorage.getItem('results')||'{}');
-let winners = JSON.parse(localStorage.getItem('winners')||'[["Thabo","3500"],["Lindiwe","2200"]]');
-
-function checkPass(){
-  if(document.getElementById('pass').value===ADMIN_PASS){
-    document.getElementById('loginBox').style.display='none';
-    document.getElementById('adminPanel').style.display='block';
-    loadMemberList();
-  } else alert('Wrong Admin Password')
+body {
+  font-family: Arial;
+  text-align: center;
+  background: #000000 url('logo.jpg') no-repeat center fixed;
+  background-size: 400px 400px; /* change 400 to make logo bigger/smaller */
+  color: #FFD700; /* gold text */
+  padding: 20px;
+  margin: 0;
 }
 
-function addMember(){
-  let user = document.getElementById('newUser').value.trim();
-  let pass = document.getElementById('newPass').value.trim();
-  if(user=='' || pass==''){ alert('Please fill username and password'); return; }
-  members[user] = {password: pass};
-  localStorage.setItem('members', JSON.stringify(members));
-  alert('Member Added: '+user);
-  document.getElementById('newUser').value = '';
-  document.getElementById('newPass').value = '';
-  loadMemberList();
-}
-function loadMemberList(){
-  let list = '<h4>Current Members:</h4>';
-  for(let u in members){ list += `<p><b>${u}</b> : ${members[u].password}</p>`; }
-  document.getElementById('memberList').innerHTML = list;
+h1, h2, h3, p {
+  color: #FFD700;
+  text-shadow: 0 0 5px #000; /* makes text readable on logo */
 }
 
-function saveNums(){
-  results.normal = document.getElementById('normalNums').value;
-  localStorage.setItem('results', JSON.stringify(results));
-  alert('Numbers Saved Successfully!')
+input, textarea {
+  padding: 12px;
+  margin: 8px;
+  border-radius: 8px;
+  border: 2px solid #FFD700;
+  background: rgba(17, 17, 17, 0.95);
+  color: #FFD700;
+  font-size: 16px;
+  width: 250px;
+  max-width: 90%;
 }
 
-function login(){
-  let user = document.getElementById('username').value.trim();
-  let pass = document.getElementById('password').value.trim();
-  if(user=='' || pass==''){ alert('Please enter username and password'); return; }
-  if(!members[user]){ alert('INVALID USERNAME'); document.getElementById('password').value = ''; return; }
-  if(members[user].password!== pass){ alert('WRONG PASSWORD'); document.getElementById('password').value = ''; return; }
+button {
+  background: #FFD700;
+  color: #000;
+  font-weight: bold;
+  cursor: pointer;
+  width: 200px;
+  padding: 12px;
+  margin: 8px;
+  border-radius: 8px;
+  border: none;
+  font-size: 16px;
+}
+button:hover { background: #ffc107; }
 
-  document.getElementById('loginForm').style.display = 'none';
-  document.getElementById('normalArea').style.display = 'block';
-  document.getElementById('normalNums').innerText = results.normal || 'Admin has not posted numbers yet';
+.ticker {
+  background: rgba(255, 0, 0, 0.95); /* red ticker */
+  color: white;
+  padding: 12px;
+  margin-bottom: 20px;
+  font-weight: bold;
+  border-radius: 8px;
 }
 
-function loadTicker(){
-  let ticker = document.getElementById('ticker');
-  if(ticker){ ticker.innerHTML = `🔥 WINNER: ${winners[0][0]} won R${winners[0][1]}! 🔥 | 🔥 WINNER: ${winners[1][0]} won R${winners[1][1]}! 🔥`; }
+#normalNums {
+  color: #00ffcc;
+  background: rgba(0, 0, 0, 0.9);
+  padding: 20px;
+  border-radius: 10px;
+  border: 3px solid #FFD700;
+  font-size: 32px;
+  letter-spacing: 10px;
+  font-weight: bold;
+  display: inline-block;
 }
-loadTicker();
 
-// UK49 COUNTDOWN TIMER - 12:45PM & 5:45PM
-function updateCountdown() {
-  const now = new Date();
-  let nextDraw = new Date();
-  let drawLabel = "";
-
-  const hours = now.getHours();
-  const minutes = now.getMinutes();
-
-  if (hours < 12 || (hours === 12 && minutes < 45)) {
-    nextDraw.setHours(12, 45, 0, 0);
-    drawLabel = "Lunchtime 12:45 PM";
-  } else if (hours < 17 || (hours === 17 && minutes < 45)) {
-    nextDraw.setHours(17, 45, 0, 0);
-    drawLabel = "Teatime 5:45 PM";
-  } else {
-    nextDraw.setDate(nextDraw.getDate() + 1);
-    nextDraw.setHours(12, 45, 0, 0);
-    drawLabel = "Lunchtime 12:45 PM";
-  }
-
-  const diff = nextDraw - now;
-  const hoursLeft = Math.floor(diff / (1000 * 60 * 60));
-  const minutesLeft = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-  const secondsLeft = Math.floor((diff % (1000 * 60)) / 1000);
-
-  if(document.getElementById('drawTime')){
-    document.getElementById('drawTime').innerText = `Next: ${drawLabel}`;
-    document.getElementById('countdown').innerText =
-      `${hoursLeft}h : ${minutesLeft}m : ${secondsLeft}s`;
-  }
+.countdown-box {
+  background: rgba(0, 0, 0, 0.9); /* dark box so logo shows behind */
+  color: #FFD700;
+  padding: 20px;
+  border-radius: 15px;
+  margin: 20px auto;
+  width: 350px;
+  max-width: 90%;
+  border: 2px solid #FFD700;
 }
-setInterval(updateCountdown, 1000);
-updateCountdown();
+
+#countdown {
+  font-size: 40px;
+  font-weight: bold;
+  letter-spacing: 3px;
+  color: #00ffcc; /* cyan timer */
+}
+
+#drawTime {
+  font-size: 18px;
+  margin-bottom: 10px;
+}
+hr { border: 1px solid #FFD700; margin: 20px 0; }
