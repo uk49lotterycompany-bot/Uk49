@@ -1,8 +1,8 @@
 body {
   font-family: Arial;
   text-align: center;
-  background: #f0f8ff;
-  color: #003366;
+  background: #000000; /* black background */
+  color: #FFD700; /* gold text */
   padding: 20px;
   margin: 0;
 }
@@ -14,30 +14,37 @@ body {
 }
 
 h1, h2, h3 {
-  color: #003366;
+  color: #FFD700;
 }
 
-input, textarea, button {
+input, textarea {
   padding: 12px;
   margin: 8px;
   border-radius: 8px;
-  border: 2px solid #003366;
+  border: 2px solid #FFD700;
+  background: #111;
+  color: #FFD700;
   font-size: 16px;
   width: 250px;
   max-width: 90%;
 }
 
 button {
-  background: #003366;
-  color: white;
+  background: #FFD700;
+  color: #000000;
   font-weight: bold;
   cursor: pointer;
   width: 200px;
+  padding: 12px;
+  margin: 8px;
+  border-radius: 8px;
+  border: none;
+  font-size: 16px;
 }
-button:hover { background: #00509e; }
+button:hover { background: #ffc107; }
 
 .ticker {
-  background: #003366;
+  background: #FF0000; /* red like your screenshot */
   color: white;
   padding: 12px;
   margin-bottom: 20px;
@@ -45,11 +52,11 @@ button:hover { background: #00509e; }
 }
 
 #normalNums {
-  color: #00509e;
-  background: white;
+  color: #FFD700;
+  background: #111;
   padding: 20px;
   border-radius: 10px;
-  border: 3px solid #003366;
+  border: 3px solid #FFD700;
   font-size: 32px;
   letter-spacing: 10px;
   font-weight: bold;
@@ -57,25 +64,24 @@ button:hover { background: #00509e; }
 }
 
 .countdown-box {
-  background: #003366;
-  color: white;
+  background: #111;
+  color: #FFD700;
   padding: 20px;
   border-radius: 15px;
   margin: 20px auto;
   width: 350px;
   max-width: 90%;
-  border: 3px solid #00509e;
+  border: 2px solid #FFD700;
 }
 
 #countdown {
   font-size: 40px;
   font-weight: bold;
   letter-spacing: 3px;
-  color: #00ffcc;
+  color: #00ffcc; /* cyan timer to pop on black */
 }
 
 #drawTime {
   font-size: 18px;
   margin-bottom: 10px;
 }
-hr { border: 1px solid #003366; margin: 20px 0; }
