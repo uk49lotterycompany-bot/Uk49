@@ -3,7 +3,6 @@ let members = JSON.parse(localStorage.getItem('members')||'{}');
 let results = JSON.parse(localStorage.getItem('results')||'{}');
 let winners = JSON.parse(localStorage.getItem('winners')||'[["Thabo","3500"],["Lindiwe","2200"]]');
 
-// ADMIN LOGIN
 function checkPass(){
   if(document.getElementById('pass').value===ADMIN_PASS){
     document.getElementById('loginBox').style.display='none';
@@ -12,7 +11,6 @@ function checkPass(){
   } else alert('Wrong Admin Password')
 }
 
-// ADD MEMBER
 function addMember(){
   let user = document.getElementById('newUser').value.trim();
   let pass = document.getElementById('newPass').value.trim();
@@ -30,14 +28,12 @@ function loadMemberList(){
   document.getElementById('memberList').innerHTML = list;
 }
 
-// SAVE NUMBERS
 function saveNums(){
   results.normal = document.getElementById('normalNums').value;
   localStorage.setItem('results', JSON.stringify(results));
   alert('Numbers Saved Successfully!')
 }
 
-// MEMBER LOGIN
 function login(){
   let user = document.getElementById('username').value.trim();
   let pass = document.getElementById('password').value.trim();
@@ -50,9 +46,43 @@ function login(){
   document.getElementById('normalNums').innerText = results.normal || 'Admin has not posted numbers yet';
 }
 
-// LOAD WINNER TICKER ON HOMEPAGE
 function loadTicker(){
   let ticker = document.getElementById('ticker');
   if(ticker){ ticker.innerHTML = `🔥 WINNER: ${winners[0][0]} won R${winners[0][1]}! 🔥 | 🔥 WINNER: ${winners[1][0]} won R${winners[1][1]}! 🔥`; }
 }
 loadTicker();
+
+// UK49 COUNTDOWN TIMER - 12:45PM & 5:45PM
+function updateCountdown() {
+  const now = new Date();
+  let nextDraw = new Date();
+  let drawLabel = "";
+
+  const hours = now.getHours();
+  const minutes = now.getMinutes();
+
+  if (hours < 12 || (hours === 12 && minutes < 45)) {
+    nextDraw.setHours(12, 45, 0, 0);
+    drawLabel = "Lunchtime 12:45 PM";
+  } else if (hours < 17 || (hours === 17 && minutes < 45)) {
+    nextDraw.setHours(17, 45, 0, 0);
+    drawLabel = "Teatime 5:45 PM";
+  } else {
+    nextDraw.setDate(nextDraw.getDate() + 1);
+    nextDraw.setHours(12, 45, 0, 0);
+    drawLabel = "Lunchtime 12:45 PM";
+  }
+
+  const diff = nextDraw - now;
+  const hoursLeft = Math.floor(diff / (1000 * 60 * 60));
+  const minutesLeft = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+  const secondsLeft = Math.floor((diff % (1000 * 60)) / 1000);
+
+  if(document.getElementById('drawTime')){
+    document.getElementById('drawTime').innerText = `Next: ${drawLabel}`;
+    document.getElementById('countdown').innerText =
+      `${hoursLeft}h : ${minutesLeft}m : ${secondsLeft}s`;
+  }
+}
+setInterval(updateCountdown, 1000);
+updateCountdown();
