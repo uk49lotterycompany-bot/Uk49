@@ -1,21 +1,22 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Member Login</title>
+  <title>Member Login - UK49</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <img src="logo.png" alt="UK49 Logo" class="logo">
   <h2>Member Login</h2>
 
   <div id="loginForm">
-    <input id="username" placeholder="Enter Username"><br><br>
-    <input id="password" type="password" placeholder="Enter Password"><br><br>
+    <input id="username" placeholder="Enter Username"><br>
+    <input id="password" type="password" placeholder="Enter Password"><br>
     <button onclick="login()">Login</button>
   </div>
 
   <div id="normalArea" style="display:none; margin-top:30px;">
     <h3>TODAY'S WINNING NUMBERS</h3>
-    <p id="normalNums" style="font-size:32px; letter-spacing:10px; color:lime;"></p>
+    <p id="normalNums"></p>
   </div>
 
   <script src="script.js"></script>
