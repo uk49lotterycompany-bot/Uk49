@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UK49 REAL ADMIN</title>
+<style>
+*{box-sizing:border-box;font-family:Arial}body{margin:0;background:#f0f4f8;display:flex;justify-content:center;padding:15px}
+.card{background:white;width:400px;border-radius:16px;padding:20px;box-shadow:0 4px 20px rgba(0,0,0,.1)}
+.btn{width:100%;padding:14px;background:#0d6efd;color:white;border:none;border-radius:8px;font-weight:bold;margin-top:8px;cursor:pointer}
+.btn-green{background:#22c55e}.btn-orange{background:#f59e0b}
+.upload-box{border:2px dashed #0d6efd;border-radius:12px;padding:20px;background:#f0f7ff;text-align:center;display:block;cursor:pointer}
+#preview{width:100%;border:2px solid #0A2A5E;border-radius:12px;display:none;margin-top:12px;position:relative;overflow:hidden;background:white}
+#preview img{width:100%;height:auto;display:block}
+#dragBtn{position:absolute;left:50%;top:85%;transform:translate(-50%,-50%);background:#0d6efd;color:white;padding:10px 18px;border-radius:8px;font-weight:bold;z-index:10;touch-action:none}
+textarea{width:100%;height:90px;border:1px solid #ddd;border-radius:8px;padding:8px;font-size:11px;margin-top:8px;background:#f9fafb}
+</style>
+</head>
+<body>
+<div class="card">
+<h2 style="text-align:center;color:#0A2A5E">UK 49 REAL ADMIN 🌍</h2>
+<input id="mu" placeholder="Username" style="width:100%;padding:10px;border-radius:8px;border:1px solid #ddd;margin:3px 0">
+<input id="mp" placeholder="Password" style="width:100%;padding:10px;border-radius:8px;border:1px solid #ddd;margin:3px 0">
+<button class="btn btn-green" onclick="createM()">Create Member</button>
+<div id="mlist"></div>
+<textarea id="membersOut" readonly></textarea>
+<button class="btn btn-orange" onclick="downloadMembers()">⬇️ Download members.json</button>
+<hr>
+<label class="upload-box"><b id="boxText">Tap to Choose Image</b><input type="file" id="file" accept="image/*" style="display:none"></label>
+<div id="preview"><img id="img"><div id="dragBtn">Continue →</div></div>
+<div style="display:flex;gap:8px;margin-top:10px">
+<select id="tog" style="flex:1;padding:10px;border-radius:8px;border:1px solid #ddd"><option value="show">SHOW button</option><option value="hide">HIDE button</option></select>
+<input id="ord" type="number" value="1" style="flex:1;padding:10px;border-radius:8px;border:1px solid #ddd">
+</div>
+<button class="btn btn-green" style="font-size:18px" onclick="upload()">✅ UPLOAD Payment</button>
+<div id="list"></div>
+<textarea id="paymentsOut" readonly></textarea>
+<button class="btn btn-orange" onclick="downloadPayments()">⬇️ Download payments.json</button>
+</div>
+<script>
+let members=JSON.parse(localStorage.getItem('uk49_members')||'{}');
+let pays=JSON.parse(localStorage.getItem('uk49_payments_final')||'[]');
+let sel=null; let posX=50; let posY=85; let show=true;
+document.getElementById('ord').value=pays.length+1;
+function createM(){
+ let u=document.getElementById('mu').value.trim();
+ let p=document.getElementById('mp').value.trim();
+ if(!u||!p){alert("Type username and password");return;}
+ members[u]={password:p}; localStorage.setItem('uk49_members',JSON.stringify(members));
+ renderM(); updateMembersOut(); document.getElementById('mu').value=""; document.getElementById('mp').value="";
+}
+function renderM(){
+ let h=""; for(let k in members){h+=`<div style="background:#f1f5f9;padding:6px;border-radius:6px;margin:3px 0;display:flex;justify-content:space-between;font-size:13px"><span>${k} / ${members[k].password}</span><span onclick="delete members['${k}'];localStorage.setItem('uk49_members',JSON.stringify(members));renderM();updateMembersOut()" style="color:red;font-weight:bold;cursor:pointer">X</span></div>`}
+ document.getElementById('mlist').innerHTML=h;
+}
+function updateMembersOut(){document.getElementById('membersOut').value=JSON.stringify(members,null,2);}
+function downloadMembers(){let b=new Blob([JSON.stringify(members,null,2)],{type:'application/json'}); let a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='members.json'; a.click();}
+document.getElementById('file').onchange=function(){
+ let f=this.files[0]; if(!f) return;
+ let r=new FileReader();
+ r.onload=e=>{sel=e.target.result; document.getElementById('img').src=sel; document.getElementById('preview').style.display='block'; document.getElementById('boxText').innerText="✅ "+f.name;};
+ r.readAsDataURL(f);
+};
+document.getElementById('tog').onchange=function(){show=this.value==='show'; document.getElementById('dragBtn').style.display=show?'block':'none';};
+let dragging=false; let btn=document.getElementById('dragBtn'); let area=document.getElementById('preview');
+btn.addEventListener('mousedown',()=>dragging=true); btn.addEventListener('touchstart',()=>dragging=true);
+window.addEventListener('mouseup',()=>dragging=false); window.addEventListener('touchend',()=>dragging=false);
+window.addEventListener('mousemove',move); window.addEventListener('touchmove',move);
+function move(e){
+ if(!dragging) return;
+ let rc=area.getBoundingClientRect();
+ let cx=e.touches?e.touches[0].clientX:e.clientX;
+ let cy=e.touches?e.touches[0].clientY:e.clientY;
+ posX=Math.max(5,Math.min(95,((cx-rc.left)/rc.width)*100));
+ posY=Math.max(5,Math.min(95,((cy-rc.top)/rc.height)*100));
+ btn.style.left=posX+"%"; btn.style.top=posY+"%";
+}
+function upload(){
+ if(!sel){alert("Choose image first");return;}
+ let o=parseInt(document.getElementById('ord').value)||pays.length+1;
+ pays.push({id:Date.now(),data:sel,buttonX:posX,buttonY:posY,showButton:show,order:o});
+ localStorage.setItem('uk49_payments_final',JSON.stringify(pays));
+ document.getElementById('ord').value=pays.length+1; render(); updatePaymentsOut();
+}
+function render(){
+ let h=""; pays.forEach((p,i)=>{h+=`<div style="display:flex;gap:10px;border:1px solid green;padding:6px;margin:6px 0;border-radius:8px"><img src="${p.data}" style="width:50px"><span>Order ${p.order} ${p.showButton?'SHOW':'HIDE'}<br><button onclick="pays.splice(${i},1);localStorage.setItem('uk49_payments_final',JSON.stringify(pays));render();updatePaymentsOut()" style="background:red;color:white;border:none;padding:3px 8px;border-radius:4px">Delete</button></span></div>`});
+ document.getElementById('list').innerHTML=h;
+}
+function updatePaymentsOut(){document.getElementById('paymentsOut').value=JSON.stringify(pays,null,2);}
+function downloadPayments(){let b=new Blob([JSON.stringify(pays,null,2)],{type:'application/json'}); let a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='payments.json'; a.click();}
+renderM(); render(); updateMembersOut(); updatePaymentsOut();
+</script>
+</body>
+</html>
