@@ -10,9 +10,30 @@ function adminLogin(){
     document.getElementById('loginCard').style.display="none";
     document.getElementById('uploadCard').style.display="block";
     document.getElementById('imgOrder').value = payments.length + 1;
-    renderExisting();
-  } else alert("Password is Admin2025");
+    renderExisting(); renderMembers();
+  } else alert("Admin password is Admin2025");
 }
+
+function createMember(){
+  let u = document.getElementById('newMemberUser').value.trim();
+  let p = document.getElementById('newMemberPass').value.trim();
+  if(!u ||!p) return alert("Enter username and password");
+  members[u] = {password:p};
+  localStorage.setItem('uk49_members', JSON.stringify(members));
+  document.getElementById('newMemberUser').value=""; document.getElementById('newMemberPass').value="";
+  renderMembers();
+  alert("Member created: " + u);
+}
+function renderMembers(){
+  let div=document.getElementById('memberList');
+  if(!div) return;
+  let html="<small><b>Members:</b></small><br>";
+  Object.keys(members).forEach(k=>{
+    html+=`<div style="display:flex; justify-content:space-between; background:white; padding:5px 8px; border-radius:6px; margin:3px 0; font-size:12px;"><span>${k} / ${members[k].password}</span><span style="color:red; cursor:pointer;" onclick="delMember('${k}')">X</span></div>`;
+  });
+  div.innerHTML=html;
+}
+function delMember(k){ if(confirm("Delete "+k+"?")){ delete members[k]; localStorage.setItem('uk49_members', JSON.stringify(members)); renderMembers(); } }
 
 document.getElementById('continueToggle')?.addEventListener('change', function(){
   let txt = document.getElementById('toggleText');
@@ -70,7 +91,7 @@ function uploadImage(){
   localStorage.setItem('uk49_payments_final', JSON.stringify(payments));
   document.getElementById('uploadCard').style.display="none";
   document.getElementById('successCard').style.display="block";
-  document.getElementById('posText').innerText = `X:${Math.round(btnPos.x)}% Y:${Math.round(btnPos.y)}% - ${showBtn?'SHOW':'HIDE but still clickable'}`;
+  document.getElementById('posText').innerText = `X:${Math.round(btnPos.x)}% Y:${Math.round(btnPos.y)}% - ${showBtn?'SHOW':'HIDE'}`;
   selectedFileData=null; document.getElementById('dragArea').style.display="none"; document.getElementById('dragHint').style.display="none"; document.getElementById('fileInput').value="";
 }
 
@@ -78,7 +99,7 @@ function showUpload(){
   document.getElementById('successCard').style.display="none";
   document.getElementById('uploadCard').style.display="block";
   document.getElementById('imgOrder').value = payments.length + 1;
-  renderExisting();
+  renderExisting(); renderMembers();
 }
 
 function renderExisting(){
@@ -97,8 +118,8 @@ function deleteImg(i){ if(!confirm("Delete?")) return; payments.splice(i,1); loc
 function memberLogin(){
   let u=document.getElementById('username').value.trim();
   let p=document.getElementById('password').value.trim();
-  if(!members[u] || members[u].password!==p) return alert("Try test / 1234");
-  if(payments.length===0) return alert("No images yet");
+  if(!members[u] || members[u].password!==p) return alert("Wrong password. Create member in Admin first.");
+  if(payments.length===0) return alert("No images yet - Admin must upload");
   payments.sort((a,b)=>a.order-b.order); currentIdx=0;
   document.getElementById('loginCard').style.display="none";
   document.getElementById('imageCard').style.display="block";
