@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UK49 Member Login</title>
+<style>
+body{margin:0;background:#f0f4f8;display:flex;justify-content:center;padding:20px;font-family:Arial}
+.card{background:white;width:360px;border-radius:16px;padding:25px;text-align:center;box-shadow:0 4px 20px rgba(0,0,0,.1)}
+input{width:100%;padding:14px;border:1px solid #ddd;border-radius:8px;margin-top:10px;box-sizing:border-box}
+.btn{width:100%;padding:14px;background:#0d6efd;color:white;border:none;border-radius:8px;font-weight:bold;margin-top:12px;cursor:pointer}
+</style>
+</head>
+<body>
+<div class="card">
+<h2 style="color:#0A2A5E">👑 UK 49<br>Member Login</h2>
+<p style="font-size:13px;color:#666">Login from any country 🌍</p>
+<input id="u" placeholder="Username">
+<input id="p" type="password" placeholder="Password">
+<button class="btn" onclick="login()">Login</button>
+<div id="msg" style="color:red;margin-top:12px;font-weight:bold"></div>
+</div>
+<script>
+async function login(){
+ let u=document.getElementById('u').value.trim();
+ let p=document.getElementById('p').value.trim();
+ if(!u||!p){document.getElementById('msg').innerText="Enter username & password";return;}
+ document.getElementById('msg').innerText="Checking...";
+ try{
+  let res=await fetch('members.json?v='+Date.now());
+  let members=await res.json();
+  if(members[u] && members[u].password===p){
+   localStorage.setItem('uk49_current_user',u);
+   window.location.href='member-dashboard.html';
+  }else{
+   document.getElementById('msg').innerText="❌ Wrong Username or Password";
+  }
+ }catch(e){
+  document.getElementById('msg').innerText="❌ members.json not found";
+ }
+}
+</script>
+</body>
+</html>
