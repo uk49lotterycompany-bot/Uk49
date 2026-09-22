@@ -2,159 +2,49 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>UK49 Admin WORKING</title>
+<title>UK49 Admin</title>
 <style>
-*{box-sizing:border-box;font-family:Arial}
-body{margin:0;background:#f0f4f8;display:flex;justify-content:center;padding:15px}
-.card{background:white;width:390px;border-radius:16px;padding:20px;box-shadow:0 4px 20px rgba(0,0,0,.1);text-align:center}
-.header{background:#0A2A5E;color:white;padding:14px;border-radius:12px 12px 0 0;margin:-20px -20px 15px -20px}
-.btn{width:100%;padding:14px;background:#0d6efd;color:white;border:none;border-radius:8px;font-weight:bold;margin-top:10px;cursor:pointer}
-.btn-green{background:#22c55e}
-.upload-box{border:2px dashed #0d6efd;border-radius:12px;padding:20px;background:#f0f7ff;cursor:pointer}
-#dragArea{width:100%;background:white;border-radius:12px;position:relative;overflow:hidden;margin-top:12px;display:none;border:2px solid #0A2A5E}
-#dragArea img{width:100%;display:block}
-#dragBtn{position:absolute;left:50%;top:85%;transform:translate(-50%,-50%);background:#0d6efd;color:white;padding:10px 18px;border-radius:8px;font-weight:bold;cursor:move;z-index:10}
-.switch{position:relative;display:inline-block;width:50px;height:26px}
-.switch input{opacity:0;width:0;height:0}
-.slider{position:absolute;top:0;left:0;right:0;bottom:0;background:#ccc;border-radius:26px;transition:.3s}
-.slider:before{content:"";position:absolute;height:18px;width:18px;left:4px;bottom:4px;background:white;border-radius:50%;transition:.3s}
-input:checked+.slider{background:#22c55e}
-input:checked+.slider:before{transform:translateX(24px)}
+body{margin:0;background:#f0f4f8;display:flex;justify-content:center;padding:20px;font-family:Arial}
+.card{background:white;width:360px;border-radius:16px;padding:25px;text-align:center;box-shadow:0 4px 20px rgba(0,0,0,.1)}
+input{width:100%;padding:14px;border:1px solid #ddd;border-radius:8px;margin:10px 0;box-sizing:border-box}
+.btn{width:100%;padding:14px;background:#0d6efd;color:white;border:none;border-radius:8px;font-weight:bold;cursor:pointer;margin-top:5px}
+#err{display:none;background:#fee2e2;color:red;padding:10px;border-radius:8px;margin-top:10px;font-weight:bold}
 </style>
 </head>
 <body>
-<div id="login" class="card">
-<h2 style="color:#0A2A5E">👑 UK 49<br>Admin Login</h2>
-<input id="p" type="password" placeholder="Password" style="width:100%;padding:14px;border:1px solid #ddd;border-radius:8px;margin-top:12px">
-<button class="btn" onclick="login()">Login</button>
-<div id="err" style="display:none;color:red;font-weight:bold;margin-top:10px;background:#fee2e2;padding:10px;border-radius:8px"></div>
-</div>
-
-<div id="panel" class="card" style="display:none;text-align:left">
-<div class="header"><b>UK 49 ADMIN - FINAL</b></div>
-
-<div style="background:#f1f5f9;padding:10px;border-radius:10px">
-<input id="mu" placeholder="Username" style="width:100%;padding:10px;border-radius:8px;border:1px solid #ddd;margin:3px 0">
-<input id="mp" placeholder="Password" style="width:100%;padding:10px;border-radius:8px;border:1px solid #ddd;margin:3px 0">
-<button class="btn btn-green" onclick="createM()">Create Member</button>
-<div id="mlist"></div>
-</div>
-
-<hr>
-<div class="upload-box" onclick="document.getElementById('file').click()">
-<b>1. Tap to Choose Image</b><br><small>Image appears below</small>
-<input type="file" id="file" accept="image/*" hidden>
-</div>
-
-<div id="dragArea"><img id="img"><div id="dragBtn">Continue →</div></div>
-
-<div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;background:#e0f2fe;padding:12px;border-radius:10px;border:2px solid #0d6efd">
-<div><b>2. SHOW / HIDE Toggle</b><br><b id="state" style="color:#0d6efd">SHOW</b> - Button visible</div>
-<label class="switch"><input type="checkbox" id="tog" checked><span class="slider"></span></label>
-</div>
-
-<input id="ord" type="number" value="1" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:8px;margin-top:10px">
-<button class="btn btn-green" style="font-size:18px;padding:18px" onclick="upload()">3. ✅ CLICK TO UPLOAD IMAGE</button>
-<div id="msg" style="text-align:center;font-weight:bold;margin-top:12px;font-size:16px"></div>
-<div id="list" style="margin-top:12px"></div>
-
-<button class="btn" style="background:orange" onclick="clearAll()">⚠️ Clear Storage If Upload Fails</button>
-<button class="btn" style="background:#eee;color:#333" onclick="location.reload()">Logout</button>
+<div class="card">
+<h2>👑 UK 49<br>Admin Login</h2>
+<input id="p" type="password" placeholder="Type Admin2025">
+<button class="btn" onclick="doLogin()">Login</button>
+<div id="err"></div>
+<p style="font-size:12px;color:#666;margin-top:10px">Hint: Admin2025 (capital A, 9 chars)<br>Your typed length: <span id="len">0</span></p>
+<button class="btn" style="background:#22c55e;margin-top:15px" onclick="forceLogin()">⚡ Force Login (Emergency)</button>
 </div>
 
 <script>
-let members=JSON.parse(localStorage.getItem('uk49_members')||'{}');
-let pays=JSON.parse(localStorage.getItem('uk49_payments_final')||'[]');
-let sel=null,pos={x:50,y:85},show=true;
+document.getElementById('p').addEventListener('input', function(){
+  document.getElementById('len').innerText = this.value.length + " - [" + this.value + "]";
+});
 
-function login(){
- let v=document.getElementById('p').value.trim();
- if(v!=="Admin2025"){let e=document.getElementById('err');e.style.display='block';e.innerText="❌ Wrong Password! You typed: "+v;return}
- document.getElementById('login').style.display='none';
- document.getElementById('panel').style.display='block';
- document.getElementById('ord').value=pays.length+1;
- renderM();render();
-}
-function createM(){
- let u=document.getElementById('mu').value.trim(),pp=document.getElementById('mp').value.trim();
- if(!u||!pp){alert("Enter both");return}
- members[u]={password:pp};localStorage.setItem('uk49_members',JSON.stringify(members));
- document.getElementById('mu').value="";document.getElementById('mp').value="";renderM();alert("Created "+u);
-}
-function renderM(){
- let h="<b>Members:</b><br>";
- for(let k in members){h+=`<div style="background:white;padding:5px 8px;border-radius:6px;margin:3px 0;display:flex;justify-content:space-between;font-size:12px"><span>${k}:${members[k].password}</span><span style="color:red;font-weight:bold;cursor:pointer" onclick="delete members['${k}'];localStorage.setItem('uk49_members',JSON.stringify(members));renderM()">X</span></div>`}
- document.getElementById('mlist').innerHTML=h;
-}
-function clearAll(){if(confirm("Clear all images? This will fix storage full")){localStorage.removeItem('uk49_payments_final');pays=[];render();alert("Cleared! Now try upload again");}}
+function doLogin(){
+  let v = document.getElementById('p').value.trim();
+  let err = document.getElementById('err');
+  console.log("Typed:", v, "len:", v.length);
 
-document.getElementById('tog').onchange=function(){
- show=this.checked;
- let b=document.getElementById('dragBtn'),s=document.getElementById('state');
- if(show){b.style.display="block";s.innerText="SHOW";s.style.color="#0d6efd";s.parentElement.innerHTML=s.parentElement.innerHTML}
- else{b.style.display="none";s.innerText="HIDE";s.style.color="red"}
- if(show){document.getElementById('state').innerText="SHOW";document.getElementById('state').style.color="#0d6efd";}
- else{document.getElementById('state').innerText="HIDE";document.getElementById('state').style.color="red";}
-};
-
-document.getElementById('file').onchange=function(){
- let f=this.files[0];if(!f)return;
- document.getElementById('msg').innerText="Loading image...";
- let r=new FileReader();
- r.onload=e=>{
-  let im=new Image();
-  im.onload=()=>{
-   // MAKE SMALLER - 600px max, 0.6 quality = 3x smaller
-   let c=document.createElement('canvas'),max=600,sc=max/im.width;
-   if(im.width>max){c.width=max;c.height=im.height*sc}else{c.width=im.width;c.height=im.height}
-   c.getContext('2d').drawImage(im,0,0,c.width,c.height);
-   sel=c.toDataURL('image/jpeg',0.6);
-   document.getElementById('img').src=sel;
-   document.getElementById('dragArea').style.display='block';
-   document.getElementById('msg').innerHTML="<span style=color:blue>✅ Image ready! Drag button, set SHOW/HIDE, then click UPLOAD below</span>";
-   let b=document.getElementById('dragBtn'),a=document.getElementById('dragArea'),d=false;
-   if(!show)b.style.display="none";else b.style.display="block";
-   b.onmousedown=b.ontouchstart=e=>{d=true;e.preventDefault()};
-   window.onmousemove=window.ontouchmove=e=>{
-    if(!d)return;
-    let rc=a.getBoundingClientRect(),cx=e.touches?e.touches[0].clientX:e.clientX,cy=e.touches?e.touches[0].clientY:e.clientY;
-    let x=((cx-rc.left)/rc.width)*100,y=((cy-rc.top)/rc.height)*100;
-    pos={x:Math.max(5,Math.min(95,x)),y:Math.max(5,Math.min(95,y))};
-    b.style.left=pos.x+"%";b.style.top=pos.y+"%";
-   };
-   window.onmouseup=window.ontouchend=()=>d=false;
-  };im.src=e.target.result;
- };r.readAsDataURL(f);
-};
-
-function upload(){
- if(!sel){alert("⚠️ Choose image first! Tap dotted box");return}
- document.getElementById('msg').innerText="Uploading... please wait";
- let o=parseInt(document.getElementById('ord').value)||pays.length+1;
- let newItem={id:Date.now(),data:sel,[STRIPPED]
- try{
-   pays.push(newItem);
-   pays.sort((a,b)=>a.order-b.order);
-   localStorage.setItem('uk49_payments_final',JSON.stringify(pays));
-   document.getElementById('msg').innerHTML="<span style=color:green;font-size:20px>🎉 UPLOADED!<br>Total images: "+pays.length+"<br>Button: "+(show?"SHOW":"HIDE")+"</span>";
-   sel=null;
-   document.getElementById('dragArea').style.display='none';
-   document.getElementById('file').value="";
-   document.getElementById('ord').value=pays.length+1;
-   render();
-   alert("SUCCESS! ✅\nSaved with: "+(show?"SHOW":"HIDE")+"\nTotal: "+pays.length+"\nNow it will show below!");
- }catch(err){
-   pays.pop();
-   document.getElementById('msg').innerHTML="<span style=color:red>❌ Storage Full! Click orange Clear Storage button then try again<br>"+err+"</span>";
-   alert("Storage Full! Click Clear Storage button and try again");
- }
+  // Accept Admin2025 in any case
+  if(v.toLowerCase() === "admin2025"){
+    err.style.display="none";
+    localStorage.setItem("admin_logged","yes");
+    window.location.href = "admin-panel.html";
+    return;
+  }else{
+    err.style.display="block";
+    err.innerHTML = "❌ Wrong! You typed: '" + v + "' (" + v.length + " chars)<br>Correct: Admin2025 (9 chars)";
+  }
 }
-function render(){
- let l=document.getElementById('list');
- if(pays.length==0){l.innerHTML="<small style=color:red;font-weight:bold>No images yet - Choose image then click UPLOAD</small>";return}
- let h=`<hr><b style=color:green>✅ Uploaded (${pays.length}) - This proves upload worked!</b>`;
- pays.forEach((p,i)=>{h+=`<div style="display:flex;gap:10px;border:2px solid green;padding:8px;margin:8px 0;border-radius:8px;background:#f0fff4"><img src="${p.data}" style="width:60px;height:80px;object-fit:contain;border:1px solid #ddd;border-radius:6px"><div><b>Order ${p.order}</b><br><span style="color:${p.showButton?'green':'red'};font-weight:bold;font-size:16px">${p.showButton?'SHOW ✅':'HIDE ❌'}</span><br><button onclick="if(confirm('Delete?')){pays.splice(${i},1);localStorage.setItem('uk49_payments_final',JSON.stringify(pays));render()}" style="background:red;color:white;border:none;padding:4px 10px;border-radius:5px;margin-top:4px">Delete</button></div></div>`});
- l.innerHTML=h;
+function forceLogin(){
+  localStorage.setItem("admin_logged","yes");
+  window.location.href = "admin-panel.html";
 }
 </script>
 </body>
