@@ -1,1 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UK49 Panel</title>
+<style>
+*{box-sizing:border-box;font-family:Arial} body{margin:0;background:#f0f4f8;display:flex;justify-content:center;padding:15px}
+.card{background:white;width:390px;border-radius:16px;padding:20px;box-shadow:0 4px 20px rgba(0,0,0,.1)}
+.btn{width:100%;padding:14px;background:#0d6efd;color:white;border:none;border-radius:8px;font-weight:bold;margin-top:10px;cursor:pointer}
+.btn-green{background:#22c55e}.upload-box{border:2px dashed #0d6efd;border-radius:12px;padding:20px;background:#f0f7ff;cursor:pointer;text-align:center}
+#dragArea{width:100%;background:white;border-radius:12px;position:relative;overflow:hidden;margin-top:12px;display:none;border:2px solid #0A2A5E}
+#dragArea img{width:100%;display:block} #dragBtn{position:absolute;left:50%;top:85%;transform:translate(-50%,-50%);background:#0d6efd;color:white;padding:10px 18px;border-radius:8px;font-weight:bold;cursor:move;z-index:10}
+.switch{position:relative;display:inline-block;width:50px;height:26px}.switch input{opacity:0;width:0;height:0}
+.slider{position:absolute;top:0;left:0;right:0;bottom:0;background:#ccc;border-radius:26px;transition:.3s}
+.slider:before{content:"";position:absolute;height:18px;width:18px;left:4px;bottom:4px;background:white;border-radius:50%;transition:.3s}
+input:checked+.slider{background:#22c55e} input:checked+.slider:before{transform:translateX(24px)}
+</style>
+</head>
+<body>
+<script>if(localStorage.getItem("admin_logged")!=="yes"){window.location.href="admin.html";}</script>
+<div class="card" style="text-align:left">
+<h2 style="text-align:center;color:#0A2A5E">UK 49 ADMIN PANEL ✅</h2>
 
+<div style="background:#f1f5f9;padding:10px;border-radius:10px">
+<input id="mu" placeholder="New Member Username" style="width:100%;padding:10px;border-radius:8px;border:1px solid #ddd;margin:3px 0">
+<input id="mp" placeholder="New Member Password" style="width:100%;padding:10px;border-radius:8px;border:1px solid #ddd;margin:3px 0">
+<button class="btn btn-green" onclick="createM()">Create Member</button>
+<div id="mlist"></div>
+</div>
+
+<hr>
+<div class="upload-box" onclick="document.getElementById('file').click()"><b>Tap to Choose Image</b><input type="file" id="file" accept="image/*" hidden></div>
+<div id="dragArea"><img id="img"><div id="dragBtn">Continue →</div></div>
+
+<div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;background:#e0f2fe;padding:12px;border-radius:10px;border:2px solid #0d6efd">
+<div><b>Button</b><br><span id="state" style="color:#0d6efd;font-weight:bold">SHOW</span></div>
+<label class="switch"><input type="checkbox" id="tog" checked><span class="slider"></span></label>
+</div>
+
+<input id="ord" type="number" value="1" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:8px;margin-top:10px">
+<button class="btn btn-green" style="font-size:17px" onclick="upload()">✅ UPLOAD</button>
+<div id="msg" style="text-align:center;font-weight:bold;margin-top:10px;color:green"></div>
+<div id="list"></div>
+<button class="btn" style="background:orange" onclick="localStorage.removeItem('uk49_payments_final');pays=[];render();alert('Cleared!')">Clear Storage</button>
+<button class="btn" style="background:#eee;color:#333" onclick="localStorage.removeItem('admin_logged');location.href='admin.html'">Logout</button>
+</div>
+
+<script>
+let members=JSON.parse(localStorage.getItem('uk49_members')||'{}');
+let pays=JSON.parse(localStorage.getItem('uk49_payments_final')||'[]');
+let sel=null,pos={x:50,y:85},show=true;
+document.getElementById('ord').value=pays.length+1;
+
+function createM(){let u=document.getElementById('mu').value.trim(),pp=document.getElementById('mp').value.trim();if(!u||!pp){alert("Enter both");return}members[u]={password:pp};localStorage.setItem('uk49_members',JSON.stringify(members));document.getElementById('mu').value="";document.getElementById('mp').value="";renderM();alert("Created "+u);}
+function renderM(){let h="<b>Members:</b><br>";for(let k in members){h+=`<div style="background:white;padding:5px 8px;border-radius:6px;margin:3px 0;display:flex;justify-content:space-between;font-size:12px"><span>${k}:${members[k].password}</span><span style="color:red;font-weight:bold;cursor:pointer" onclick="delete members['${k}'];localStorage.setItem('uk49_members',JSON.stringify(members));renderM()">X</span></div>`}document.getElementById('mlist').innerHTML=h;}
+document.getElementById('tog').onchange=function(){show=this.checked;let b=document.getElementById('dragBtn'),s=document.getElementById('state');if(show){b.style.display="block";s.innerText="SHOW";s.style.color="#0d6efd"}else{b.style.display="none";s.innerText="HIDE";s.style.color="red"}};
+document.getElementById('file').onchange=function(){let f=this.files[0];if(!f)return;let r=new FileReader();r.onload=e=>{let im=new Image();im.onload=()=>{let c=document.createElement('canvas'),max=600,sc=max/im.width;if(im.width>max){c.width=max;c.height=im.height*sc}else{c.width=im.width;c.height=im.height}c.getContext('2d').drawImage(im,0,0,c.width,c.height);sel=c.toDataURL('image/jpeg',0.6);document.getElementById('img').src=sel;document.getElementById('dragArea').style.display='block';if(!show)document.getElementById('dragBtn').style.display="none";else document.getElementById('dragBtn').style.display="block";document.getElementById('msg').innerText="Ready! Drag button then UPLOAD";let b=document.getElementById('dragBtn'),a=document.getElementById('dragArea'),d=false;b.onmousedown=b.ontouchstart=e=>{d=true;e.preventDefault()};window.onmousemove=window.ontouchmove=e=>{if(!d)return;let rc=a.getBoundingClientRect(),cx=e.touches?e.touches[0].clientX:e.clientX,cy=e.touches?e.touches[0].clientY:e.clientY;let x=((cx-rc.left)/rc.width)*100,y=((cy-rc.top)/rc.height)*100;pos={x:Math.max(5,Math.min(95,x)),y:Math.max(5,Math.min(95,y))};b.style.left=pos.x+"%";b.style.top=pos.y+"%";};window.onmouseup=window.ontouchend=()=>d=false;};im.src=e.target.result;};r.readAsDataURL(f);};
+function upload(){if(!sel){alert("Choose image first");return}let o=parseInt(document.getElementById('ord').value)||pays.length+1;let newItem={id:Date.now(),data:sel,[STRIPPED]
+function render(){let l=document.getElementById('list');if(pays.length==0){l.innerHTML="<small style=color:red>No images yet</small>";return}let h=`<hr><b style=color:green>Uploaded (${pays.length})</b>`;pays.forEach((p,i)=>{h+=`<div style="display:flex;gap:10px;border:2px solid green;padding:8px;margin:8px 0;border-radius:8px"><img src="${p.data}" style="width:60px;height:80px;object-fit:contain"><div><b>Order ${p.order}</b><br><span style="color:${p.showButton?'green':'red'}">${p.showButton?'SHOW':'HIDE'}</span><br><button onclick="pays.splice(${i},1);localStorage.setItem('uk49_payments_final',JSON.stringify(pays));render()" style="background:red;color:white;border:none;padding:4px 10px;border-radius:5px">Delete</button></div></div>`});l.innerHTML=h;}
+renderM();render();
+</script>
+</body>
+</html>
