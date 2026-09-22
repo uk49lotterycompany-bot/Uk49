@@ -12,18 +12,27 @@ body{margin:0;background:#f0f4f8;display:flex;justify-content:center;padding:20p
 .upload-box{border:2px dashed #cbd5e0;border-radius:12px;padding:20px 15px;cursor:pointer;background:#f8fafc}
 .inputSmall{width:100%;padding:12px;border-radius:8px;border:1px solid #ddd;margin:5px 0}
 #dragArea{width:100%;background:white;border-radius:12px;position:relative;overflow:hidden;margin-top:15px;display:none;border:2px solid #0A2A5E}
-#dragArea img{width:100%;height:auto;display:block;object-fit:contain;background:white}
-#draggableBtn{position:absolute;left:50%;top:85%;transform:translate(-50%,-50%);background:#0d6efd;color:white;padding:10px 18px;border-radius:8px;font-weight:bold;cursor:move;user-select:none;touch-action:none;white-space:nowrap;box-shadow:0 2px 10px rgba(0,0,0,0.4);z-index:10}
+#dragArea img{width:100%;height:auto;display:block}
+#draggableBtn{position:absolute;left:50%;top:85%;transform:translate(-50%,-50%);background:#0d6efd;color:white;padding:10px 18px;border-radius:8px;font-weight:bold;cursor:move;touch-action:none;white-space:nowrap;z-index:10;box-shadow:0 2px 10px rgba(0,0,0,0.4)}
+.switch{position:relative;display:inline-block;width:50px;height:28px}
+.switch input{opacity:0;width:0;height:0}
+.slider{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background:#ccc;border-radius:28px;transition:.4s}
+.slider:before{position:absolute;content:"";height:20px;width:20px;left:4px;bottom:4px;background:white;transition:.4s;border-radius:50%}
+input:checked+.slider{background:#22c55e}
+input:checked+.slider:before{transform:translateX(22px)}
 </style>
 </head>
 <body>
 <div id="loginCard" class="card">
-<div>👑<h2 style="color:#0A2A5E;">UK 49<br>Admin Login</h2></div>
+<h2 style="color:#0A2A5E">👑 UK 49<br>Admin Login</h2>
 <input id="adminPass" type="password" placeholder="Password" style="width:100%;padding:12px;border:1px solid #ddd;border-radius:8px;margin-top:15px">
 <button class="btn" onclick="adminLogin()">Login</button>
+<p style="font-size:11px;color:#999">Password: Admin2025</p>
 </div>
+
 <div id="uploadCard" class="card" style="display:none;text-align:left">
 <div class="header"><span>UK 49 ADMIN</span><span>☰</span></div>
+
 <h3>👤 Create Member</h3>
 <div style="background:#f1f5f9;padding:12px;border-radius:10px">
 <input id="newMemberUser" class="inputSmall" placeholder="Username">
@@ -31,32 +40,132 @@ body{margin:0;background:#f0f4f8;display:flex;justify-content:center;padding:20p
 <button class="btn" style="background:#22c55e" onclick="createMember()">Create Member</button>
 <div id="memberList" style="margin-top:10px"></div>
 </div>
+
 <hr style="margin:15px 0">
 <h3>🖼️ Upload Image</h3>
 <div class="upload-box" onclick="document.getElementById('fileInput').click()">
-<div style="font-size:30px">☁️+</div><b>Choose Image</b><br><small>JPG, PNG (Max 5MB)</small>
+<div style="font-size:28px">☁️+</div><b>Tap to Choose Image</b>
 <input type="file" id="fileInput" accept="image/*" hidden>
 </div>
-<div id="dragArea"><img id="dragPreviewImg" src=""><div id="draggableBtn">Continue →</div></div>
-<p style="font-size:11px;text-align:center">Drag blue button to move it</p>
+
+<div id="dragArea">
+<img id="dragPreviewImg" src="">
+<div id="draggableBtn">Continue →</div>
+</div>
+
+<!-- SHOW / HIDE TOGGLE - BACK NOW -->
+<div style="margin-top:15px;display:flex;justify-content:space-between;align-items:center;background:#f8fafc;padding:10px 12px;border-radius:10px;border:1px solid #ddd">
+<div><b>Continue Button</b><br><small id="toggleText" style="color:#0d6efd;font-weight:bold">SHOW</small></div>
+<label class="switch"><input type="checkbox" id="toggleBtn" checked><span class="slider"></span></label>
+</div>
+
 <input id="imgOrder" type="number" value="1" min="1" class="inputSmall" style="margin-top:10px">
-<button class="btn" onclick="uploadImage()">Upload Image</button>
+
+<!-- FIXED UPLOAD BUTTON -->
+<button class="btn" onclick="uploadImage()" id="upBtn" style="background:#22c55e;font-size:16px">✅ CLICK TO UPLOAD IMAGE</button>
+
+<div id="msg" style="text-align:center;font-weight:bold;margin-top:10px"></div>
 <div id="existingList" style="margin-top:15px"></div>
+
+<button class="btn" style="background:#eee;color:#333" onclick="localStorage.clear();location.reload()">Clear All (If Storage Full)</button>
 <button class="btn" style="background:#eee;color:#333" onclick="location.reload()">Logout</button>
 </div>
+
 <script>
 let members=JSON.parse(localStorage.getItem('uk49_members')||'{"test":{"password":"1234"}}');
 let payments=JSON.parse(localStorage.getItem('uk49_payments_final')||'[]');
-let selectedFileData=null;let btnPos={x:50,y:85};
-function adminLogin(){let p=document.getElementById('adminPass').value;if(p!=="Admin2025"){alert("Use Admin2025");return}document.getElementById('loginCard').style.display="none";document.getElementById('uploadCard').style.display="block";document.getElementById('imgOrder').value=payments.length+1;renderExisting();renderMembers()}
-function createMember(){let u=document.getElementById('newMemberUser').value.trim();let p=document.getElementById('newMemberPass').value.trim();if(!u||!p){alert("Type username and password");return}members[u]={password:p};localStorage.setItem('uk49_members',JSON.stringify(members));document.getElementById('newMemberUser').value="";document.getElementById('newMemberPass').value="";renderMembers();alert("✅ Created: "+u)}
-function renderMembers(){let d=document.getElementById('memberList');let h="<b>Members:</b><br>";for(let k in members){h+=`<div style="display:flex;justify-content:space-between;background:white;padding:6px 8px;border-radius:6px;margin:4px 0;font-size:13px"><span>${k} : ${members[k].password}</span><span style="color:red;cursor:pointer;font-weight:bold" onclick="delMember('${k}')">X</span></div>`}d.innerHTML=h}
+let selectedFileData=null;let btnPos={x:50,y:85};let showBtn=true;
+
+function adminLogin(){
+ let p=document.getElementById('adminPass').value;
+ if(p!=="Admin2025"){alert("Wrong password! Use Admin2025");return}
+ document.getElementById('loginCard').style.display="none";
+ document.getElementById('uploadCard').style.display="block";
+ document.getElementById('imgOrder').value=payments.length+1;
+ renderExisting();renderMembers();
+}
+
+function createMember(){
+ let u=document.getElementById('newMemberUser').value.trim();
+ let p=document.getElementById('newMemberPass').value.trim();
+ if(!u||!p){alert("Enter username and password");return}
+ members[u]={password:p};
+ localStorage.setItem('uk49_members',JSON.stringify(members));
+ document.getElementById('newMemberUser').value="";document.getElementById('newMemberPass').value="";
+ renderMembers();alert("✅ Member Created: "+u);
+}
+function renderMembers(){
+ let d=document.getElementById('memberList');let h="<b>Members:</b><br>";
+ for(let k in members){h+=`<div style="display:flex;justify-content:space-between;background:white;padding:6px;border-radius:6px;margin:3px 0;font-size:13px"><span>${k}:${members[k].password}</span><span style="color:red;font-weight:bold;cursor:pointer" onclick="delMember('${k}')">X</span></div>`}
+ d.innerHTML=h;
+}
 function delMember(k){if(confirm("Delete "+k+"?")){delete members[k];localStorage.setItem('uk49_members',JSON.stringify(members));renderMembers()}}
-document.getElementById('fileInput').addEventListener('change',function(){let f=this.files[0];if(!f)return;let r=new FileReader();r.onload=e=>{selectedFileData=e.target.result;document.getElementById('dragPreviewImg').src=selectedFileData;document.getElementById('dragArea').style.display="block";makeDraggable()};r.readAsDataURL(f)});
-function makeDraggable(){let b=document.getElementById('draggableBtn'),a=document.getElementById('dragArea'),drag=false;b.onmousedown=b.ontouchstart=e=>{drag=true;e.preventDefault()};window.onmousemove=window.ontouchmove=e=>{if(!drag)return;let rc=a.getBoundingClientRect(),cx=e.touches?e.touches[0].clientX:e.clientX,cy=e.touches?e.touches[0].clientY:e.clientY,x=((cx-rc.left)/rc.width)*100,y=((cy-rc.top)/rc.height)*100;x=Math.max(5,Math.min(95,x));y=Math.max(5,Math.min(95,y));btnPos={x,y};b.style.left=x+"%";b.style.top=y+"%"};window.onmouseup=window.ontouchend=()=>drag=false}
-function uploadImage(){if(!selectedFileData){alert("Choose image");return}let o=parseInt(document.getElementById('imgOrder').value)||payments.length+1;payments.push({id:Date.now(),data:selectedFileData,order:o,btnX:btnPos.x,btnY:btnPos.y,showButton:true});payments.sort((a,b)=>a.order-b.order);localStorage.setItem('uk49_payments_final',JSON.stringify(payments));alert("Uploaded! Total: "+payments.length);selectedFileData=null;document.getElementById('dragArea').style.display="none";document.getElementById('fileInput').value="";document.getElementById('imgOrder').value=payments.length+1;renderExisting()}
-function renderExisting(){let l=document.getElementById('existingList');if(payments.length==0){l.innerHTML="<small>No images</small>";return}let h=`<hr><b>Uploaded (${payments.length})</b>`;payments.forEach((p,i)=>{h+=`<div style="border:1px solid #ddd;border-radius:10px;padding:8px;margin:8px 0;display:flex;gap:10px"><img src="${p.data}" style="width:60px;height:80px;object-fit:contain;background:white;border-radius:8px;border:1px solid #eee"><div><b>Order ${p.order}</b><br><small>${Math.round(p.btnX)}%,${Math.round(p.btnY)}%</small><br><button onclick="deleteImg(${i})" style="background:red;color:white;border:none;padding:3px 8px;border-radius:5px;font-size:11px">Delete</button></div></div>`});l.innerHTML=h}
-function deleteImg(i){if(!confirm("Delete?"))return;payments.splice(i,1);localStorage.setItem('uk49_payments_final',JSON.stringify(payments));renderExisting()}
+
+document.getElementById('toggleBtn').addEventListener('change',function(){
+ showBtn=this.checked;
+ document.getElementById('toggleText').innerText=showBtn?"SHOW":"HIDE";
+ document.getElementById('toggleText').style.color=showBtn?"#0d6efd":"#ef4444";
+ document.getElementById('draggableBtn').style.opacity=showBtn?"1":"0.2";
+});
+
+document.getElementById('fileInput').addEventListener('change',function(){
+ let f=this.files[0];if(!f)return;
+ document.getElementById('msg').innerText="Loading...";
+ let r=new FileReader();
+ r.onload=e=>{
+  let img=new Image();
+  img.onload=()=>{
+   let canvas=document.createElement('canvas');
+   let maxW=700;
+   let scale=maxW/img.width;
+   if(img.width>maxW){canvas.width=maxW;canvas.height=img.height*scale}else{canvas.width=img.width;canvas.height=img.height}
+   canvas.getContext('2d').drawImage(img,0,0,canvas.width,canvas.height);
+   selectedFileData=canvas.toDataURL('image/jpeg',0.7);
+   document.getElementById('dragPreviewImg').src=selectedFileData;
+   document.getElementById('dragArea').style.display="block";
+   document.getElementById('msg').innerText="✅ Ready! Drag button, then click UPLOAD";
+   makeDraggable();
+  };
+  img.src=e.target.result;
+ };
+ r.readAsDataURL(f);
+});
+
+function makeDraggable(){
+ let b=document.getElementById('draggableBtn'),a=document.getElementById('dragArea'),drag=false;
+ b.onmousedown=b.ontouchstart=e=>{drag=true;e.preventDefault()};
+ window.onmousemove=window.ontouchmove=e=>{
+  if(!drag)return;
+  let rc=a.getBoundingClientRect(),cx=e.touches?e.touches[0].clientX:e.clientX,cy=e.touches?e.touches[0].clientY:e.clientY;
+  let x=((cx-rc.left)/rc.width)*100,y=((cy-rc.top)/rc.height)*100;
+  x=Math.max(5,Math.min(95,x));y=Math.max(5,Math.min(95,y));btnPos={x,y};b.style.left=x+"%";b.style.top=y+"%";
+ };
+ window.onmouseup=window.ontouchend=()=>drag=false;
+}
+
+function uploadImage(){
+ if(!selectedFileData){alert("First choose image! Tap the dotted box");return}
+ document.getElementById('upBtn').innerText="Uploading...";
+ let o=parseInt(document.getElementById('imgOrder').value)||payments.length+1;
+ payments.push({id:Date.now(),data:selectedFileData,order:o,btnX:btnPos.x,btnY:btnPos.y,showButton:showBtn});
+ payments.sort((a,b)=>a.order-b.order);
+ try{localStorage.setItem('uk49_payments_final',JSON.stringify(payments))}
+ catch(err){alert("Storage full! Click Clear All button, then try again");document.getElementById('upBtn').innerText="✅ CLICK TO UPLOAD IMAGE";return}
+ document.getElementById('msg').innerHTML="<span style='color:green'>🎉 UPLOADED! Total: "+payments.length+"</span>";
+ selectedFileData=null;document.getElementById('dragArea').style.display="none";document.getElementById('fileInput').value="";
+ document.getElementById('imgOrder').value=payments.length+1;
+ document.getElementById('upBtn').innerText="✅ CLICK TO UPLOAD IMAGE";
+ renderExisting();
+ alert("SUCCESS! Image uploaded");
+}
+function renderExisting(){
+ let l=document.getElementById('existingList');
+ if(payments.length==0){l.innerHTML="<small style='color:red'>No images yet</small>";return}
+ let h=`<hr><b>Uploaded (${payments.length}) ✅</b>`;
+ payments.forEach((p,i)=>{h+=`<div style="border:1px solid #ddd;border-radius:10px;padding:8px;margin:8px 0;display:flex;gap:10px"><img src="${p.data}" style="width:60px;height:80px;object-fit:contain;background:white;border-radius:8px"><div><b>Order ${p.order}</b><br><small>${p.showButton?"SHOW":"HIDE"} - ${Math.round(p.btnX)}%,${Math.round(p.btnY)}%</small><br><button onclick="deleteImg(${i})" style="background:red;color:white;border:none;padding:3px 8px;border-radius:5px;font-size:11px">Delete</button></div></div>`});
+ l.innerHTML=h;
+}
+function deleteImg(i){if(!confirm("Delete this image?"))return;payments.splice(i,1);localStorage.setItem('uk49_payments_final',JSON.stringify(payments));renderExisting()}
 </script>
 </body>
 </html>
