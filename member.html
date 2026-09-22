@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UK49 Member</title>
+<style>
+*{box-sizing:border-box; font-family: Arial, sans-serif;}
+body{margin:0; background:#f0f4f8; display:flex; justify-content:center; padding:20px;}
+.card{background:white; width:360px; border-radius:16px; padding:25px; box-shadow:0 4px 20px rgba(0,0,0,0.1); text-align:center;}
+.header{background:#0A2A5E; color:white; padding:15px; border-radius:12px 12px 0 0; margin:-25px -25px 20px -25px; display:flex; justify-content:space-between;}
+.btn{padding:12px 20px; background:#0d6efd; color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer;}
+input{width:100%; padding:14px; margin:8px 0; border:1px solid #ddd; border-radius:8px;}
+.imgBox{width:100%; height:380px; border-radius:12px; overflow:hidden; position:relative; background:#ddd;}
+.imgBox img{width:100%; height:100%; object-fit:cover;}
+.tag{position:absolute; top:10px; right:10px; background:rgba(0,0,0,0.7); color:white; padding:4px 8px; border-radius:6px; font-size:12px; z-index:2;}
+.movableBtn{position:absolute; transform:translate(-50%,-50%); z-index:3; white-space:nowrap; box-shadow:0 2px 12px rgba(0,0,0,0.4);}
+</style>
+</head>
+<body>
+<div id="loginCard" class="card">
+<div>👑<h2 style="margin:5px 0; color:#0A2A5E;">UK 49<br>Member Login</h2></div>
+<input id="username" placeholder="test" style="margin-top:20px;"><br>
+<input id="password" type="password" placeholder="1234"><br>
+<button class="btn" style="width:100%; margin-top:10px;" onclick="memberLogin()">Login</button>
+</div>
+<div id="imageCard" class="card" style="display:none; padding:0; overflow:hidden;">
+<div class="header"><span>UK 49</span><span>☰</span></div>
+<div style="padding:15px;">
+<div class="imgBox"><img id="memberImg" src=""><span id="imgTag" class="tag">Image 1</span><button id="continueBtn" class="btn movableBtn" onclick="nextImage()">Continue →</button></div>
+</div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>
