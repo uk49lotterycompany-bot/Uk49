@@ -10,66 +10,157 @@ body{margin:0; background:#f0f4f8; display:flex; justify-content:center; padding
 .header{background:#0A2A5E; color:white; padding:15px; border-radius:12px 12px 0 0; margin:-25px -25px 20px -25px; display:flex; justify-content:space-between;}
 .btn{width:100%; padding:14px; background:#0d6efd; color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer; margin-top:10px;}
 .upload-box{border:2px dashed #cbd5e0; border-radius:12px; padding:20px 15px; cursor:pointer; background:#f8fafc;}
-.switch{position:relative; display:inline-block; width:44px; height:24px;}
-.switch input{opacity:0; width:0; height:0;}
-.slider{position:absolute; cursor:pointer; top:0; left:0; right:0; bottom:0; background:#ccc; border-radius:24px; transition:.4s;}
-.slider:before{content:""; position:absolute; height:18px; width:18px; left:3px; bottom:3px; background:white; border-radius:50%; transition:.4s;}
-input:checked +.slider{background:#22c55e;}
-input:checked +.slider:before{transform:translateX(20px);}
+.inputSmall{width:100%; padding:12px; border-radius:8px; border:1px solid #ddd; margin:5px 0;}
 #dragArea{width:100%; height:320px; background:#ddd; border-radius:12px; position:relative; overflow:hidden; margin-top:15px; display:none; border:2px solid #0A2A5E;}
 #dragArea img{width:100%; height:100%; object-fit:cover;}
 #draggableBtn{position:absolute; left:50%; top:85%; transform:translate(-50%,-50%); background:#0d6efd; color:white; padding:10px 18px; border-radius:8px; font-weight:bold; cursor:move; user-select:none; touch-action:none; white-space:nowrap; box-shadow:0 2px 10px rgba(0,0,0,0.4);}
-.hint{font-size:11px; color:#666; margin-top:5px;}
-.success-icon{width:70px; height:70px; background:#dcfce7; color:#22c55e; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:40px; margin:0 auto 15px auto;}
-.inputSmall{width:100%; padding:10px; border-radius:8px; border:1px solid #ddd; margin:5px 0;}
 </style>
 </head>
 <body>
-<div id="loginCard" class="card">
-<div style="margin-bottom:15px;">👑<h2 style="margin:5px 0; color:#0A2A5E;">UK 49<br>Admin Login</h2></div>
-<input id="adminEmail" placeholder="Username" style="width:100%; padding:12px; border:1px solid #ddd; border-radius:8px; margin:5px 0;"><br>
-<input id="adminPass" type="password" placeholder="Password" style="width:100%; padding:12px; border:1px solid #ddd; border-radius:8px; margin:5px 0;"><br>
-<button class="btn" onclick="adminLogin()">Login</button>
-</div>
-<div id="uploadCard" class="card" style="display:none;">
-<div class="header"><span>UK 49</span><span>☰</span></div>
 
-<h3 style="text-align:left; margin-bottom:5px;">👤 Create Member</h3>
-<div style="background:#f1f5f9; padding:12px; border-radius:10px; text-align:left;">
-<input id="newMemberUser" class="inputSmall" placeholder="New Username">
-<input id="newMemberPass" class="inputSmall" type="password" placeholder="New Password">
+<div id="loginCard" class="card">
+<div>👑<h2 style="color:#0A2A5E;">UK 49<br>Admin Login</h2></div>
+<input id="adminPass" type="password" placeholder="Password" style="width:100%; padding:12px; border:1px solid #ddd; border-radius:8px; margin-top:15px;">
+<button class="btn" onclick="adminLogin()">Login</button>
+<p style="font-size:11px; color:#999; margin-top:10px;">Password: Admin2025</p>
+</div>
+
+<div id="uploadCard" class="card" style="display:none; text-align:left;">
+<div class="header"><span>UK 49 ADMIN</span><span>☰</span></div>
+
+<h3>👤 Create Member</h3>
+<div style="background:#f1f5f9; padding:12px; border-radius:10px;">
+<input id="newMemberUser" class="inputSmall" placeholder="Username e.g. john">
+<input id="newMemberPass" class="inputSmall" placeholder="Password e.g. 1234">
 <button class="btn" style="background:#22c55e;" onclick="createMember()">Create Member</button>
 <div id="memberList" style="margin-top:10px;"></div>
 </div>
 
 <hr style="margin:15px 0;">
-<h3 style="text-align:left;">Upload New Image</h3>
+<h3>🖼️ Upload Image</h3>
 <div class="upload-box" onclick="document.getElementById('fileInput').click()">
 <div style="font-size:30px;">☁️+</div><b>Choose Image</b><br><small>JPG, PNG (Max 5MB)</small>
-<input type="file" id="fileInput" accept="image/*" hidden onchange="previewFile()">
+<input type="file" id="fileInput" accept="image/*" hidden>
 </div>
+
 <div id="dragArea"><img id="dragPreviewImg" src=""><div id="draggableBtn">Continue →</div></div>
-<p class="hint" id="dragHint" style="display:none;">👆 DRAG button anywhere on image.</p>
-<div style="text-align:left; margin-top:15px;"><small><b>Image Order</b></small><input id="imgOrder" type="number" value="1" min="1" style="width:100%; padding:10px; border-radius:8px; border:1px solid #ddd; margin-top:5px;"></div>
-<div style="text-align:left; margin-top:10px; display:flex; justify-content:space-between; align-items:center;">
-<small><b>Continue Button</b></small>
-<div style="display:flex; align-items:center; gap:8px;">
-<label class="switch"><input type="checkbox" id="continueToggle" checked><span class="slider"></span></label>
-<small id="toggleText" style="color:#0d6efd; font-weight:bold;">SHOW</small>
-</div>
-</div>
+<p style="font-size:11px; text-align:center;">Drag blue button to move it</p>
+
+<input id="imgOrder" type="number" value="1" min="1" class="inputSmall" style="margin-top:10px;">
 <button class="btn" onclick="uploadImage()">Upload Image</button>
-<div id="existingList" style="margin-top:15px; text-align:left;"></div>
+
+<div id="existingList" style="margin-top:15px;"></div>
 <button class="btn" style="background:#eee; color:#333;" onclick="location.reload()">Logout</button>
 </div>
-<div id="successCard" class="card" style="display:none;">
-<div class="header"><span>UK 49</span><span>☰</span></div>
-<div class="success-icon">✓</div>
-<h3>Image Uploaded Successfully!</h3>
-<p style="font-size:13px; color:#666;">Position: <span id="posText"></span></p>
-<button class="btn" onclick="showUpload()">Upload Another Image</button>
-<button class="btn" style="background:#f1f5f9; color:#333;" onclick="location.reload()">Logout</button>
-</div>
-<script src="script.js"></script>
+
+<script>
+// ALL LOGIC INSIDE - NO EXTERNAL FILE NEEDED
+let members = JSON.parse(localStorage.getItem('uk49_members') || '{"test":{"password":"1234"}}');
+let payments = JSON.parse(localStorage.getItem('uk49_payments_final') || '[]');
+let selectedFileData = null;
+let btnPos = {x:50, y:85};
+
+function adminLogin(){
+  let pass = document.getElementById('adminPass').value;
+  if(pass!== "Admin2025"){ alert("Wrong! Use Admin2025"); return; }
+  document.getElementById('loginCard').style.display="none";
+  document.getElementById('uploadCard').style.display="block";
+  document.getElementById('imgOrder').value = payments.length + 1;
+  renderExisting();
+  renderMembers();
+}
+
+function createMember(){
+  let u = document.getElementById('newMemberUser').value.trim();
+  let p = document.getElementById('newMemberPass').value.trim();
+  if(!u ||!p){ alert("Type username and password"); return; }
+  members[u] = {password:p};
+  localStorage.setItem('uk49_members', JSON.stringify(members));
+  document.getElementById('newMemberUser').value="";
+  document.getElementById('newMemberPass').value="";
+  renderMembers();
+  alert("✅ Created: " + u + " / " + p);
+}
+
+function renderMembers(){
+  let div=document.getElementById('memberList');
+  let html="<b>Members:</b><br>";
+  for(let k in members){
+    html+=`<div style="display:flex; justify-content:space-between; background:white; padding:6px 8px; border-radius:6px; margin:4px 0; font-size:13px;"><span>${k} : ${members[k].password}</span><span style="color:red; cursor:pointer; font-weight:bold;" onclick="delMember('${k}')">X</span></div>`;
+  }
+  div.innerHTML=html;
+}
+
+function delMember(k){
+  if(confirm("Delete "+k+"?")){
+    delete members[k];
+    localStorage.setItem('uk49_members', JSON.stringify(members));
+    renderMembers();
+  }
+}
+
+document.getElementById('fileInput').addEventListener('change', function(){
+  let file = this.files[0];
+  if(!file) return;
+  let reader = new FileReader();
+  reader.onload = e => {
+    selectedFileData = e.target.result;
+    document.getElementById('dragPreviewImg').src = selectedFileData;
+    document.getElementById('dragArea').style.display="block";
+    makeDraggable();
+  };
+  reader.readAsDataURL(file);
+});
+
+function makeDraggable(){
+  let btn = document.getElementById('draggableBtn');
+  let area = document.getElementById('dragArea');
+  let dragging=false;
+  btn.onmousedown = btn.ontouchstart = e=>{ dragging=true; e.preventDefault(); };
+  window.onmousemove = window.ontouchmove = e=>{
+    if(!dragging) return;
+    let rect=area.getBoundingClientRect();
+    let cx=e.touches?e.touches[0].clientX:e.clientX;
+    let cy=e.touches?e.touches[0].clientY:e.clientY;
+    let x=((cx-rect.left)/rect.width)*100;
+    let y=((cy-rect.top)/rect.height)*100;
+    x=Math.max(5,Math.min(95,x)); y=Math.max(5,Math.min(95,y));
+    btnPos={x,y};
+    btn.style.left=x+"%"; btn.style.top=y+"%";
+  };
+  window.onmouseup = window.ontouchend = ()=>dragging=false;
+}
+
+function uploadImage(){
+  if(!selectedFileData){ alert("Choose image first"); return; }
+  let order=parseInt(document.getElementById('imgOrder').value)||payments.length+1;
+  payments.push({id:Date.now(), data:selectedFileData, order:order, btnX:btnPos.x, btnY:btnPos.y, showButton:true});
+  payments.sort((a,b)=>a.order-b.order);
+  localStorage.setItem('uk49_payments_final', JSON.stringify(payments));
+  alert("Image Uploaded! Total: "+payments.length);
+  selectedFileData=null;
+  document.getElementById('dragArea').style.display="none";
+  document.getElementById('fileInput').value="";
+  document.getElementById('imgOrder').value=payments.length+1;
+  renderExisting();
+}
+
+function renderExisting(){
+  let list=document.getElementById('existingList');
+  if(payments.length===0){list.innerHTML="<small>No images yet</small>"; return;}
+  let html=`<hr><b>Uploaded (${payments.length})</b>`;
+  payments.forEach((p,i)=>{
+    html+=`<div style="border:1px solid #ddd; border-radius:10px; padding:8px; margin:8px 0; display:flex; gap:10px;"><img src="${p.data}" style="width:60px;height:60px;object-fit:cover;border-radius:8px;"><div><b>Order ${p.order}</b><br><small>${Math.round(p.btnX)}%,${Math.round(p.btnY)}%</small><br><button onclick="deleteImg(${i})" style="background:red;color:white;border:none;padding:3px 8px;border-radius:5px;font-size:11px;">Delete</button></div></div>`;
+  });
+  list.innerHTML=html;
+}
+
+function deleteImg(i){
+  if(!confirm("Delete?")) return;
+  payments.splice(i,1);
+  localStorage.setItem('uk49_payments_final', JSON.stringify(payments));
+  renderExisting();
+}
+</script>
 </body>
 </html>
