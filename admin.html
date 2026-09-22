@@ -6,45 +6,23 @@
 <style>
 body{margin:0;background:#f0f4f8;display:flex;justify-content:center;padding:20px;font-family:Arial}
 .card{background:white;width:360px;border-radius:16px;padding:25px;text-align:center;box-shadow:0 4px 20px rgba(0,0,0,.1)}
-input{width:100%;padding:14px;border:1px solid #ddd;border-radius:8px;margin:10px 0;box-sizing:border-box}
-.btn{width:100%;padding:14px;background:#0d6efd;color:white;border:none;border-radius:8px;font-weight:bold;cursor:pointer;margin-top:5px}
-#err{display:none;background:#fee2e2;color:red;padding:10px;border-radius:8px;margin-top:10px;font-weight:bold}
+input{width:100%;padding:14px;border:1px solid #ddd;border-radius:8px;margin-top:15px}
+.btn{width:100%;padding:14px;background:#0d6efd;color:white;border:none;border-radius:8px;font-weight:bold;margin-top:15px;cursor:pointer}
+#err{display:none;background:#fee2e2;color:#b91c1c;padding:10px;border-radius:8px;margin-top:12px;font-weight:bold}
 </style>
 </head>
 <body>
 <div class="card">
-<h2>👑 UK 49<br>Admin Login</h2>
-<input id="p" type="password" placeholder="Type Admin2025">
-<button class="btn" onclick="doLogin()">Login</button>
-<div id="err"></div>
-<p style="font-size:12px;color:#666;margin-top:10px">Hint: Admin2025 (capital A, 9 chars)<br>Your typed length: <span id="len">0</span></p>
-<button class="btn" style="background:#22c55e;margin-top:15px" onclick="forceLogin()">⚡ Force Login (Emergency)</button>
+<h2 style="color:#0A2A5E">👑 UK 49<br>Admin Login</h2>
+<input id="p" type="password" placeholder="Password">
+<button class="btn" onclick="login()">Login</button>
+<div id="err">❌ Wrong Password</div>
 </div>
-
 <script>
-document.getElementById('p').addEventListener('input', function(){
-  document.getElementById('len').innerText = this.value.length + " - [" + this.value + "]";
-});
-
-function doLogin(){
-  let v = document.getElementById('p').value.trim();
-  let err = document.getElementById('err');
-  console.log("Typed:", v, "len:", v.length);
-
-  // Accept Admin2025 in any case
-  if(v.toLowerCase() === "admin2025"){
-    err.style.display="none";
-    localStorage.setItem("admin_logged","yes");
-    window.location.href = "admin-panel.html";
-    return;
-  }else{
-    err.style.display="block";
-    err.innerHTML = "❌ Wrong! You typed: '" + v + "' (" + v.length + " chars)<br>Correct: Admin2025 (9 chars)";
-  }
-}
-function forceLogin(){
-  localStorage.setItem("admin_logged","yes");
-  window.location.href = "admin-panel.html";
+function login(){
+ let v=document.getElementById('p').value.trim();
+ if(v==="Admin2025"){window.location.href="admin-panel.html";}
+ else{document.getElementById('err').style.display="block";}
 }
 </script>
 </body>
