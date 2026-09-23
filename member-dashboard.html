@@ -7,8 +7,8 @@
 body { margin:0; padding:0; background:#000; overflow:hidden; font-family: Arial; }
 #container { position:relative; width:100vw; height:100vh; overflow:hidden; display:flex; align-items:center; justify-content:center; background:#fff; }
 #paymentImage { max-width:100%; max-height:100vh; object-fit:contain; display:block; }
-#continueBtn { position:absolute; left:67%; top:33%; width:30%; height:7%; background:transparent; border:none; cursor:move; z-index:20; touch-action:none; }
-#prevBtn { position:absolute; left:5%; top:90%; width:20%; height:6%; background:transparent; border:none; cursor:move; z-index:20; touch-action:none; }
+#continueBtn { position:absolute; left:5%; top:82%; width:90%; height:10%; background:transparent; border:none; z-index:20; }
+#prevBtn { position:absolute; left:5%; top:5%; width:25%; height:6%; background:transparent; border:none; z-index:20; }
 #welcome { position:absolute; top:0; left:0; width:100%; background:#0d1b4a; color:white; text-align:center; padding:10px 0; z-index:10; font-weight:bold; }
 </style>
 </head>
@@ -24,39 +24,9 @@ let payments = []; let currentIndex = 0;
 let currentUser = localStorage.getItem('currentUser') || 'Justice';
 document.getElementById('userName').innerText = currentUser;
 
-function makeDraggable(el){
-  let isDragging=false, startX, startY, initLeft, initTop;
-  el.addEventListener('touchstart', startDrag, {passive:false});
-  el.addEventListener('mousedown', startDrag);
-  function startDrag(e){
-    e.preventDefault();
-    isDragging=true;
-    const touch = e.touches? e.touches[0] : e;
-    startX=touch.clientX; startY=touch.clientY;
-    initLeft=el.offsetLeft; initTop=el.offsetTop;
-    el.style.background='rgba(255,0,0,0.3)';
-    el.style.border='1px dashed red';
-  }
-  window.addEventListener('touchmove', drag, {passive:false});
-  window.addEventListener('mousemove', drag);
-  function drag(e){
-    if(!isDragging) return;
-    e.preventDefault();
-    const touch = e.touches? e.touches[0] : e;
-    el.style.left=(initLeft + touch.clientX - startX)+'px';
-    el.style.top=(initTop + touch.clientY - startY)+'px';
-    localStorage.setItem(el.id+'_pos', JSON.stringify({left:el.style.left, top:el.style.top}));
-  }
-  function endDrag(){
-    if(!isDragging) return;
-    isDragging=false;
-    setTimeout(()=>{ el.style.background='transparent'; el.style.border='none'; }, 500);
-  }
-  window.addEventListener('touchend', endDrag);
-  window.addEventListener('mouseup', endDrag);
-  const saved = localStorage.getItem(el.id+'_pos');
-  if(saved){ const p=JSON.parse(saved); el.style.left=p.left; el.style.top=p.top; }
-}
+// RESET OLD SAVED POSITIONS - IMPORTANT!
+localStorage.removeItem('continueBtn_pos');
+localStorage.removeItem('prevBtn_pos');
 
 async function loadPayments(){
   const res = await fetch('payments.json?v=' + Date.now());
@@ -73,9 +43,6 @@ function showPage(i){
 }
 function nextPage(){ if(currentIndex < payments.length-1) showPage(currentIndex+1); }
 function prevPage(){ if(currentIndex >0) showPage(currentIndex-1); }
-
-makeDraggable(document.getElementById('continueBtn'));
-makeDraggable(document.getElementById('prevBtn'));
 loadPayments();
 </script>
 </body>
