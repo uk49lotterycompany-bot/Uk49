@@ -4,11 +4,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>UK 49 Payments</title>
 <style>
-body { margin:0; padding:0; background:#000; overflow:hidden; font-family: Arial; }
-#container { position:relative; width:100vw; height:100vh; overflow:hidden; display:flex; align-items:center; justify-content:center; background:#fff; }
+body { margin:0; padding:0; background:#fff; font-family: Arial; overflow:hidden; }
+#container { position:relative; width:100vw; height:100vh; display:flex; align-items:center; justify-content:center; background:#fff; }
 #paymentImage { max-width:100%; max-height:100vh; object-fit:contain; display:block; }
-#continueBtn { position:absolute; left:5%; top:82%; width:90%; height:10%; background:transparent; border:none; z-index:20; }
-#prevBtn { position:absolute; left:5%; top:5%; width:25%; height:6%; background:transparent; border:none; z-index:20; }
+#continueBtn { position:absolute; left:5%; top:82%; width:90%; height:10%; background:rgba(0,0,0,0.1); border:none; z-index:20; }
+#prevBtn { position:absolute; left:5%; top:5%; width:25%; height:6%; background:rgba(0,0,0,0.1); border:none; z-index:20; }
 #welcome { position:absolute; top:0; left:0; width:100%; background:#0d1b4a; color:white; text-align:center; padding:10px 0; z-index:10; font-weight:bold; }
 </style>
 </head>
@@ -21,24 +21,18 @@ body { margin:0; padding:0; background:#000; overflow:hidden; font-family: Arial
 </div>
 <script>
 let payments = []; let currentIndex = 0;
-let currentUser = localStorage.getItem('currentUser') || 'Justice';
-document.getElementById('userName').innerText = currentUser;
-
-// RESET OLD SAVED POSITIONS - IMPORTANT!
-localStorage.removeItem('continueBtn_pos');
-localStorage.removeItem('prevBtn_pos');
-
+document.getElementById('userName').innerText = localStorage.getItem('currentUser') || 'Justice';
 async function loadPayments(){
   const res = await fetch('payments.json?v=' + Date.now());
   payments = await res.json();
-  payments.sort((a,b)=> (a.order||0) - (b.order||0));
+  payments.sort((a,b)=> (a.order||0)-(b.order||0));
   showPage(0);
 }
 function showPage(i){
   if(i<0 || i>=payments.length) return;
-  currentIndex=i; const p=payments[i];
-  document.getElementById('paymentImage').src=p.data;
-  document.getElementById('continueBtn').style.display=(p.showButton===false || i===payments.length-1)?'none':'block';
+  currentIndex=i;
+  document.getElementById('paymentImage').src=payments[i].data;
+  document.getElementById('continueBtn').style.display=(i===payments.length-1)?'none':'block';
   document.getElementById('prevBtn').style.display=(i===0)?'none':'block';
 }
 function nextPage(){ if(currentIndex < payments.length-1) showPage(currentIndex+1); }
