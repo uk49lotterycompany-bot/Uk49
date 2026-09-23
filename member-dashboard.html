@@ -4,40 +4,47 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>UK 49 Payments</title>
 <style>
-body { margin:0; padding:0; background:#fff; font-family: Arial; overflow:hidden; }
-#container { position:relative; width:100vw; height:100vh; display:flex; align-items:center; justify-content:center; background:#fff; }
-#paymentImage { max-width:100%; max-height:100vh; object-fit:contain; display:block; }
-#continueBtn { position:absolute; left:5%; top:82%; width:90%; height:10%; background:rgba(0,0,0,0.1); border:none; z-index:20; }
-#prevBtn { position:absolute; left:5%; top:5%; width:25%; height:6%; background:rgba(0,0,0,0.1); border:none; z-index:20; }
-#welcome { position:absolute; top:0; left:0; width:100%; background:#0d1b4a; color:white; text-align:center; padding:10px 0; z-index:10; font-weight:bold; }
+body{margin:0;background:#fff;font-family:Arial;overflow:hidden}
+#box{position:relative;width:100vw;height:100vh;display:flex;align-items:center;justify-content:center}
+#img{max-width:100%;max-height:100vh;object-fit:contain}
+#btnContinue{position:absolute;left:5%;bottom:5%;width:90%;height:12%;background:rgba(255,0,0,0.1);border:2px dashed red;z-index:9999}
+#btnBack{position:absolute;left:5%;top:10%;width:25%;height:6%;background:rgba(0,0,0,0.1);z-index:9999}
+#top{position:absolute;top:0;left:0;width:100%;background:#0d1b4a;color:#fff;text-align:center;padding:10px;z-index:10}
 </style>
 </head>
 <body>
-<div id="welcome">Welcome <span id="userName"></span> 👑<br><small>UK 49 Payments</small></div>
-<div id="container">
-<img id="paymentImage" src="">
-<button id="continueBtn" onclick="nextPage()"></button>
-<button id="prevBtn" onclick="prevPage()"></button>
+<div id="top">Welcome <span id="name"></span></div>
+<div id="box">
+<img id="img" src="">
+<button id="btnContinue" onclick="goNext()">CONTINUE - 10% FADED (CLICK ME)</button>
+<button id="btnBack" onclick="goBack()">BACK</button>
 </div>
 <script>
-let payments = []; let currentIndex = 0;
-document.getElementById('userName').innerText = localStorage.getItem('currentUser') || 'Justice';
-async function loadPayments(){
-  const res = await fetch('payments.json?v=' + Date.now());
-  payments = await res.json();
-  payments.sort((a,b)=> (a.order||0)-(b.order||0));
-  showPage(0);
+let list=[]; let idx=0;
+document.getElementById('name').innerText=localStorage.getItem('currentUser')||'Justice';
+async function load(){
+  let r=await fetch('payments.json?v='+Date.now());
+  list=await r.json();
+  list.sort((a,b)=>a.order-b.order);
+  if(list.length==0){alert('NO IMAGES - Go to admin-panel and upload 2 images');return;}
+  document.getElementById('img').src=list[0].data;
+  idx=0;
 }
-function showPage(i){
-  if(i<0 || i>=payments.length) return;
-  currentIndex=i;
-  document.getElementById('paymentImage').src=payments[i].data;
-  document.getElementById('continueBtn').style.display=(i===payments.length-1)?'none':'block';
-  document.getElementById('prevBtn').style.display=(i===0)?'none':'block';
+function goNext(){
+  if(idx < list.length-1){
+    idx++;
+    document.getElementById('img').src=list[idx].data;
+  }else{
+    alert('This is last image - no more pages');
+  }
 }
-function nextPage(){ if(currentIndex < payments.length-1) showPage(currentIndex+1); }
-function prevPage(){ if(currentIndex >0) showPage(currentIndex-1); }
-loadPayments();
+function goBack(){
+  if(idx>0){
+    idx--;
+    document.getElementById('img').src=list[idx].data;
+  }
+}
+load();
 </script>
 </body>
 </html>
