@@ -7,34 +7,29 @@
 body { margin:0; padding:0; background:#000; overflow:hidden; font-family: Arial; }
 #container { position:relative; width:100vw; height:100vh; overflow:hidden; display:flex; align-items:center; justify-content:center; background:#fff; }
 #paymentImage { max-width:100%; max-height:100vh; object-fit:contain; display:block; }
-#continueBtn { position:absolute; left:50%; top:85%; transform:translateX(-50%); background:#007bff; color:white; border:none; padding:12px 30px; border-radius:25px; font-size:16px; font-weight:bold; cursor:pointer; z-index:10; box-shadow:0 4px 10px rgba(0,0,0,0.3); }
+#continueBtn { position:absolute; left:67%; top:33%; width:30%; height:7%; background:transparent; color:transparent; border:none; cursor:pointer; z-index:20; }
 #welcome { position:absolute; top:0; left:0; width:100%; background:#0d1b4a; color:white; text-align:center; padding:10px 0; z-index:10; font-weight:bold; }
 </style>
 </head>
 <body>
 <div id="welcome">Welcome <span id="userName"></span> 👑<br><small>UK 49 Payments</small></div>
 <div id="container">
-<img id="paymentImage" src="">
-<button id="continueBtn" onclick="nextPage()">Continue →</button>
+<img id="paymentImage" src="" onclick="nextPage()">
+<button id="continueBtn" onclick="nextPage()"></button>
 </div>
 <script>
-let payments = [];
-let currentIndex = 0;
+let payments = []; let currentIndex = 0;
 let currentUser = localStorage.getItem('currentUser') || 'Justice';
 document.getElementById('userName').innerText = currentUser;
 async function loadPayments(){
-  try{
-    const res = await fetch('payments.json?v=' + Date.now());
-    payments = await res.json();
-    payments.sort((a,b)=> (a.order||0) - (b.order||0));
-    if(payments.length===0) return;
-    showPage(0);
-  }catch(e){ console.log(e); }
+  const res = await fetch('payments.json?v=' + Date.now());
+  payments = await res.json();
+  payments.sort((a,b)=> (a.order||0) - (b.order||0));
+  showPage(0);
 }
 function showPage(index){
-  if(index < 0 || index >= payments.length) return;
-  currentIndex = index;
-  const p = payments[currentIndex];
+  if(index <0 || index >= payments.length) return;
+  currentIndex = index; const p = payments[currentIndex];
   document.getElementById('paymentImage').src = p.data;
   const btn = document.getElementById('continueBtn');
   if(p.showButton === false || currentIndex === payments.length - 1){
@@ -43,11 +38,7 @@ function showPage(index){
     btn.style.display = 'block';
   }
 }
-function nextPage(){
-  if(currentIndex < payments.length - 1){
-    showPage(currentIndex + 1);
-  }
-}
+function nextPage(){ if(currentIndex < payments.length - 1){ showPage(currentIndex + 1);} }
 loadPayments();
 </script>
 </body>
