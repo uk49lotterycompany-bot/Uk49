@@ -4,45 +4,38 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>UK 49 Payments</title>
 <style>
-body{margin:0;background:#fff;font-family:Arial;overflow:hidden}
-#box{position:relative;width:100vw;height:100vh;display:flex;align-items:center;justify-content:center}
-#img{max-width:100%;max-height:100vh;object-fit:contain}
-#btnContinue{position:absolute;left:5%;bottom:5%;width:90%;height:12%;background:rgba(255,0,0,0.1);border:2px dashed red;z-index:9999}
-#btnBack{position:absolute;left:5%;top:10%;width:25%;height:6%;background:rgba(0,0,0,0.1);z-index:9999}
-#top{position:absolute;top:0;left:0;width:100%;background:#0d1b4a;color:#fff;text-align:center;padding:10px;z-index:10}
+body { margin:0; padding:0; background:#fff; font-family:Arial; overflow:hidden; }
+#top { position:absolute; top:0; left:0; width:100%; background:#0d1b4a; color:white; text-align:center; padding:10px 0; z-index:10; font-weight:bold; }
+#box { position:relative; width:100vw; height:100vh; display:flex; align-items:center; justify-content:center; cursor:pointer; }
+#img { max-width:100%; max-height:100vh; object-fit:contain; display:block; }
+#hint { position:absolute; bottom:20px; left:50%; transform:translateX(-50%); background:rgba(0,0,0,0.6); color:white; padding:5px 15px; border-radius:20px; font-size:12px; z-index:20; }
 </style>
 </head>
 <body>
-<div id="top">Welcome <span id="name"></span></div>
-<div id="box">
+<div id="top">Welcome Justice 👑</div>
+<div id="box" onclick="nextPage()">
 <img id="img" src="">
-<button id="btnContinue" onclick="goNext()">CONTINUE - 10% FADED (CLICK ME)</button>
-<button id="btnBack" onclick="goBack()">BACK</button>
+<div id="hint">Tap anywhere to CONTINUE →</div>
 </div>
 <script>
-let list=[]; let idx=0;
-document.getElementById('name').innerText=localStorage.getItem('currentUser')||'Justice';
+let payments = []; let current = 0;
 async function load(){
-  let r=await fetch('payments.json?v='+Date.now());
-  list=await r.json();
-  list.sort((a,b)=>a.order-b.order);
-  if(list.length==0){alert('NO IMAGES - Go to admin-panel and upload 2 images');return;}
-  document.getElementById('img').src=list[0].data;
-  idx=0;
+  let res = await fetch('payments.json?v=' + Date.now());
+  payments = await res.json();
+  payments.sort((a,b)=>a.order-b.order);
+  if(payments.length===0){ alert('No images - upload in admin-panel'); return; }
+  document.getElementById('img').src = payments[0].data;
 }
-function goNext(){
-  if(idx < list.length-1){
-    idx++;
-    document.getElementById('img').src=list[idx].data;
-  }else{
-    alert('This is last image - no more pages');
+function nextPage(){
+  if(current < payments.length-1){
+    current++;
+    document.getElementById('img').src = payments[current].data;
+  } else {
+    // last image - hide hint
+    document.getElementById('hint').style.display='none';
   }
-}
-function goBack(){
-  if(idx>0){
-    idx--;
-    document.getElementById('img').src=list[idx].data;
-  }
+  // hide hint after first click
+  if(current>0) document.getElementById('hint').style.display='none';
 }
 load();
 </script>
