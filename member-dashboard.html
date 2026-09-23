@@ -8,14 +8,12 @@ body { margin:0; padding:0; background:#fff; font-family:Arial; overflow:hidden;
 #top { position:absolute; top:0; left:0; width:100%; background:#0d1b4a; color:white; text-align:center; padding:10px 0; z-index:10; font-weight:bold; }
 #box { position:relative; width:100vw; height:100vh; display:flex; align-items:center; justify-content:center; cursor:pointer; }
 #img { max-width:100%; max-height:100vh; object-fit:contain; display:block; }
-#hint { position:absolute; bottom:20px; left:50%; transform:translateX(-50%); background:rgba(0,0,0,0.6); color:white; padding:5px 15px; border-radius:20px; font-size:12px; z-index:20; }
 </style>
 </head>
 <body>
 <div id="top">Welcome Justice 👑</div>
 <div id="box" onclick="nextPage()">
 <img id="img" src="">
-<div id="hint">Tap anywhere to CONTINUE →</div>
 </div>
 <script>
 let payments = []; let current = 0;
@@ -23,19 +21,13 @@ async function load(){
   let res = await fetch('payments.json?v=' + Date.now());
   payments = await res.json();
   payments.sort((a,b)=>a.order-b.order);
-  if(payments.length===0){ alert('No images - upload in admin-panel'); return; }
-  document.getElementById('img').src = payments[0].data;
+  if(payments.length>0) document.getElementById('img').src = payments[0].data;
 }
 function nextPage(){
   if(current < payments.length-1){
     current++;
     document.getElementById('img').src = payments[current].data;
-  } else {
-    // last image - hide hint
-    document.getElementById('hint').style.display='none';
   }
-  // hide hint after first click
-  if(current>0) document.getElementById('hint').style.display='none';
 }
 load();
 </script>
