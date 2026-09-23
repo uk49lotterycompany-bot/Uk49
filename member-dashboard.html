@@ -7,8 +7,10 @@
 body { margin:0; padding:0; background:#000; overflow:hidden; font-family: Arial; }
 #container { position:relative; width:100vw; height:100vh; overflow:hidden; display:flex; align-items:center; justify-content:center; background:#fff; }
 #paymentImage { max-width:100%; max-height:100vh; object-fit:contain; display:block; }
-#continueBtn { position:absolute; left:67%; top:33%; width:30%; height:7%; background:transparent; color:transparent; border:none; cursor:pointer; z-index:20; }
+#continueBtn { position:absolute; left:67%; top:33%; width:30%; height:7%; background:rgba(255,0,0,0.0); border:2px dashed transparent; cursor:move; z-index:20; }
+#prevBtn { position:absolute; left:5%; top:90%; width:20%; height:6%; background:rgba(0,255,0,0.0); border:2px dashed transparent; cursor:move; z-index:20; }
 #welcome { position:absolute; top:0; left:0; width:100%; background:#0d1b4a; color:white; text-align:center; padding:10px 0; z-index:10; font-weight:bold; }
+#hint { position:absolute; bottom:5px; left:50%; transform:translateX(-50%); color:#666; font-size:10px; z-index:30; }
 </style>
 </head>
 <body>
@@ -16,11 +18,52 @@ body { margin:0; padding:0; background:#000; overflow:hidden; font-family: Arial
 <div id="container">
 <img id="paymentImage" src="" onclick="nextPage()">
 <button id="continueBtn" onclick="nextPage()"></button>
+<button id="prevBtn" onclick="prevPage()"></button>
+<div id="hint">Admin: Long-press buttons to move them</div>
 </div>
 <script>
 let payments = []; let currentIndex = 0;
 let currentUser = localStorage.getItem('currentUser') || 'Justice';
 document.getElementById('userName').innerText = currentUser;
+
+// Make buttons draggable
+function makeDraggable(el){
+  let isDragging=false, startX, startY, initLeft, initTop;
+  el.addEventListener('touchstart', startDrag, {passive:false});
+  el.addEventListener('mousedown', startDrag);
+  function startDrag(e){
+    if(e.type==='touchstart') e.preventDefault();
+    isDragging=true;
+    const touch = e.touches? e.touches[0] : e;
+    startX=touch.clientX; startY=touch.clientY;
+    initLeft=el.offsetLeft; initTop=el.offsetTop;
+    el.style.border='2px dashed red';
+    el.style.background='rgba(255,0,0,0.2)';
+  }
+  window.addEventListener('touchmove', drag, {passive:false});
+  window.addEventListener('mousemove', drag);
+  function drag(e){
+    if(!isDragging) return;
+    if(e.type==='touchmove') e.preventDefault();
+    const touch = e.touches? e.touches[0] : e;
+    const dx=touch.clientX-startX, dy=touch.clientY-startY;
+    el.style.left=(initLeft+dx)+'px';
+    el.style.top=(initTop+dy)+'px';
+    localStorage.setItem(el.id+'_pos', JSON.stringify({left:el.style.left, top:el.style.top}));
+  }
+  window.addEventListener('touchend', endDrag);
+  window.addEventListener('mouseup', endDrag);
+  function endDrag(){
+    if(!isDragging) return;
+    isDragging=false;
+    el.style.border='2px dashed transparent';
+    el.style.background='rgba(255,0,0,0.0)';
+  }
+  // restore position
+  const saved = localStorage.getItem(el.id+'_pos');
+  if(saved){ const p=JSON.parse(saved); el.style.left=p.left; el.style.top=p.top; }
+}
+
 async function loadPayments(){
   const res = await fetch('payments.json?v=' + Date.now());
   payments = await res.json();
@@ -29,16 +72,15 @@ async function loadPayments(){
 }
 function showPage(index){
   if(index <0 || index >= payments.length) return;
-  currentIndex = index; const p = payments[currentIndex];
-  document.getElementById('paymentImage').src = p.data;
-  const btn = document.getElementById('continueBtn');
-  if(p.showButton === false || currentIndex === payments.length - 1){
-    btn.style.display = 'none';
-  } else {
-    btn.style.display = 'block';
-  }
+  currentIndex=index; const p=payments[currentIndex];
+  document.getElementById('paymentImage').src=p.data;
+  document.getElementById('continueBtn').style.display=(p.showButton===false || currentIndex===payments.length-1)?'none':'block';
+  document.getElementById('prevBtn').style.display=(currentIndex===0)?'none':'block';
 }
-function nextPage(){ if(currentIndex < payments.length - 1){ showPage(currentIndex + 1);} }
+function nextPage(){ if(currentIndex < payments.length-1) showPage(currentIndex+1); }
+function prevPage(){ if(currentIndex >0) showPage(currentIndex-1); }
+makeDraggable(document.getElementById('continueBtn'));
+makeDraggable(document.getElementById('prevBtn'));
 loadPayments();
 </script>
 </body>
