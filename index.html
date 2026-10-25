@@ -379,35 +379,106 @@
   </footer>
 
   <script>
-    const form = document.getElementById("signupForm");
-    const notice = document.getElementById("notice");
-    const password = document.getElementById("password");
-    const togglePassword = document.getElementById("togglePassword");
-
-    document.getElementById("year").textContent =
-      new Date().getFullYear();
-
-    togglePassword.addEventListener("click", function () {
-      const isPassword = password.type === "password";
-
-      password.type = isPassword ? "text" : "password";
-
-      togglePassword.textContent =
-        isPassword ? "Hide" : "Show";
-    });
-
-    form.addEventListener("submit", function (event) {
-      event.preventDefault();
-
-      notice.className = "notice info";
-
-      notice.textContent =
-        "The homepage is ready, but the verification service " +
-        "has not been connected yet. No account has been created " +
-        "and no verification code has been sent. A secure backend " +
-        "must be connected before registration can be completed.";
-    });
-  </script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  // Replace these two placeholders with your actual Supabase details.
+  const SUPABASE_URL = "https://jtwrktxkkngbxrvifoax.supabase.co/rest/v1/";
+  const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_7Jdnz6F1e0-OdSVmqIqqUg_LIkD_L0O";
+  const supabaseClient = window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_PUBLISHABLE_KEY
+  );
+  const form = document.getElementById("signupForm");
+  const notice = document.getElementById("notice");
+  const password = document.getElementById("password");
+  const togglePassword = document.getElementById("togglePassword");
+  const submitButton = document.getElementById("sendCodeButton");
+  document.getElementById("year").textContent =
+    new Date().getFullYear();
+  function showNotice(message, type) {
+    notice.className = "notice " + type;
+    notice.textContent = message;
+  }
+  togglePassword.addEventListener("click", function () {
+    const showPassword = password.type === "password";
+    password.type = showPassword ? "text" : "password";
+    togglePassword.textContent = showPassword ? "Hide" : "Show";
+  });
+  form.addEventListener("submit", async function (event) {
+    event.preventDefault();
+    const fullName = document.getElementById("fullName").value.trim();
+    const phone = document.getElementById("phone").value.trim();
+    const email = document.getElementById("email").value.trim();
+    const passwordValue = password.value;
+    if (
+      SUPABASE_URL === "PASTE_YOUR_PROJECT_URL_HERE" ||
+      SUPABASE_PUBLISHABLE_KEY === "PASTE_YOUR_PUBLISHABLE_KEY_HERE"
+    ) {
+      showNotice("Please configure your Supabase URL and publishable key first.", "error");
+      return;
+    }
+    submitButton.disabled = true;
+    submitButton.textContent = "Creating account...";
+    try {
+      const { data, error } = await supabaseClient.auth.signUp({
+        email: email,
+        password: passwordValue,
+        options: {
+          data: {
+            full_name: fullName,
+            phone: phone
+          }
+        }
+      });
+      if (error) throw error;
+      if (!data.user) {
+        throw new Error("Supabase did not return a user account.");
+      }
+      // If email confirmation is enabled, a session may not exist yet.
+      // The profile table requires an authenticated session, so don't
+      // try to insert into it until the user is signed in.
+      if (!data.session) {
+        showNotice(
+          "Your registration request was received. Check your email for the confirmation message. Your profile and manual approval process still need to be completed.",
+          "success"
+        );
+        form.reset();
+        return;
+      }
+      const { error: profileError } = await supabaseClient
+        .from("members")
+        .insert({
+          id: data.user.id,
+          full_name: fullName,
+          phone: phone,
+          email: email,
+          approval_status: "pending"
+        });
+      if (profileError) {
+        console.error("Profile creation error:", profileError);
+        showNotice(
+          "Your authentication account was created, but your profile could not be saved. Please contact support before trying to register again.",
+          "error"
+        );
+        return;
+      }
+      showNotice(
+        "Your account was created and your profile saved. Your membership is pending admin approval. WhatsApp verification has not been activated yet.",
+        "success"
+      );
+      form.reset();
+    } catch (error) {
+      console.error("Registration error:", error);
+      showNotice(
+        error.message || "Registration failed. Please try again.",
+        "error"
+      );
+    } finally {
+      submitButton.disabled = false;
+      submitButton.textContent = "Send Verification Code";
+    }
+  });
+</script>
 
 </body>
 </html>
