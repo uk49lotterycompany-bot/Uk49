@@ -1,0 +1,241 @@
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UK49 | Member Login</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 20px;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      font-family: Arial, sans-serif;
+      background: #f3f7f5;
+      color: #172b24;
+    }
+    .card {
+      width: 100%;
+      max-width: 420px;
+      padding: 30px 24px;
+      background: white;
+      border: 1px solid #dce7e1;
+      border-radius: 18px;
+      box-shadow: 0 10px 35px rgba(20, 60, 40, .06);
+    }
+    .logo {
+      text-align: center;
+      font-size: 32px;
+      font-weight: 900;
+      letter-spacing: 2px;
+      color: #087f5b;
+    }
+    .logo span { color: #e2a52e; }
+    h1 {
+      margin: 24px 0 8px;
+      text-align: center;
+      font-size: 25px;
+    }
+    .intro {
+      text-align: center;
+      color: #687a72;
+      font-size: 14px;
+      line-height: 1.6;
+      margin-bottom: 25px;
+    }
+    label {
+      display: block;
+      margin: 16px 0 8px;
+      font-size: 13px;
+      font-weight: bold;
+    }
+    input {
+      width: 100%;
+      padding: 14px;
+      border: 1px solid #dce7e1;
+      border-radius: 10px;
+      font-size: 15px;
+    }
+    input:focus {
+      outline: 2px solid #b7e4d1;
+      border-color: #087f5b;
+    }
+    button {
+      width: 100%;
+      margin-top: 22px;
+      padding: 15px;
+      border: 0;
+      border-radius: 10px;
+      background: #087f5b;
+      color: white;
+      font-size: 15px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    button:disabled {
+      opacity: .6;
+      cursor: not-allowed;
+    }
+    #notice {
+      display: none;
+      margin-top: 18px;
+      padding: 13px;
+      border-radius: 9px;
+      font-size: 13px;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+    }
+    #notice.show {
+      display: block;
+      background: #edf5ff;
+      color: #174a83;
+    }
+    #notice.error {
+      display: block;
+      background: #fff0f0;
+      color: #a11b1b;
+    }
+    .links {
+      margin-top: 20px;
+      text-align: center;
+      font-size: 13px;
+      line-height: 2;
+    }
+    a { color: #087f5b; }
+    .footnote {
+      margin-top: 20px;
+      color: #687a72;
+      font-size: 12px;
+      line-height: 1.6;
+    }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <div class="logo">UK<span>49</span></div>
+    <h1>Member Login</h1>
+    <p class="intro">
+      Sign in using the email address and password
+      associated with your account.
+    </p>
+    <form id="loginForm">
+      <label for="email">Email address</label>
+      <input
+        type="email"
+        id="email"
+        autocomplete="email"
+        required
+        maxlength="254"
+      >
+      <label for="password">Password</label>
+      <input
+        type="password"
+        id="password"
+        autocomplete="current-password"
+        required
+      >
+      <button id="loginButton" type="submit">Sign In</button>
+    </form>
+    <div id="notice" role="status" aria-live="polite"></div>
+    <div class="links">
+      <a href="#" id="forgotPassword">Forgot password?</a>
+      <br>
+      <a href="index.html">Create an account</a>
+    </div>
+    <p class="footnote">
+      Signing in does not automatically mean your membership
+      has been approved.
+    </p>
+  </main>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const SUPABASE_URL = "https://jtwrktxkkngbxrvifoax.supabase.co/rest/v1/";
+    const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_7Jdnz6F1e0-OdSVmqIqqUg_LIkD_L0O";
+    const client = window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_PUBLISHABLE_KEY
+    );
+    const form = document.getElementById("loginForm");
+    const notice = document.getElementById("notice");
+    const button = document.getElementById("loginButton");
+    function showNotice(message, error = false) {
+      notice.className = error ? "error" : "show";
+      notice.textContent = message;
+    }
+    form.addEventListener("submit", async function(event) {
+      event.preventDefault();
+      button.disabled = true;
+      button.textContent = "Signing in...";
+      try {
+        const email = document.getElementById("email").value.trim();
+        const password = document.getElementById("password").value;
+        const { data, error } = await client.auth.signInWithPassword({
+          email,
+          password
+        });
+        if (error) throw error;
+        const { data: profile, error: profileError } = await client
+          .from("members")
+          .select("approval_status")
+          .eq("id", data.user.id)
+          .maybeSingle();
+        if (profileError) throw profileError;
+        if (!profile) {
+          showNotice(
+            "Your sign-in succeeded, but your member profile is not ready. Please contact support.",
+            true
+          );
+          await client.auth.signOut();
+          return;
+        }
+        if (profile.approval_status !== "approved") {
+          showNotice(
+            "Your account is signed in, but membership approval is still pending. Please wait for the administrator.",
+            true
+          );
+          await client.auth.signOut();
+          return;
+        }
+        showNotice(
+          "Login successful. Your membership is approved, but the member dashboard has not been built yet."
+        );
+        // We will build the dashboard next.
+      } catch (error) {
+        showNotice(
+          error.message || "Login failed. Please check your details and try again.",
+          true
+        );
+      } finally {
+        button.disabled = false;
+        button.textContent = "Sign In";
+      }
+    });
+    document.getElementById("forgotPassword").addEventListener(
+      "click",
+      async function(event) {
+        event.preventDefault();
+        const email = document.getElementById("email").value.trim();
+        if (!email) {
+          showNotice(
+            "Enter your email address first, then select Forgot password.",
+            true
+          );
+          return;
+        }
+        const { error } = await client.auth.resetPasswordForEmail(email, {
+          redirectTo: window.location.origin + "/Uk49/reset-password.html"
+        });
+        if (error) {
+          showNotice(error.message, true);
+        } else {
+          showNotice(
+            "If the email is registered, Supabase will send password recovery instructions. The reset page still needs to be built."
+          );
+        }
+      }
+    );
+  </script>
+</body>
+</html>
