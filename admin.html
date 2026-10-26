@@ -1,310 +1,344 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>UK49 Admin Dashboard</title>
-  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-  <style>
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      padding: 20px;
-      font-family: Arial, sans-serif;
-      background: #f3f5f9;
-      color: #172033;
-    }
-    .container {
-      max-width: 1100px;
-      margin: 0 auto;
-    }
-    header {
-      background: #102b21;
-      color: white;
-      padding: 24px;
-      border-radius: 14px;
-      margin-bottom: 20px;
-    }
-    header h1 { margin: 0 0 8px; }
-    header p { margin: 0; color: #d2e8dc; }
-    .card {
-      background: white;
-      padding: 20px;
-      border-radius: 12px;
-      margin-bottom: 20px;
-      box-shadow: 0 2px 10px #0000000a;
-    }
-    input, button {
-      padding: 12px;
-      border-radius: 7px;
-      font-size: 15px;
-    }
-    input {
-      display: block;
-      width: 100%;
-      margin: 10px 0;
-      border: 1px solid #cbd5e1;
-    }
-    button {
-      border: 0;
-      cursor: pointer;
-      font-weight: bold;
-    }
-    .primary { background: #147d50; color: white; }
-    .approve { background: #d8f5e5; color: #12683f; }
-    .reject { background: #ffe0e0; color: #a11c1c; }
-    .secondary { background: #e8edf4; color: #172033; }
-    #message { margin-top: 12px; overflow-wrap: anywhere; }
-    .error { color: #b42318; }
-    .success { color: #147d50; }
-    .stats {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 12px;
-    }
-    .stat {
-      background: #f4f7fa;
-      padding: 16px;
-      border-radius: 9px;
-    }
-    .stat strong {
-      display: block;
-      font-size: 25px;
-      margin-top: 8px;
-    }
-    .table-wrap { overflow-x: auto; }
-    table {
-      width: 100%;
-      min-width: 750px;
-      border-collapse: collapse;
-    }
-    th, td {
-      padding: 13px;
-      text-align: left;
-      border-bottom: 1px solid #e6eaf0;
-    }
-    th { background: #f6f8fb; }
-    .status {
-      display: inline-block;
-      padding: 5px 9px;
-      border-radius: 20px;
-      font-size: 12px;
-      font-weight: bold;
-    }
-    .pending { background: #fff0c2; color: #785300; }
-    .approved { background: #d8f5e5; color: #12683f; }
-    .rejected { background: #ffe0e0; color: #a11c1c; }
-    .actions { display: flex; gap: 6px; }
-    .hidden { display: none; }
-    @media (max-width: 600px) {
-      body { padding: 12px; }
-      .stats { grid-template-columns: 1fr; }
-      header, .card { padding: 16px; }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UK49 Admin Dashboard</title>
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box}
+body{margin:0;padding:20px;font-family:Arial,sans-serif;background:#f3f5f9;color:#172033}
+.container{max-width:1200px;margin:auto}
+header{background:#102b21;color:white;padding:24px;border-radius:14px;margin-bottom:20px}
+header h1{margin:0 0 8px}
+header p{margin:0;color:#d2e8dc}
+.card{background:white;padding:20px;border-radius:12px;margin-bottom:20px;box-shadow:0 2px 10px #0000000a}
+input,button{padding:12px;border-radius:7px;font-size:14px}
+input{display:block;width:100%;margin:10px 0;border:1px solid #cbd5e1}
+button{border:0;cursor:pointer;font-weight:bold;margin:2px}
+button:disabled{opacity:.6;cursor:wait}
+.primary,.generate{background:#147d50;color:white}
+.approve{background:#d8f5e5;color:#12683f}
+.reject{background:#ffe0e0;color:#a11c1c}
+.secondary{background:#e8edf4;color:#172033}
+.check{background:#dceafe;color:#174a83}
+#message,#dashboardMessage{margin-top:12px;overflow-wrap:anywhere}
+.error{color:#b42318}
+.success{color:#147d50}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.stat{background:#f4f7fa;padding:16px;border-radius:9px}
+.stat strong{display:block;font-size:25px;margin-top:8px}
+.table-wrap{overflow-x:auto}
+table{width:100%;min-width:950px;border-collapse:collapse}
+th,td{padding:13px;text-align:left;border-bottom:1px solid #e6eaf0}
+th{background:#f6f8fb}
+.status{display:inline-block;padding:5px 9px;border-radius:20px;font-size:12px;font-weight:bold}
+.pending{background:#fff0c2;color:#785300}
+.approved{background:#d8f5e5;color:#12683f}
+.rejected{background:#ffe0e0;color:#a11c1c}
+.actions{display:flex;gap:5px;flex-wrap:wrap}
+.hidden{display:none!important}
+#codePanel{border:1px solid #cbd5e1;background:#f7faf8;border-radius:10px;padding:16px;margin-top:15px}
+#generatedCode{font-size:28px;letter-spacing:5px;font-weight:bold;color:#147d50}
+.small{font-size:13px;color:#64748b;line-height:1.6}
+@media(max-width:600px){body{padding:12px}.stats{grid-template-columns:1fr}header,.card{padding:16px}}
+</style>
 </head>
 <body>
 <div class="container">
-  <header>
-    <h1>UK49 Admin Dashboard</h1>
-    <p>Manage member registrations and approval status.</p>
-  </header>
-  <section class="card" id="loginCard">
-    <h2>Administrator Login</h2>
-    <p>Sign in using the admin account you created in Supabase.</p>
-    <form id="loginForm">
-      <input id="email" type="email" placeholder="Admin email" required>
-      <input id="password" type="password" placeholder="Password" required>
-      <button class="primary" type="submit">Sign In</button>
-    </form>
-    <p id="loginMessage" role="status"></p>
-  </section>
-  <section id="dashboard" class="hidden">
-    <div class="card">
-      <button class="secondary" id="refreshButton">Refresh members</button>
-      <button class="secondary" id="logoutButton">Sign out</button>
-      <p id="dashboardMessage" role="status"></p>
-    </div>
-    <div class="card">
-      <h2>Registration Summary</h2>
-      <div class="stats">
-        <div class="stat">Total members<strong id="totalCount">0</strong></div>
-        <div class="stat">Pending<strong id="pendingCount">0</strong></div>
-        <div class="stat">Approved<strong id="approvedCount">0</strong></div>
-      </div>
-    </div>
-    <div class="card">
-      <h2>Registered Members</h2>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Phone</th>
-              <th>Email</th>
-              <th>Status</th>
-              <th>Registered</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody id="membersTable">
-            <tr><td colspan="6">Sign in to load members.</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </section>
+<header>
+<h1>UK49 Admin Dashboard</h1>
+<p>Manage member registrations, approvals and verification.</p>
+</header>
+<section class="card" id="loginCard">
+<h2>Administrator Login</h2>
+<p>Sign in using your authorized administrator account.</p>
+<form id="loginForm">
+<input id="email" type="email" placeholder="Admin email" required>
+<input id="password" type="password" placeholder="Password" required>
+<button class="primary" type="submit">Sign In</button>
+</form>
+<p id="loginMessage" role="status"></p>
+</section>
+<section id="dashboard" class="hidden">
+<div class="card">
+<button class="secondary" id="refreshButton">Refresh Members</button>
+<button class="secondary" id="logoutButton">Sign Out</button>
+<p id="dashboardMessage" role="status"></p>
+<div id="codePanel" class="hidden">
+<h3>Member Verification Code</h3>
+<p id="codeMember"></p>
+<p id="generatedCode"></p>
+<p id="codePhone"></p>
+<p id="codeExpiry" class="small"></p>
+<button class="primary" id="copyCodeButton">Copy Code</button>
+<p class="small">
+Send this code privately to the approved member through WhatsApp.
+Never post verification codes publicly. Codes expire after 10 minutes.
+</p>
+</div>
+</div>
+<div class="card">
+<h2>Registration Summary</h2>
+<div class="stats">
+<div class="stat">Total Members<strong id="totalCount">0</strong></div>
+<div class="stat">Pending<strong id="pendingCount">0</strong></div>
+<div class="stat">Approved<strong id="approvedCount">0</strong></div>
+</div>
+</div>
+<div class="card">
+<h2>Registered Members</h2>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Phone</th>
+<th>Email</th>
+<th>Status</th>
+<th>Registered</th>
+<th>Actions</th>
+</tr>
+</thead>
+<tbody id="membersTable">
+<tr><td colspan="6">Sign in to load members.</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
 </div>
 <script>
-  const SUPABASE_URL = "https://jtwrktxkkngbxrvifoax.supabase.co";
-  const SUPABASE_KEY = "sb_publishable_7Jdnz6F1e0-OdSVmqIqqUg_LIkD_L0O";
-  const client = window.supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_KEY
-  );
-  const loginCard = document.getElementById("loginCard");
-  const dashboard = document.getElementById("dashboard");
-  const loginMessage = document.getElementById("loginMessage");
-  const dashboardMessage = document.getElementById("dashboardMessage");
-  const membersTable = document.getElementById("membersTable");
-  function showMessage(element, message, isError = false) {
-    element.textContent = message;
-    element.className = isError ? "error" : "success";
+const SUPABASE_URL = "https://jtwrktxkkngbxrvifoax.supabase.co";
+const SUPABASE_KEY = "sb_publishable_7Jdnz6F1e0-OdSVmqIqqUg_LIkD_L0O";
+const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const loginCard = document.getElementById("loginCard");
+const dashboard = document.getElementById("dashboard");
+const loginMessage = document.getElementById("loginMessage");
+const dashboardMessage = document.getElementById("dashboardMessage");
+const membersTable = document.getElementById("membersTable");
+const codePanel = document.getElementById("codePanel");
+let currentCode = "";
+function showMessage(element, message, isError = false) {
+  element.textContent = message;
+  element.className = isError ? "error" : "success";
+}
+function escapeHTML(value) {
+  return String(value ?? "").replace(/[&<>"']/g, character => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;"
+  })[character]);
+}
+async function checkAdmin() {
+  const { data: { user }, error } = await client.auth.getUser();
+  if (error || !user) {
+    loginCard.classList.remove("hidden");
+    dashboard.classList.add("hidden");
+    return false;
   }
-  function escapeHTML(value) {
-    return String(value ?? "").replace(/[&<>"']/g, character => ({
-      "&": "&amp;",
-      "<": "&lt;",
-      ">": "&gt;",
-      '"': "&quot;",
-      "'": "&#39;"
-    })[character]);
+  const { data, error: adminError } = await client
+    .from("admin_users")
+    .select("user_id")
+    .eq("user_id", user.id)
+    .maybeSingle();
+  if (adminError || !data) {
+    await client.auth.signOut();
+    loginCard.classList.remove("hidden");
+    dashboard.classList.add("hidden");
+    showMessage(loginMessage, "This account is not authorized as an administrator.", true);
+    return false;
   }
-  async function checkAdmin() {
-    const { data: { user }, error } = await client.auth.getUser();
-    if (error || !user) {
-      loginCard.classList.remove("hidden");
-      dashboard.classList.add("hidden");
-      return false;
-    }
-    const { data, error: adminError } = await client
-      .from("admin_users")
-      .select("user_id")
-      .eq("user_id", user.id)
-      .maybeSingle();
-    if (adminError || !data) {
-      await client.auth.signOut();
-      loginCard.classList.remove("hidden");
-      dashboard.classList.add("hidden");
-      showMessage(
-        loginMessage,
-        "This account is not authorized as an administrator. Check your admin_users record.",
-        true
-      );
-      return false;
-    }
-    loginCard.classList.add("hidden");
-    dashboard.classList.remove("hidden");
-    return true;
+  loginCard.classList.add("hidden");
+  dashboard.classList.remove("hidden");
+  return true;
+}
+document.getElementById("loginForm").addEventListener("submit", async event => {
+  event.preventDefault();
+  showMessage(loginMessage, "Signing in...");
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value;
+  const { error } = await client.auth.signInWithPassword({ email, password });
+  if (error) {
+    showMessage(loginMessage, error.message, true);
+    return;
   }
-  document.getElementById("loginForm").addEventListener("submit", async event => {
-    event.preventDefault();
-    showMessage(loginMessage, "Signing in...");
-    const email = document.getElementById("email").value.trim();
-    const password = document.getElementById("password").value;
-    const { error } = await client.auth.signInWithPassword({ email, password });
-    if (error) {
-      showMessage(loginMessage, error.message, true);
-      return;
-    }
-    if (await checkAdmin()) {
-      await loadMembers();
-    }
-  });
-  async function loadMembers() {
-    showMessage(dashboardMessage, "Loading members...");
-    const { data, error } = await client.rpc("admin_get_members");
-    if (error) {
-      showMessage(
-        dashboardMessage,
-        "Could not load members: " + error.message,
-        true
-      );
-      return;
-    }
-    const members = data || [];
-    const pending = members.filter(member => member.approval_status === "pending").length;
-    const approved = members.filter(member => member.approval_status === "approved").length;
-    document.getElementById("totalCount").textContent = members.length;
-    document.getElementById("pendingCount").textContent = pending;
-    document.getElementById("approvedCount").textContent = approved;
-    if (members.length === 0) {
-      membersTable.innerHTML =
-        '<tr><td colspan="6">No registrations found.</td></tr>';
-      showMessage(dashboardMessage, "No members found.");
-      return;
-    }
-    membersTable.innerHTML = members.map(member => {
-      const status = escapeHTML(member.approval_status);
-      const memberId = escapeHTML(member.id);
-      const date = member.created_at
-        ? new Date(member.created_at).toLocaleString()
-        : "Unknown";
-      const actions = member.approval_status === "pending"
-        ? `<div class="actions">
-             <button class="approve" data-id="${memberId}" data-status="approved">Approve</button>
-             <button class="reject" data-id="${memberId}" data-status="rejected">Reject</button>
-           </div>`
-        : `<span>${status === "approved" ? "Reviewed" : "Rejected"}</span>`;
-      return `<tr>
-        <td>${escapeHTML(member.full_name)}</td>
-        <td>${escapeHTML(member.phone)}</td>
-        <td>${escapeHTML(member.email)}</td>
-        <td><span class="status ${status}">${status}</span></td>
-        <td>${escapeHTML(date)}</td>
-        <td>${actions}</td>
-      </tr>`;
-    }).join("");
-    showMessage(dashboardMessage, "Member list updated.");
+  if (await checkAdmin()) await loadMembers();
+});
+async function loadMembers() {
+  showMessage(dashboardMessage, "Loading members...");
+  const { data, error } = await client.rpc("admin_get_members");
+  if (error) {
+    showMessage(dashboardMessage, "Could not load members: " + error.message, true);
+    return;
   }
-  membersTable.addEventListener("click", async event => {
-    const button = event.target.closest("button[data-id][data-status]");
-    if (!button) return;
-    const status = button.dataset.status;
-    const memberId = button.dataset.id;
+  const members = data || [];
+  document.getElementById("totalCount").textContent = members.length;
+  document.getElementById("pendingCount").textContent =
+    members.filter(m => m.approval_status === "pending").length;
+  document.getElementById("approvedCount").textContent =
+    members.filter(m => m.approval_status === "approved").length;
+  if (!members.length) {
+    membersTable.innerHTML = '<tr><td colspan="6">No registrations found.</td></tr>';
+    showMessage(dashboardMessage, "No members found.");
+    return;
+  }
+  membersTable.innerHTML = members.map(member => {
+    const status = escapeHTML(member.approval_status);
+    const memberId = escapeHTML(member.id);
+    const date = member.created_at
+      ? new Date(member.created_at).toLocaleString()
+      : "Unknown";
+    let actions = "";
+    if (member.approval_status === "pending") {
+      actions = `
+        <div class="actions">
+          <button class="approve" data-id="${memberId}" data-status="approved">Approve</button>
+          <button class="reject" data-id="${memberId}" data-status="rejected">Reject</button>
+        </div>`;
+    } else if (member.approval_status === "approved") {
+      actions = `
+        <div class="actions">
+          <button class="generate" data-generate="${memberId}"
+            data-name="${escapeHTML(member.full_name)}"
+            data-phone="${escapeHTML(member.phone)}">Generate Code</button>
+          <button class="check" data-check="${memberId}">Check Verification</button>
+        </div>`;
+    } else {
+      actions = "<span>Rejected</span>";
+    }
+    return `<tr>
+      <td>${escapeHTML(member.full_name)}</td>
+      <td>${escapeHTML(member.phone)}</td>
+      <td>${escapeHTML(member.email)}</td>
+      <td><span class="status ${status}">${status}</span></td>
+      <td>${escapeHTML(date)}</td>
+      <td>${actions}</td>
+    </tr>`;
+  }).join("");
+  showMessage(dashboardMessage, "Member list updated.");
+}
+membersTable.addEventListener("click", async event => {
+  const approveButton = event.target.closest("button[data-id][data-status]");
+  if (approveButton) {
+    const status = approveButton.dataset.status;
+    const memberId = approveButton.dataset.id;
     if (!confirm(`Are you sure you want to ${status} this member?`)) return;
-    button.disabled = true;
-    showMessage(dashboardMessage, "Updating member status...");
+    approveButton.disabled = true;
     const { error } = await client.rpc("admin_update_member_status", {
       target_member_id: memberId,
       new_status: status
     });
     if (error) {
       showMessage(dashboardMessage, "Update failed: " + error.message, true);
-      button.disabled = false;
+      approveButton.disabled = false;
       return;
     }
     showMessage(dashboardMessage, `Member ${status} successfully.`);
     await loadMembers();
-  });
-  document.getElementById("refreshButton").addEventListener("click", loadMembers);
-  document.getElementById("logoutButton").addEventListener("click", async () => {
-    await client.auth.signOut();
-    dashboard.classList.add("hidden");
-    loginCard.classList.remove("hidden");
-    document.getElementById("password").value = "";
-    showMessage(loginMessage, "You have signed out.");
-  });
-  client.auth.onAuthStateChange(async (event, session) => {
-    if (event === "SIGNED_OUT") {
-      loginCard.classList.remove("hidden");
-      dashboard.classList.add("hidden");
+    return;
+  }
+  const generateButton = event.target.closest("button[data-generate]");
+  if (generateButton) {
+    const memberId = generateButton.dataset.generate;
+    const memberName = generateButton.dataset.name;
+    const memberPhone = generateButton.dataset.phone;
+    if (!confirm(`Generate a new verification code for ${memberName}? Any existing code may be replaced.`)) return;
+    generateButton.disabled = true;
+    showMessage(dashboardMessage, "Generating verification code...");
+    codePanel.classList.add("hidden");
+    try {
+      const { data, error } = await client.functions.invoke(
+        "manage-member-verification",
+        {
+          body: {
+            action: "generate",
+            member_id: memberId
+          }
+        }
+      );
+      if (error) {
+        throw new Error(data?.error || error.message || "Code generation failed.");
+      }
+      if (!data || !data.code || !data.phone) {
+        throw new Error(data?.error || "The server did not return a code and phone number.");
+      }
+      currentCode = String(data.code);
+      document.getElementById("codeMember").textContent =
+        "Member: " + memberName;
+      document.getElementById("generatedCode").textContent = currentCode;
+      document.getElementById("codePhone").textContent =
+        "Phone: " + memberPhone;
+      document.getElementById("codeExpiry").textContent =
+        "Expires: " + new Date(data.expires_at).toLocaleString();
+      codePanel.classList.remove("hidden");
+      showMessage(dashboardMessage, "Code generated. Send it privately through WhatsApp.");
+    } catch (error) {
+      showMessage(dashboardMessage, error.message || "Code generation failed.", true);
+    } finally {
+      generateButton.disabled = false;
     }
-  });
-  (async function start() {
-    const isAdmin = await checkAdmin();
-    if (isAdmin) await loadMembers();
-  })();
+    return;
+  }
+  const checkButton = event.target.closest("button[data-check]");
+  if (checkButton) {
+    const memberId = checkButton.dataset.check;
+    checkButton.disabled = true;
+    showMessage(dashboardMessage, "Checking verification status...");
+    try {
+      const { data, error } = await client.functions.invoke(
+        "manage-member-verification",
+        {
+          body: {
+            action: "status",
+            member_id: memberId
+          }
+        }
+      );
+      if (error) {
+        throw new Error(data?.error || error.message || "Could not check status.");
+      }
+      if (data?.verified) {
+        showMessage(dashboardMessage, "This member has verified their account.");
+      } else {
+        showMessage(dashboardMessage, "This member has not completed verification.");
+      }
+    } catch (error) {
+      showMessage(dashboardMessage, error.message || "Status check failed.", true);
+    } finally {
+      checkButton.disabled = false;
+    }
+  }
+});
+document.getElementById("copyCodeButton").addEventListener("click", async () => {
+  if (!currentCode) return;
+  try {
+    await navigator.clipboard.writeText(currentCode);
+    showMessage(dashboardMessage, "Verification code copied.");
+  } catch {
+    showMessage(dashboardMessage, "Copy failed. Please select and copy the code manually.", true);
+  }
+});
+document.getElementById("refreshButton").addEventListener("click", loadMembers);
+document.getElementById("logoutButton").addEventListener("click", async () => {
+  await client.auth.signOut();
+  codePanel.classList.add("hidden");
+  dashboard.classList.add("hidden");
+  loginCard.classList.remove("hidden");
+  document.getElementById("password").value = "";
+  showMessage(loginMessage, "You have signed out.");
+});
+client.auth.onAuthStateChange(event => {
+  if (event === "SIGNED_OUT") {
+    loginCard.classList.remove("hidden");
+    dashboard.classList.add("hidden");
+  }
+});
+(async function start() {
+  if (await checkAdmin()) await loadMembers();
+})();
 </script>
 </body>
 </html>
