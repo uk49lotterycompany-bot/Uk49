@@ -109,9 +109,18 @@ Never post verification codes publicly. Codes expire after 10 minutes.
 </section>
 </div>
 <script>
+"use strict";
 const SUPABASE_URL = "https://jtwrktxkkngbxrvifoax.supabase.co";
-const SUPABASE_KEY = "sb_publishable_7Jdnz6F1e0-OdSVmqIqqUg_LIkD_L0O";
-const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const SUPABASE_KEY = "sb_publishable_7Jdnz6F1e0-OdSVmqIqqUg_LIkD_L0";
+// IMPORTANT:
+// The actual deployed Edge Function slug shown in your screenshot
+// is "swift-task", even though its dashboard display name is
+// "manage-member-verification".
+const VERIFICATION_FUNCTION = "swift-task";
+const client = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
 const loginCard = document.getElementById("loginCard");
 const dashboard = document.getElementById("dashboard");
 const loginMessage = document.getElementById("loginMessage");
@@ -148,30 +157,46 @@ async function checkAdmin() {
     await client.auth.signOut();
     loginCard.classList.remove("hidden");
     dashboard.classList.add("hidden");
-    showMessage(loginMessage, "This account is not authorized as an administrator.", true);
+    showMessage(
+      loginMessage,
+      "This account is not authorized as an administrator.",
+      true
+    );
     return false;
   }
   loginCard.classList.add("hidden");
   dashboard.classList.remove("hidden");
   return true;
 }
-document.getElementById("loginForm").addEventListener("submit", async event => {
-  event.preventDefault();
-  showMessage(loginMessage, "Signing in...");
-  const email = document.getElementById("email").value.trim();
-  const password = document.getElementById("password").value;
-  const { error } = await client.auth.signInWithPassword({ email, password });
-  if (error) {
-    showMessage(loginMessage, error.message, true);
-    return;
+document.getElementById("loginForm").addEventListener(
+  "submit",
+  async event => {
+    event.preventDefault();
+    showMessage(loginMessage, "Signing in...");
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value;
+    const { error } = await client.auth.signInWithPassword({
+      email,
+      password
+    });
+    if (error) {
+      showMessage(loginMessage, error.message, true);
+      return;
+    }
+    if (await checkAdmin()) {
+      await loadMembers();
+    }
   }
-  if (await checkAdmin()) await loadMembers();
-});
+);
 async function loadMembers() {
   showMessage(dashboardMessage, "Loading members...");
   const { data, error } = await client.rpc("admin_get_members");
   if (error) {
-    showMessage(dashboardMessage, "Could not load members: " + error.message, true);
+    showMessage(
+      dashboardMessage,
+      "Could not load members: " + error.message,
+      true
+    );
     return;
   }
   const members = data || [];
@@ -181,7 +206,8 @@ async function loadMembers() {
   document.getElementById("approvedCount").textContent =
     members.filter(m => m.approval_status === "approved").length;
   if (!members.length) {
-    membersTable.innerHTML = '<tr><td colspan="6">No registrations found.</td></tr>';
+    membersTable.innerHTML =
+      '<tr><td colspan="6">No registrations found.</td></tr>';
     showMessage(dashboardMessage, "No members found.");
     return;
   }
@@ -195,63 +221,103 @@ async function loadMembers() {
     if (member.approval_status === "pending") {
       actions = `
         <div class="actions">
-          <button class="approve" data-id="${memberId}" data-status="approved">Approve</button>
-          <button class="reject" data-id="${memberId}" data-status="rejected">Reject</button>
+          <button class="approve"
+            data-id="${memberId}"
+            data-status="approved">Approve</button>
+          <button class="reject"
+            data-id="${memberId}"
+            data-status="rejected">Reject</button>
         </div>`;
     } else if (member.approval_status === "approved") {
       actions = `
         <div class="actions">
-          <button class="generate" data-generate="${memberId}"
+          <button class="generate"
+            data-generate="${memberId}"
             data-name="${escapeHTML(member.full_name)}"
-            data-phone="${escapeHTML(member.phone)}">Generate Code</button>
-          <button class="check" data-check="${memberId}">Check Verification</button>
+            data-phone="${escapeHTML(member.phone)}">
+            Generate Code
+          </button>
+          <button class="check" data-check="${memberId}">
+            Check Verification
+          </button>
         </div>`;
     } else {
       actions = "<span>Rejected</span>";
     }
-    return `<tr>
-      <td>${escapeHTML(member.full_name)}</td>
-      <td>${escapeHTML(member.phone)}</td>
-      <td>${escapeHTML(member.email)}</td>
-      <td><span class="status ${status}">${status}</span></td>
-      <td>${escapeHTML(date)}</td>
-      <td>${actions}</td>
-    </tr>`;
+    return `
+      <tr>
+        <td>${escapeHTML(member.full_name)}</td>
+        <td>${escapeHTML(member.phone)}</td>
+        <td>${escapeHTML(member.email)}</td>
+        <td>
+          <span class="status ${status}">${status}</span>
+        </td>
+        <td>${escapeHTML(date)}</td>
+        <td>${actions}</td>
+      </tr>`;
   }).join("");
   showMessage(dashboardMessage, "Member list updated.");
 }
 membersTable.addEventListener("click", async event => {
-  const approveButton = event.target.closest("button[data-id][data-status]");
+  // APPROVE OR REJECT A MEMBER
+  const approveButton = event.target.closest(
+    "button[data-id][data-status]"
+  );
   if (approveButton) {
     const status = approveButton.dataset.status;
     const memberId = approveButton.dataset.id;
-    if (!confirm(`Are you sure you want to ${status} this member?`)) return;
+    if (!confirm(`Are you sure you want to ${status} this member?`)) {
+      return;
+    }
     approveButton.disabled = true;
-    const { error } = await client.rpc("admin_update_member_status", {
-      target_member_id: memberId,
-      new_status: status
-    });
+    const { error } = await client.rpc(
+      "admin_update_member_status",
+      {
+        target_member_id: memberId,
+        new_status: status
+      }
+    );
     if (error) {
-      showMessage(dashboardMessage, "Update failed: " + error.message, true);
+      showMessage(
+        dashboardMessage,
+        "Update failed: " + error.message,
+        true
+      );
       approveButton.disabled = false;
       return;
     }
-    showMessage(dashboardMessage, `Member ${status} successfully.`);
+    showMessage(
+      dashboardMessage,
+      `Member ${status} successfully.`
+    );
     await loadMembers();
     return;
   }
-  const generateButton = event.target.closest("button[data-generate]");
+  // GENERATE A VERIFICATION CODE
+  const generateButton = event.target.closest(
+    "button[data-generate]"
+  );
   if (generateButton) {
     const memberId = generateButton.dataset.generate;
     const memberName = generateButton.dataset.name;
     const memberPhone = generateButton.dataset.phone;
-    if (!confirm(`Generate a new verification code for ${memberName}? Any existing code may be replaced.`)) return;
+    if (!confirm(
+      `Generate a new verification code for ${memberName}? ` +
+      "Any existing code may be replaced."
+    )) {
+      return;
+    }
     generateButton.disabled = true;
-    showMessage(dashboardMessage, "Generating verification code...");
+    showMessage(
+      dashboardMessage,
+      "Generating verification code..."
+    );
     codePanel.classList.add("hidden");
+    currentCode = "";
     try {
+      // Uses the actual function slug: swift-task.
       const { data, error } = await client.functions.invoke(
-        "manage-member-verification",
+        VERIFICATION_FUNCTION,
         {
           body: {
             action: "generate",
@@ -260,36 +326,61 @@ membersTable.addEventListener("click", async event => {
         }
       );
       if (error) {
-        throw new Error(data?.error || error.message || "Code generation failed.");
+        console.error("Code generation request failed:", error);
+        throw new Error(
+          data?.error ||
+          error.message ||
+          "Code generation failed."
+        );
       }
-      if (!data || !data.code || !data.phone) {
-        throw new Error(data?.error || "The server did not return a code and phone number.");
+      if (!data || !data.code || !data.phone || !data.expires_at) {
+        console.error("Unexpected code-generation response:", data);
+        throw new Error(
+          data?.error ||
+          "The server did not return all required verification details."
+        );
       }
       currentCode = String(data.code);
       document.getElementById("codeMember").textContent =
         "Member: " + memberName;
-      document.getElementById("generatedCode").textContent = currentCode;
+      document.getElementById("generatedCode").textContent =
+        currentCode;
       document.getElementById("codePhone").textContent =
-        "Phone: " + memberPhone;
+        "Phone: " + (data.phone || memberPhone);
       document.getElementById("codeExpiry").textContent =
         "Expires: " + new Date(data.expires_at).toLocaleString();
       codePanel.classList.remove("hidden");
-      showMessage(dashboardMessage, "Code generated. Send it privately through WhatsApp.");
+      showMessage(
+        dashboardMessage,
+        "Code generated. Send it privately through WhatsApp."
+      );
     } catch (error) {
-      showMessage(dashboardMessage, error.message || "Code generation failed.", true);
+      console.error("Verification code error:", error);
+      showMessage(
+        dashboardMessage,
+        error.message || "Code generation failed.",
+        true
+      );
     } finally {
       generateButton.disabled = false;
     }
     return;
   }
-  const checkButton = event.target.closest("button[data-check]");
+  // CHECK VERIFICATION STATUS
+  const checkButton = event.target.closest(
+    "button[data-check]"
+  );
   if (checkButton) {
     const memberId = checkButton.dataset.check;
     checkButton.disabled = true;
-    showMessage(dashboardMessage, "Checking verification status...");
+    showMessage(
+      dashboardMessage,
+      "Checking verification status..."
+    );
     try {
+      // Uses the same actual function slug: swift-task.
       const { data, error } = await client.functions.invoke(
-        "manage-member-verification",
+        VERIFICATION_FUNCTION,
         {
           body: {
             action: "status",
@@ -298,46 +389,90 @@ membersTable.addEventListener("click", async event => {
         }
       );
       if (error) {
-        throw new Error(data?.error || error.message || "Could not check status.");
+        console.error("Verification status request failed:", error);
+        throw new Error(
+          data?.error ||
+          error.message ||
+          "Could not check verification status."
+        );
       }
       if (data?.verified) {
-        showMessage(dashboardMessage, "This member has verified their account.");
+        showMessage(
+          dashboardMessage,
+          "This member has verified their account."
+        );
       } else {
-        showMessage(dashboardMessage, "This member has not completed verification.");
+        showMessage(
+          dashboardMessage,
+          data?.expired
+            ? "The verification code has expired. Generate a new code if appropriate."
+            : "This member has not completed verification."
+        );
       }
     } catch (error) {
-      showMessage(dashboardMessage, error.message || "Status check failed.", true);
+      console.error("Verification status error:", error);
+      showMessage(
+        dashboardMessage,
+        error.message || "Status check failed.",
+        true
+      );
     } finally {
       checkButton.disabled = false;
     }
   }
 });
-document.getElementById("copyCodeButton").addEventListener("click", async () => {
-  if (!currentCode) return;
-  try {
-    await navigator.clipboard.writeText(currentCode);
-    showMessage(dashboardMessage, "Verification code copied.");
-  } catch {
-    showMessage(dashboardMessage, "Copy failed. Please select and copy the code manually.", true);
+// COPY THE GENERATED CODE
+document.getElementById("copyCodeButton").addEventListener(
+  "click",
+  async () => {
+    if (!currentCode) return;
+    try {
+      await navigator.clipboard.writeText(currentCode);
+      showMessage(
+        dashboardMessage,
+        "Verification code copied."
+      );
+    } catch {
+      showMessage(
+        dashboardMessage,
+        "Copy failed. Please select and copy the code manually.",
+        true
+      );
+    }
   }
-});
-document.getElementById("refreshButton").addEventListener("click", loadMembers);
-document.getElementById("logoutButton").addEventListener("click", async () => {
-  await client.auth.signOut();
-  codePanel.classList.add("hidden");
-  dashboard.classList.add("hidden");
-  loginCard.classList.remove("hidden");
-  document.getElementById("password").value = "";
-  showMessage(loginMessage, "You have signed out.");
-});
+);
+// REFRESH MEMBERS
+document.getElementById("refreshButton").addEventListener(
+  "click",
+  loadMembers
+);
+// SIGN OUT
+document.getElementById("logoutButton").addEventListener(
+  "click",
+  async () => {
+    await client.auth.signOut();
+    currentCode = "";
+    codePanel.classList.add("hidden");
+    dashboard.classList.add("hidden");
+    loginCard.classList.remove("hidden");
+    document.getElementById("password").value = "";
+    showMessage(loginMessage, "You have signed out.");
+  }
+);
+// HANDLE SIGN-OUT EVENTS
 client.auth.onAuthStateChange(event => {
   if (event === "SIGNED_OUT") {
+    currentCode = "";
+    codePanel.classList.add("hidden");
     loginCard.classList.remove("hidden");
     dashboard.classList.add("hidden");
   }
 });
+// INITIALIZE THE DASHBOARD
 (async function start() {
-  if (await checkAdmin()) await loadMembers();
+  if (await checkAdmin()) {
+    await loadMembers();
+  }
 })();
 </script>
 </body>
