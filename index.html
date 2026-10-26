@@ -3,145 +3,98 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <title>UK49 | Create Your Account</title>
-
-  <meta
-    name="description"
-    content="Create your UK49 account."
-  >
-
+  <meta name="description" content="Create your UK49 membership account.">
+  <title>UK49 | Create Account</title>
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
+    * { box-sizing: border-box; }
     :root {
-      --primary: #087f5b;
-      --primary-dark: #056344;
+      --green: #087f5b;
+      --dark-green: #056344;
       --background: #f3f7f5;
       --text: #172b24;
       --muted: #687a72;
       --border: #dce7e1;
-      --white: #ffffff;
     }
-
     body {
+      margin: 0;
       font-family: Arial, Helvetica, sans-serif;
       background: var(--background);
       color: var(--text);
       min-height: 100vh;
     }
-
     header {
-      background: var(--white);
-      padding: 20px;
-      border-bottom: 1px solid var(--border);
+      padding: 22px;
       text-align: center;
+      background: white;
+      border-bottom: 1px solid var(--border);
     }
-
     .logo {
       font-size: 30px;
       font-weight: 900;
-      color: var(--primary);
       letter-spacing: 2px;
+      color: var(--green);
     }
-
-    .logo span {
-      color: #e2a52e;
-    }
-
+    .logo span { color: #e2a52e; }
     .tagline {
-      margin-top: 7px;
+      margin: 7px 0 0;
       color: var(--muted);
       font-size: 13px;
     }
-
     main {
       width: 100%;
       max-width: 460px;
       margin: 35px auto;
       padding: 0 18px;
     }
-
     .welcome {
       text-align: center;
-      margin-bottom: 25px;
+      margin-bottom: 24px;
     }
-
     .welcome h1 {
       font-size: 27px;
       margin-bottom: 10px;
     }
-
     .welcome p {
       color: var(--muted);
       font-size: 14px;
       line-height: 1.6;
     }
-
     .card {
-      background: var(--white);
-      padding: 27px 22px;
-      border-radius: 18px;
+      background: white;
+      padding: 26px 22px;
       border: 1px solid var(--border);
-      box-shadow: 0 10px 35px rgba(20, 60, 40, 0.06);
+      border-radius: 18px;
+      box-shadow: 0 10px 35px rgba(20,60,40,.06);
     }
-
-    .card h2 {
-      font-size: 21px;
-      margin-bottom: 8px;
-    }
-
-    .card-description {
+    .card h2 { margin: 0 0 8px; }
+    .description {
+      margin-bottom: 24px;
       color: var(--muted);
       font-size: 13px;
-      margin-bottom: 25px;
       line-height: 1.5;
     }
-
-    .form-group {
-      margin-bottom: 18px;
-    }
-
+    .form-group { margin-bottom: 18px; }
     label {
       display: block;
-      font-size: 13px;
-      font-weight: 700;
       margin-bottom: 8px;
+      font-size: 13px;
+      font-weight: bold;
     }
-
     input {
       width: 100%;
       padding: 14px;
       border: 1px solid var(--border);
       border-radius: 10px;
-      font-size: 15px;
-      outline: none;
       background: #fcfefd;
       color: var(--text);
-      transition: border-color 0.2s;
+      font-size: 15px;
     }
-
     input:focus {
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(8, 127, 91, 0.08);
+      outline: 2px solid rgba(8,127,91,.15);
+      border-color: var(--green);
     }
-
-    input::placeholder {
-      color: #a0ada6;
-    }
-
-    .password-wrapper {
-      position: relative;
-    }
-
-    .password-wrapper input {
-      padding-right: 75px;
-    }
-
+    .password-wrapper { position: relative; }
+    .password-wrapper input { padding-right: 75px; }
     .toggle-password {
       position: absolute;
       right: 12px;
@@ -149,66 +102,51 @@
       transform: translateY(-50%);
       border: none;
       background: transparent;
-      color: var(--primary);
-      cursor: pointer;
+      color: var(--green);
       font-weight: bold;
+      cursor: pointer;
     }
-
     .primary-button {
-      display: block;
       width: 100%;
       padding: 15px;
       border: none;
       border-radius: 10px;
-      background: var(--primary);
-      color: var(--white);
+      background: var(--green);
+      color: white;
       font-size: 15px;
-      font-weight: 700;
+      font-weight: bold;
       cursor: pointer;
-      transition: background 0.2s;
     }
-
-    .primary-button:hover {
-      background: var(--primary-dark);
-    }
-
+    .primary-button:hover { background: var(--dark-green); }
     .primary-button:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
+      opacity: .6;
+      cursor: wait;
     }
-
     .notice {
       display: none;
-      padding: 13px;
       margin: 17px 0;
+      padding: 13px;
       border-radius: 9px;
       font-size: 13px;
       line-height: 1.6;
       overflow-wrap: anywhere;
     }
-
     .notice.info {
       display: block;
       background: #edf5ff;
       color: #174a83;
     }
-
     .notice.error {
       display: block;
       background: #fff0f0;
       color: #a11b1b;
     }
-
     .notice.success {
       display: block;
       background: #eaf8ef;
       color: #17663a;
     }
-
     .security-note {
-      display: flex;
-      gap: 10px;
-      align-items: flex-start;
       margin-top: 20px;
       padding: 13px;
       border-radius: 10px;
@@ -217,268 +155,159 @@
       font-size: 12px;
       line-height: 1.6;
     }
-
-    .security-note strong {
-      color: var(--text);
-    }
-
-    .footer {
-      text-align: center;
+    footer {
       padding: 20px 10px 30px;
+      text-align: center;
       color: var(--muted);
       font-size: 12px;
       line-height: 1.8;
     }
-
     @media (max-width: 480px) {
-      main {
-        margin: 25px auto;
-      }
-
-      .card {
-        padding: 23px 18px;
-      }
-
-      .welcome h1 {
-        font-size: 24px;
-      }
+      main { margin: 25px auto; }
+      .card { padding: 23px 18px; }
+      .welcome h1 { font-size: 24px; }
     }
   </style>
 </head>
-
 <body>
-
   <header>
     <div class="logo">UK<span>49</span></div>
     <p class="tagline">Your membership starts here</p>
   </header>
-
   <main>
-
     <section class="welcome">
       <h1>Welcome to UK49</h1>
-      <p>
-        Create your account to get started.
-        Enter your details below to begin registration.
-      </p>
+      <p>Create your account to get started. Enter your details below.</p>
     </section>
-
     <section class="card">
-
       <h2>Sign Up Details</h2>
-
-      <p class="card-description">
-        Please provide your correct information.
-      </p>
-
+      <p class="description">Please provide your correct information.</p>
       <form id="signupForm">
-
         <div class="form-group">
           <label for="fullName">Full Name</label>
-
-          <input
-            type="text"
-            id="fullName"
-            name="fullName"
-            placeholder="Enter your full name"
-            autocomplete="name"
-            required
-            maxlength="100"
-          >
+          <input id="fullName" type="text" autocomplete="name"
+            placeholder="Enter your full name" maxlength="100" required>
         </div>
-
         <div class="form-group">
           <label for="phone">Phone Number</label>
-
-          <input
-            type="tel"
-            id="phone"
-            name="phone"
-            placeholder="Enter your phone number"
-            autocomplete="tel"
-            required
-            maxlength="20"
-          >
+          <input id="phone" type="tel" autocomplete="tel"
+            placeholder="Enter your phone number" maxlength="20" required>
         </div>
-
         <div class="form-group">
           <label for="email">Email Address</label>
-
-          <input
-            type="email"
-            id="email"
-            name="email"
-            placeholder="Enter your email address"
-            autocomplete="email"
-            required
-            maxlength="254"
-          >
+          <input id="email" type="email" autocomplete="email"
+            placeholder="Enter your email address" maxlength="254" required>
         </div>
-
         <div class="form-group">
           <label for="password">Create Password</label>
-
           <div class="password-wrapper">
-
-            <input
-              type="password"
-              id="password"
-              name="password"
-              placeholder="Create a strong password"
-              autocomplete="new-password"
-              minlength="12"
-              maxlength="128"
-              required
-            >
-
-            <button
-              class="toggle-password"
-              type="button"
-              id="togglePassword"
-            >
-              Show
-            </button>
-
+            <input id="password" type="password" autocomplete="new-password"
+              placeholder="At least 12 characters" minlength="12"
+              maxlength="128" required>
+            <button id="togglePassword" class="toggle-password"
+              type="button">Show</button>
           </div>
         </div>
-
-        <div
-          id="notice"
-          class="notice"
-          role="status"
-          aria-live="polite"
-        ></div>
-
-        <button
-          type="submit"
-          class="primary-button"
-          id="sendCodeButton"
-        >
-          Send Verification Code
+        <div id="notice" class="notice" role="status"
+          aria-live="polite"></div>
+        <button id="submitButton" class="primary-button" type="submit">
+          Create Account
         </button>
-
       </form>
-
       <div class="security-note">
-        <span>🔒</span>
-
-        <p>
-          <strong>Protect your information.</strong>
-          Never share your password or verification code
-          with another person.
-        </p>
+        🔒 Protect your information. Never share your password or verification
+        code with another person.
       </div>
-
     </section>
-
   </main>
-
-  <footer class="footer">
+  <footer>
     <p>&copy; <span id="year"></span> UK49.</p>
     <p>Use only legitimate and authorized services.</p>
   </footer>
-
+  <!-- Load Supabase before running our application code. -->
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
   <script>
-    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-<script>
-  // Replace these two placeholders with your actual Supabase details.
-  const SUPABASE_URL = "https://jtwrktxkkngbxrvifoax.supabase.co/rest/v1/";
-  const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_7Jdnz6F1e0-OdSVmqIqqUg_LIkD_L0O";
-  const supabaseClient =supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_PUBLISHABLE_KEY
-  );
-  const form = document.getElementById("signupForm");
-  const notice = document.getElementById("notice");
-  const password = document.getElementById("password");
-  const togglePassword = document.getElementById("togglePassword");
-  const submitButton = document.getElementById("sendCodeButton");
-  document.getElementById("year").textContent =
-    new Date().getFullYear();
-  function showNotice(message, type) {
-    notice.className = "notice " + type;
-    notice.textContent = message;
-  }
-  togglePassword.addEventListener("click", function () {
-    const showPassword = password.type === "password";
-    password.type = showPassword ? "text" : "password";
-    togglePassword.textContent = showPassword ? "Hide" : "Show";
-  });
-  form.addEventListener("submit", async function (event) {
-    event.preventDefault();
-    const fullName = document.getElementById("fullName").value.trim();
-    const phone = document.getElementById("phone").value.trim();
-    const email = document.getElementById("email").value.trim();
-    const passwordValue = password.value;
-    if (
-      SUPABASE_URL === "https://jtwrktxkkngbxrvifoax.supabase.co/rest/v1/" ||
-      SUPABASE_PUBLISHABLE_KEY === "sb_publishable_7Jdnz6F1e0-OdSVmqIqqUg_LIkD_L0O"
-    ) {
-      showNotice("Please configure your Supabase URL and publishable key first.", "error");
-      return;
+    const SUPABASE_URL =
+      "https://jtwrktxkkngbxrvifoax.supabase.co";
+    const SUPABASE_PUBLISHABLE_KEY =
+      "sb_publishable_7Jdnz6F1e0-OdSVmqIqqUg_LIkD_L0O";
+    document.getElementById("year").textContent =
+      new Date().getFullYear();
+    const form = document.getElementById("signupForm");
+    const notice = document.getElementById("notice");
+    const passwordInput = document.getElementById("password");
+    const togglePassword = document.getElementById("togglePassword");
+    const submitButton = document.getElementById("submitButton");
+    function showNotice(message, type) {
+      notice.className = "notice " + type;
+      notice.textContent = message;
     }
-    submitButton.disabled = true;
-    submitButton.textContent = "Creating account...";
-    try {
-      const { data, error } = await supabaseClient.auth.signUp({
-        email: email,
-        password: passwordValue,
-        options: {
-          data: {
-            full_name: fullName,
-            phone: phone
-          }
-        }
-      });
-      if (error) throw error;
-      if (!data.user) {
-        throw new Error("Supabase did not return a user account.");
-      }
-      // If email confirmation is enabled, a session may not exist yet.
-      // The profile table requires an authenticated session, so don't
-      // try to insert into it until the user is signed in.
-      if (!data.session) {
+    togglePassword.addEventListener("click", function () {
+      const shouldShow = passwordInput.type === "password";
+      passwordInput.type = shouldShow ? "text" : "password";
+      togglePassword.textContent = shouldShow ? "Hide" : "Show";
+    });
+    form.addEventListener("submit", async function (event) {
+      event.preventDefault();
+      if (!window.supabase || !window.supabase.createClient) {
         showNotice(
-          "Your registration request was received. Check your email for the confirmation message. Your profile and manual approval process still need to be completed.",
-          "success"
-        );
-        form.reset();
-        return;
-      }
-      const { error: profileError } = await supabaseClient
-        .from("members")
-        .insert({
-          id: data.user.id,
-          full_name: fullName,
-          phone: phone,
-          email: email,
-          approval_status: "pending"
-        });
-      if (profileError) {
-        console.error("Profile creation error:", profileError);
-        showNotice(
-          "Your authentication account was created, but your profile could not be saved. Please contact support before trying to register again.",
+          "The signup service could not load. Check your internet connection and refresh the page.",
           "error"
         );
         return;
       }
-      showNotice(
-        "Your account was created and your profile saved. Your membership is pending admin approval. WhatsApp verification has not been activated yet.",
-        "success"
+      const fullName =
+        document.getElementById("fullName").value.trim();
+      const phone =
+        document.getElementById("phone").value.trim();
+      const email =
+        document.getElementById("email").value.trim();
+      const password = passwordInput.value;
+      const supabaseClient = window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_PUBLISHABLE_KEY
       );
-      form.reset();
-    } catch (error) {
-      console.error("Registration error:", error);
-      showNotice(
-        error.message || "Registration failed. Please try again.",
-        "error"
-      );
-    } finally {
-      submitButton.disabled = false;
-      submitButton.textContent = "Send Verification Code";
-    }
-  });
-</script>
-
+      submitButton.disabled = true;
+      submitButton.textContent = "Creating account...";
+      try {
+        const { data, error } = await supabaseClient.auth.signUp({
+          email: email,
+          password: password,
+          options: {
+            data: {
+              full_name: fullName,
+              phone: phone
+            }
+          }
+        });
+        if (error) throw error;
+        if (!data.user) {
+          throw new Error("No account was returned. Please try again.");
+        }
+        if (!data.session) {
+          showNotice(
+            "Your registration request was received. Check your email for a confirmation message. Admin approval and WhatsApp verification have not yet been activated.",
+            "success"
+          );
+        } else {
+          showNotice(
+            "Your authentication account was created. The member profile and admin approval process still need to be configured.",
+            "success"
+          );
+        }
+        form.reset();
+        togglePassword.textContent = "Show";
+      } catch (error) {
+        console.error("UK49 signup error:", error);
+        showNotice(
+          error.message || "Registration failed. Please try again.",
+          "error"
+        );
+      } finally {
+        submitButton.disabled = false;
+        submitButton.textContent = "Create Account";
+      }
+    });
+  </script>
 </body>
 </html>
