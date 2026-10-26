@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UK49 | Verify Account</title>
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #071b35, #123e67);
+      color: #fff;
+    }
+    .card {
+      width: 100%;
+      max-width: 420px;
+      padding: 30px 24px;
+      border-radius: 18px;
+      background: #102b49;
+      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.35);
+    }
+    .logo {
+      text-align: center;
+      color: #ffd166;
+      font-size: 32px;
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 10px;
+    }
+    .description {
+      text-align: center;
+      color: #cbd5e1;
+      line-height: 1.6;
+      font-size: 14px;
+      margin-bottom: 24px;
+    }
+    label {
+      display: block;
+      margin: 15px 0 7px;
+      font-size: 14px;
+    }
+    input {
+      width: 100%;
+      padding: 14px;
+      border-radius: 9px;
+      border: 1px solid #526b86;
+      background: #071b35;
+      color: white;
+      font-size: 16px;
+      outline: none;
+    }
+    input:focus {
+      border-color: #ffd166;
+    }
+    button {
+      width: 100%;
+      padding: 14px;
+      margin-top: 22px;
+      border: none;
+      border-radius: 9px;
+      background: #ffd166;
+      color: #071b35;
+      font-weight: bold;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    #message {
+      margin-top: 18px;
+      text-align: center;
+      line-height: 1.5;
+      font-size: 14px;
+    }
+    .links {
+      margin-top: 20px;
+      text-align: center;
+      font-size: 14px;
+    }
+    a {
+      color: #ffd166;
+    }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <div class="logo">UK49</div>
+    <h2>Verify Your Account</h2>
+    <p class="description">
+      Sign in with your registered account and enter the
+      six-digit verification code sent to you by the administrator.
+    </p>
+    <form id="verifyForm">
+      <label for="email">Registered email address</label>
+      <input
+        id="email"
+        type="email"
+        autocomplete="email"
+        placeholder="Enter your email"
+        required
+      >
+      <label for="password">Account password</label>
+      <input
+        id="password"
+        type="password"
+        autocomplete="current-password"
+        placeholder="Enter your password"
+        required
+      >
+      <label for="code">Six-digit verification code</label>
+      <input
+        id="code"
+        type="text"
+        inputmode="numeric"
+        autocomplete="one-time-code"
+        pattern="[0-9]{6}"
+        maxlength="6"
+        placeholder="000000"
+        required
+      >
+      <button id="verifyButton" type="submit">
+        Verify Account
+      </button>
+    </form>
+    <div id="message" role="status" aria-live="polite"></div>
+    <div class="links">
+      <a href="login.html">Back to Login</a>
+    </div>
+  </main>
+  <script>
+    const SUPABASE_URL = "https://jtwrktxkkngbxrvifoax.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_7Jdnz6F1e0-OdSVmqIqqUg_LIkD_L0O";
+    const supabaseClient = window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_ANON_KEY
+    );
+    const form = document.getElementById("verifyForm");
+    const button = document.getElementById("verifyButton");
+    const message = document.getElementById("message");
+    form.addEventListener("submit", async function(event) {
+      event.preventDefault();
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
+      const code = document.getElementById("code").value.trim();
+      if (!/^\d{6}$/.test(code)) {
+        message.textContent = "Enter a valid six-digit code.";
+        return;
+      }
+      button.disabled = true;
+      button.textContent = "Verifying...";
+      message.textContent = "";
+      try {
+        // Sign in the member.
+        const { data: loginData, error: loginError } =
+          await supabaseClient.auth.signInWithPassword({
+            email,
+            password
+          });
+        if (loginError) {
+          throw new Error("Login failed. Check your email and password.");
+        }
+        // Submit the code to the server-side verification function.
+        const { data, error } = await supabaseClient.functions.invoke(
+          "verify-member-code",
+          {
+            body: { code }
+          }
+        );
+        if (error) {
+          throw new Error(
+            "The verification service could not be reached. Please try again."
+          );
+        }
+        if (!data || data.verified !== true) {
+          throw new Error(
+            data?.error || "Verification failed. Check your code or contact the administrator."
+          );
+        }
+        message.textContent =
+          "Your account has been verified successfully!";
+        // Keep the member signed in and take them back to the login page.
+        // A protected member page can be added next.
+        setTimeout(() => {
+          window.location.href = "login.html";
+        }, 2000);
+      } catch (error) {
+        message.textContent = error.message;
+      } finally {
+        button.disabled = false;
+        button.textContent = "Verify Account";
+      }
+    });
+  </script>
+</body>
+</html>
