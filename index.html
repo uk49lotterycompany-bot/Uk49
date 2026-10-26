@@ -284,19 +284,19 @@
         if (!data.user) {
           throw new Error("No account was returned. Please try again.");
         }
-        if (!data.session) {
-          showNotice(
-            "Your registration request was received. Check your email for a confirmation message. Admin approval and WhatsApp verification have not yet been activated.",
-            "success"
-          );
-        } else {
-          showNotice(
-            "Your authentication account was created. The member profile and admin approval process still need to be configured.",
-            "success"
-          );
-        }
-        form.reset();
-        togglePassword.textContent = "Show";
+        showNotice(
+  "Registration successful! Redirecting you to the login page...",
+  "success"
+);
+
+form.reset();
+togglePassword.textContent = "Show";
+
+setTimeout(() => {
+  window.location.href = "login.html";
+}, 2000);
+
+return;
       } catch (error) {
         console.error("UK49 signup error:", error);
         showNotice(
