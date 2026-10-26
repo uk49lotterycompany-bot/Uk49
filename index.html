@@ -379,12 +379,12 @@
   </footer>
 
   <script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <script>
   // Replace these two placeholders with your actual Supabase details.
   const SUPABASE_URL = "https://jtwrktxkkngbxrvifoax.supabase.co/rest/v1/";
   const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_7Jdnz6F1e0-OdSVmqIqqUg_LIkD_L0O";
-  const supabaseClient = window.supabase.createClient(
+  const supabaseClient =supabase.createClient(
     SUPABASE_URL,
     SUPABASE_PUBLISHABLE_KEY
   );
