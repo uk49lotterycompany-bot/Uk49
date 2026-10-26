@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UK49 Admin Dashboard</title>
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: Arial, sans-serif;
+      background: #f3f5f9;
+      color: #172033;
+    }
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    header {
+      background: #102b21;
+      color: white;
+      padding: 24px;
+      border-radius: 14px;
+      margin-bottom: 20px;
+    }
+    header h1 { margin: 0 0 8px; }
+    header p { margin: 0; color: #d2e8dc; }
+    .card {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 10px #0000000a;
+    }
+    input, button {
+      padding: 12px;
+      border-radius: 7px;
+      font-size: 15px;
+    }
+    input {
+      display: block;
+      width: 100%;
+      margin: 10px 0;
+      border: 1px solid #cbd5e1;
+    }
+    button {
+      border: 0;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .primary { background: #147d50; color: white; }
+    .approve { background: #d8f5e5; color: #12683f; }
+    .reject { background: #ffe0e0; color: #a11c1c; }
+    .secondary { background: #e8edf4; color: #172033; }
+    #message { margin-top: 12px; overflow-wrap: anywhere; }
+    .error { color: #b42318; }
+    .success { color: #147d50; }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .stat {
+      background: #f4f7fa;
+      padding: 16px;
+      border-radius: 9px;
+    }
+    .stat strong {
+      display: block;
+      font-size: 25px;
+      margin-top: 8px;
+    }
+    .table-wrap { overflow-x: auto; }
+    table {
+      width: 100%;
+      min-width: 750px;
+      border-collapse: collapse;
+    }
+    th, td {
+      padding: 13px;
+      text-align: left;
+      border-bottom: 1px solid #e6eaf0;
+    }
+    th { background: #f6f8fb; }
+    .status {
+      display: inline-block;
+      padding: 5px 9px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: bold;
+    }
+    .pending { background: #fff0c2; color: #785300; }
+    .approved { background: #d8f5e5; color: #12683f; }
+    .rejected { background: #ffe0e0; color: #a11c1c; }
+    .actions { display: flex; gap: 6px; }
+    .hidden { display: none; }
+    @media (max-width: 600px) {
+      body { padding: 12px; }
+      .stats { grid-template-columns: 1fr; }
+      header, .card { padding: 16px; }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>UK49 Admin Dashboard</h1>
+    <p>Manage member registrations and approval status.</p>
+  </header>
+  <section class="card" id="loginCard">
+    <h2>Administrator Login</h2>
+    <p>Sign in using the admin account you created in Supabase.</p>
+    <form id="loginForm">
+      <input id="email" type="email" placeholder="Admin email" required>
+      <input id="password" type="password" placeholder="Password" required>
+      <button class="primary" type="submit">Sign In</button>
+    </form>
+    <p id="loginMessage" role="status"></p>
+  </section>
+  <section id="dashboard" class="hidden">
+    <div class="card">
+      <button class="secondary" id="refreshButton">Refresh members</button>
+      <button class="secondary" id="logoutButton">Sign out</button>
+      <p id="dashboardMessage" role="status"></p>
+    </div>
+    <div class="card">
+      <h2>Registration Summary</h2>
+      <div class="stats">
+        <div class="stat">Total members<strong id="totalCount">0</strong></div>
+        <div class="stat">Pending<strong id="pendingCount">0</strong></div>
+        <div class="stat">Approved<strong id="approvedCount">0</strong></div>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Registered Members</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Phone</th>
+              <th>Email</th>
+              <th>Status</th>
+              <th>Registered</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="membersTable">
+            <tr><td colspan="6">Sign in to load members.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+</div>
+<script>
+  const SUPABASE_URL = "https://jtwrktxkkngbxrvifoax.supabase.co";
+  const SUPABASE_KEY = "sb_publishable_7Jdnz6F1e0-OdSVmqIqqUg_LIkD_L0O";
+  const client = window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+  );
+  const loginCard = document.getElementById("loginCard");
+  const dashboard = document.getElementById("dashboard");
+  const loginMessage = document.getElementById("loginMessage");
+  const dashboardMessage = document.getElementById("dashboardMessage");
+  const membersTable = document.getElementById("membersTable");
+  function showMessage(element, message, isError = false) {
+    element.textContent = message;
+    element.className = isError ? "error" : "success";
+  }
+  function escapeHTML(value) {
+    return String(value ?? "").replace(/[&<>"']/g, character => ({
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#39;"
+    })[character]);
+  }
+  async function checkAdmin() {
+    const { data: { user }, error } = await client.auth.getUser();
+    if (error || !user) {
+      loginCard.classList.remove("hidden");
+      dashboard.classList.add("hidden");
+      return false;
+    }
+    const { data, error: adminError } = await client
+      .from("admin_users")
+      .select("user_id")
+      .eq("user_id", user.id)
+      .maybeSingle();
+    if (adminError || !data) {
+      await client.auth.signOut();
+      loginCard.classList.remove("hidden");
+      dashboard.classList.add("hidden");
+      showMessage(
+        loginMessage,
+        "This account is not authorized as an administrator. Check your admin_users record.",
+        true
+      );
+      return false;
+    }
+    loginCard.classList.add("hidden");
+    dashboard.classList.remove("hidden");
+    return true;
+  }
+  document.getElementById("loginForm").addEventListener("submit", async event => {
+    event.preventDefault();
+    showMessage(loginMessage, "Signing in...");
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value;
+    const { error } = await client.auth.signInWithPassword({ email, password });
+    if (error) {
+      showMessage(loginMessage, error.message, true);
+      return;
+    }
+    if (await checkAdmin()) {
+      await loadMembers();
+    }
+  });
+  async function loadMembers() {
+    showMessage(dashboardMessage, "Loading members...");
+    const { data, error } = await client.rpc("admin_get_members");
+    if (error) {
+      showMessage(
+        dashboardMessage,
+        "Could not load members: " + error.message,
+        true
+      );
+      return;
+    }
+    const members = data || [];
+    const pending = members.filter(member => member.approval_status === "pending").length;
+    const approved = members.filter(member => member.approval_status === "approved").length;
+    document.getElementById("totalCount").textContent = members.length;
+    document.getElementById("pendingCount").textContent = pending;
+    document.getElementById("approvedCount").textContent = approved;
+    if (members.length === 0) {
+      membersTable.innerHTML =
+        '<tr><td colspan="6">No registrations found.</td></tr>';
+      showMessage(dashboardMessage, "No members found.");
+      return;
+    }
+    membersTable.innerHTML = members.map(member => {
+      const status = escapeHTML(member.approval_status);
+      const memberId = escapeHTML(member.id);
+      const date = member.created_at
+        ? new Date(member.created_at).toLocaleString()
+        : "Unknown";
+      const actions = member.approval_status === "pending"
+        ? `<div class="actions">
+             <button class="approve" data-id="${memberId}" data-status="approved">Approve</button>
+             <button class="reject" data-id="${memberId}" data-status="rejected">Reject</button>
+           </div>`
+        : `<span>${status === "approved" ? "Reviewed" : "Rejected"}</span>`;
+      return `<tr>
+        <td>${escapeHTML(member.full_name)}</td>
+        <td>${escapeHTML(member.phone)}</td>
+        <td>${escapeHTML(member.email)}</td>
+        <td><span class="status ${status}">${status}</span></td>
+        <td>${escapeHTML(date)}</td>
+        <td>${actions}</td>
+      </tr>`;
+    }).join("");
+    showMessage(dashboardMessage, "Member list updated.");
+  }
+  membersTable.addEventListener("click", async event => {
+    const button = event.target.closest("button[data-id][data-status]");
+    if (!button) return;
+    const status = button.dataset.status;
+    const memberId = button.dataset.id;
+    if (!confirm(`Are you sure you want to ${status} this member?`)) return;
+    button.disabled = true;
+    showMessage(dashboardMessage, "Updating member status...");
+    const { error } = await client.rpc("admin_update_member_status", {
+      target_member_id: memberId,
+      new_status: status
+    });
+    if (error) {
+      showMessage(dashboardMessage, "Update failed: " + error.message, true);
+      button.disabled = false;
+      return;
+    }
+    showMessage(dashboardMessage, `Member ${status} successfully.`);
+    await loadMembers();
+  });
+  document.getElementById("refreshButton").addEventListener("click", loadMembers);
+  document.getElementById("logoutButton").addEventListener("click", async () => {
+    await client.auth.signOut();
+    dashboard.classList.add("hidden");
+    loginCard.classList.remove("hidden");
+    document.getElementById("password").value = "";
+    showMessage(loginMessage, "You have signed out.");
+  });
+  client.auth.onAuthStateChange(async (event, session) => {
+    if (event === "SIGNED_OUT") {
+      loginCard.classList.remove("hidden");
+      dashboard.classList.add("hidden");
+    }
+  });
+  (async function start() {
+    const isAdmin = await checkAdmin();
+    if (isAdmin) await loadMembers();
+  })();
+</script>
+</body>
+</html>
