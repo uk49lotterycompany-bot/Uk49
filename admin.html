@@ -326,13 +326,22 @@ membersTable.addEventListener("click", async event => {
         }
       );
       if (error) {
-        console.error("Code generation request failed:", error);
-        throw new Error(
-          data?.error ||
-          error.message ||
-          "Code generation failed."
-        );
-      }
+  let details = error.message || "Code generation failed.";
+  try {
+    if (error.context instanceof Response) {
+      const responseBody = await error.context.clone().json();
+      details =
+        responseBody.error ||
+        responseBody.message ||
+        JSON.stringify(responseBody) ||
+        details;
+    }
+  } catch (e) {
+    console.log("Could not read the server error response.");
+  }
+  console.error("Code generation request failed:", details);
+  throw new Error(details);
+}
       if (!data || !data.code || !data.phone || !data.expires_at) {
         console.error("Unexpected code-generation response:", data);
         throw new Error(
