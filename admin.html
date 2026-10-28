@@ -747,33 +747,49 @@ membersTable.addEventListener("click", async event => {
         It does not currently return code, phone or expires_at.
       */
 
-      const expiryValue = data.expires_at || data.expire_at;
-
-if (!data.message || !expiryValue) {
+      const expiryValue =
+  data.expires_at ??
+  data.expire_at ??
+  data.expiration ??
+  data.expiry ??
+  null;
+if (!data.message) {
   console.error("Unexpected server response:", data);
-
   throw new Error(
-    "The server response is incomplete. Returned fields: " +
+    "The server did not return a message. Returned fields: " +
     Object.keys(data).join(", ")
   );
 }
-
-      document.getElementById("codeMember").textContent =
-        "Member: " + memberName;
-
-      document.getElementById("codePhone").textContent =
-        "Registered phone: " + memberPhone;
-
-      const expiryDate = new Date(data.expire_at);
-
-      document.getElementById("codeExpiry").textContent =
-        "Code expiry: " +
-        (Number.isNaN(expiryDate.getTime())
-          ? String(data.expire_at)
-          : expiryDate.toLocaleString());
-
-      document.getElementById("emailStatus").textContent =
-        data.message;
+document.getElementById("codeMember").textContent =
+  "Member: " + memberName;
+document.getElementById("codePhone").textContent =
+  "Registered phone: " + memberPhone;
+const expiryElement = document.getElementById("codeExpiry");
+if (expiryValue) {
+  const expiryDate = new Date(expiryValue);
+  expiryElement.textContent =
+    "Code expiry: " +
+    (Number.isNaN(expiryDate.getTime())
+      ? String(expiryValue)
+      : expiryDate.toLocaleString());
+} else {
+  expiryElement.textContent =
+    "The server did not provide an expiration time.";
+}
+document.getElementById("emailStatus").textContent =
+  data.message;
+codePanel.classList.remove("hidden");
+if (data.email_sent === true) {
+  showMessage(
+    dashboardMessage,
+    "The server confirmed that the verification email was sent."
+  );
+} else {
+  showMessage(
+    dashboardMessage,
+    "Server response received. Email delivery was not confirmed by the response; check the member's inbox."
+  );
+}
 
       codePanel.classList.remove("hidden");
 
