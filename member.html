@@ -1,1 +1,636 @@
-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UK49 | Member Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root {
+      --blue: #1769e0;
+      --dark-blue: #1049a5;
+      --light-blue: #edf5ff;
+      --white: #ffffff;
+      --background: #f4f7fc;
+      --text: #1d2939;
+      --muted: #667085;
+      --border: #e4eaf2;
+      --green: #14804a;
+      --red: #c62828;
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: Arial, sans-serif;
+      background: var(--background);
+      color: var(--text);
+    }
+    button {
+      cursor: pointer;
+      font: inherit;
+    }
+    .topbar {
+      background: var(--white);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 5%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      position: sticky;
+      top: 0;
+      z-index: 5;
+    }
+    .brand {
+      color: var(--blue);
+      font-size: 25px;
+      font-weight: 800;
+      letter-spacing: 1px;
+    }
+    .brand small {
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+      letter-spacing: 2px;
+      margin-top: 3px;
+    }
+    .logout {
+      background: #fff;
+      color: var(--blue);
+      border: 1px solid var(--blue);
+      border-radius: 8px;
+      padding: 10px 16px;
+    }
+    .logout:hover {
+      background: var(--light-blue);
+    }
+    .layout {
+      display: flex;
+      min-height: calc(100vh - 75px);
+    }
+    .sidebar {
+      width: 230px;
+      background: var(--white);
+      border-right: 1px solid var(--border);
+      padding: 24px 14px;
+      flex-shrink: 0;
+    }
+    .nav-title {
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 1.5px;
+      padding: 0 12px;
+      margin-bottom: 12px;
+    }
+    .nav-button {
+      display: block;
+      width: 100%;
+      text-align: left;
+      border: 0;
+      background: transparent;
+      padding: 13px 12px;
+      border-radius: 8px;
+      color: #475467;
+      margin-bottom: 5px;
+    }
+    .nav-button:hover,
+    .nav-button.active {
+      background: var(--light-blue);
+      color: var(--blue);
+      font-weight: 700;
+    }
+    main {
+      flex: 1;
+      padding: 30px;
+      min-width: 0;
+    }
+    .welcome {
+      margin-bottom: 25px;
+    }
+    .welcome h1 {
+      font-size: 27px;
+      margin-bottom: 8px;
+    }
+    .welcome p {
+      color: var(--muted);
+      line-height: 1.5;
+    }
+    .notice {
+      background: var(--light-blue);
+      border: 1px solid #d4e5ff;
+      border-radius: 10px;
+      padding: 14px;
+      margin-bottom: 20px;
+      color: var(--dark-blue);
+      line-height: 1.5;
+    }
+    .notice.error {
+      background: #fff0f0;
+      border-color: #ffd0d0;
+      color: var(--red);
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 18px;
+      margin-bottom: 25px;
+    }
+    .card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 13px;
+      padding: 22px;
+      box-shadow: 0 3px 12px rgba(16, 36, 70, 0.03);
+      min-width: 0;
+    }
+    .card-label {
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 12px;
+    }
+    .card-value {
+      font-size: 21px;
+      font-weight: 700;
+      overflow-wrap: anywhere;
+    }
+    .section {
+      margin-bottom: 25px;
+    }
+    .section h2 {
+      font-size: 19px;
+      margin-bottom: 15px;
+    }
+    .id-card {
+      background: linear-gradient(125deg, #1558bd, #2b85f6);
+      color: white;
+      border-radius: 17px;
+      padding: 25px;
+      max-width: 600px;
+      min-height: 240px;
+      box-shadow: 0 10px 28px rgba(23, 105, 224, 0.2);
+    }
+    .id-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 30px;
+    }
+    .id-logo {
+      font-size: 23px;
+      font-weight: 800;
+      letter-spacing: 2px;
+    }
+    .id-label {
+      font-size: 10px;
+      letter-spacing: 2px;
+      opacity: 0.85;
+      text-align: right;
+    }
+    .id-name {
+      font-size: 23px;
+      font-weight: 700;
+      overflow-wrap: anywhere;
+      margin-bottom: 7px;
+    }
+    .id-number {
+      font-size: 13px;
+      opacity: 0.9;
+      overflow-wrap: anywhere;
+    }
+    .id-bottom {
+      border-top: 1px solid rgba(255,255,255,.3);
+      margin-top: 22px;
+      padding-top: 14px;
+      display: flex;
+      justify-content: space-between;
+      gap: 15px;
+      font-size: 12px;
+    }
+    .status {
+      display: inline-block;
+      background: #e5f8ed;
+      color: var(--green);
+      border-radius: 20px;
+      padding: 6px 10px;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: capitalize;
+    }
+    .details {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 15px;
+    }
+    .detail {
+      background: #f8faff;
+      border: 1px solid var(--border);
+      padding: 15px;
+      border-radius: 9px;
+      overflow-wrap: anywhere;
+    }
+    .detail-label {
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 8px;
+    }
+    .detail-value {
+      font-weight: 600;
+      line-height: 1.5;
+    }
+    .hidden {
+      display: none !important;
+    }
+    .loading {
+      padding: 60px 20px;
+      text-align: center;
+      color: var(--muted);
+    }
+    .primary-button {
+      background: var(--blue);
+      color: white;
+      border: 0;
+      border-radius: 8px;
+      padding: 12px 18px;
+      margin-top: 16px;
+    }
+    .primary-button:hover {
+      background: var(--dark-blue);
+    }
+    footer {
+      color: var(--muted);
+      font-size: 12px;
+      text-align: center;
+      padding: 20px;
+    }
+    @media (max-width: 850px) {
+      .grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      .sidebar {
+        width: 190px;
+      }
+      main {
+        padding: 22px;
+      }
+    }
+    @media (max-width: 600px) {
+      .layout {
+        display: block;
+      }
+      .sidebar {
+        width: 100%;
+        display: flex;
+        overflow-x: auto;
+        padding: 10px;
+        border-right: 0;
+        border-bottom: 1px solid var(--border);
+      }
+      .nav-title {
+        display: none;
+      }
+      .nav-button {
+        width: auto;
+        white-space: nowrap;
+        margin: 0 4px 0 0;
+        padding: 11px 12px;
+      }
+      main {
+        padding: 18px 14px;
+      }
+      .grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+      .details {
+        grid-template-columns: 1fr;
+      }
+      .welcome h1 {
+        font-size: 23px;
+      }
+      .id-card {
+        padding: 20px;
+      }
+    }
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+      #memberIdCard,
+      #memberIdCard * {
+        visibility: visible;
+      }
+      #memberIdCard {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        max-width: 600px;
+        print-color-adjust: exact;
+        -webkit-print-color-adjust: exact;
+      }
+      .id-card {
+        box-shadow: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      UK49
+      <small>MEMBER PORTAL</small>
+    </div>
+    <button class="logout" id="logoutButton">Log out</button>
+  </header>
+  <div id="loading" class="loading">
+    <h2>Loading your dashboard...</h2>
+    <p style="margin-top:10px">Please wait while we check your account.</p>
+  </div>
+  <div id="dashboard" class="layout hidden">
+    <aside class="sidebar">
+      <div class="nav-title">MEMBER MENU</div>
+      <button class="nav-button active" data-section="overview">🏠 Overview</button>
+      <button class="nav-button" data-section="identity">🪪 My ID Card</button>
+      <button class="nav-button" data-section="profile">👤 My Profile</button>
+      <button class="nav-button" data-section="bank">🏦 Bank Information</button>
+      <button class="nav-button" data-section="settings">⚙️ Account</button>
+    </aside>
+    <main>
+      <div class="welcome">
+        <h1 id="welcomeName">Welcome!</h1>
+        <p>Welcome to your UK49 member portal.</p>
+      </div>
+      <div id="accountNotice" class="notice hidden"></div>
+      <section id="overview" class="page-section">
+        <div class="grid">
+          <div class="card">
+            <div class="card-label">Membership Status</div>
+            <div class="card-value"><span id="overviewStatus">Loading...</span></div>
+          </div>
+          <div class="card">
+            <div class="card-label">Member ID</div>
+            <div class="card-value" id="overviewId">Loading...</div>
+          </div>
+          <div class="card">
+            <div class="card-label">Registration Date</div>
+            <div class="card-value" id="overviewDate">Loading...</div>
+          </div>
+        </div>
+        <div class="section">
+          <h2>Your Digital Member Card</h2>
+          <div class="id-card" id="memberIdCard">
+            <div class="id-top">
+              <div class="id-logo">UK49</div>
+              <div class="id-label">OFFICIAL<br>MEMBER CARD</div>
+            </div>
+            <div class="id-name" id="cardName">Member Name</div>
+            <div class="id-number">MEMBER ID: <span id="cardId">Loading...</span></div>
+            <div class="id-bottom">
+              <div>
+                <div style="opacity:.8;margin-bottom:5px">MEMBER SINCE</div>
+                <div id="cardDate">Loading...</div>
+              </div>
+              <div>
+                <div style="opacity:.8;margin-bottom:5px">STATUS</div>
+                <div id="cardStatus">Loading...</div>
+              </div>
+            </div>
+          </div>
+          <button class="primary-button" id="printButton">Print / Save ID Card</button>
+        </div>
+      </section>
+      <section id="identity" class="page-section hidden">
+        <div class="section">
+          <h2>My Digital ID Card</h2>
+          <p style="color:#667085;margin-bottom:18px">
+            Your membership information is linked to your account.
+          </p>
+          <div class="id-card">
+            <div class="id-top">
+              <div class="id-logo">UK49</div>
+              <div class="id-label">OFFICIAL<br>MEMBER CARD</div>
+            </div>
+            <div class="id-name" id="cardName2">Member Name</div>
+            <div class="id-number">MEMBER ID: <span id="cardId2">Loading...</span></div>
+            <div class="id-bottom">
+              <div>
+                <div style="opacity:.8;margin-bottom:5px">MEMBER SINCE</div>
+                <div id="cardDate2">Loading...</div>
+              </div>
+              <div>
+                <div style="opacity:.8;margin-bottom:5px">STATUS</div>
+                <div id="cardStatus2">Loading...</div>
+              </div>
+            </div>
+          </div>
+          <button class="primary-button" id="printButton2">Print / Save ID Card</button>
+        </div>
+      </section>
+      <section id="profile" class="page-section hidden">
+        <div class="card section">
+          <h2>My Profile</h2>
+          <div class="details">
+            <div class="detail">
+              <div class="detail-label">Full Name</div>
+              <div class="detail-value" id="profileName">Loading...</div>
+            </div>
+            <div class="detail">
+              <div class="detail-label">Email Address</div>
+              <div class="detail-value" id="profileEmail">Loading...</div>
+            </div>
+            <div class="detail">
+              <div class="detail-label">Phone Number</div>
+              <div class="detail-value" id="profilePhone">Loading...</div>
+            </div>
+            <div class="detail">
+              <div class="detail-label">Membership Status</div>
+              <div class="detail-value" id="profileStatus">Loading...</div>
+            </div>
+            <div class="detail">
+              <div class="detail-label">Registration Date</div>
+              <div class="detail-value" id="profileDate">Loading...</div>
+            </div>
+            <div class="detail">
+              <div class="detail-label">Member ID</div>
+              <div class="detail-value" id="profileId">Loading...</div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section id="bank" class="page-section hidden">
+        <div class="card section">
+          <h2>Bank Information</h2>
+          <div class="notice">
+            This section is for viewing administrator-provided information only.
+            It does not support deposits, withdrawals, or transfers.
+          </div>
+          <div class="details">
+            <div class="detail">
+              <div class="detail-label">Bank Name</div>
+              <div class="detail-value">Not configured</div>
+            </div>
+            <div class="detail">
+              <div class="detail-label">Account Name</div>
+              <div class="detail-value">Not configured</div>
+            </div>
+            <div class="detail">
+              <div class="detail-label">Account Number</div>
+              <div class="detail-value">Not configured</div>
+            </div>
+          </div>
+          <p style="margin-top:15px;color:#667085;font-size:13px">
+            Bank information will appear here once the administrator-controlled
+            database fields have been configured.
+          </p>
+        </div>
+      </section>
+      <section id="settings" class="page-section hidden">
+        <div class="card section">
+          <h2>Account Settings</h2>
+          <div class="detail">
+            <div class="detail-label">Signed-in email</div>
+            <div class="detail-value" id="settingsEmail">Loading...</div>
+          </div>
+          <button class="primary-button" id="logoutButton2">Log out securely</button>
+        </div>
+      </section>
+      <footer>UK49 Member Portal</footer>
+    </main>
+  </div>
+  <script>
+    const SUPABASE_URL = "https://jtwrktxkkngbxrvifoax.supabase.co";
+    const SUPABASE_PUBLISHABLE_KEY =
+      "sb_publishable_7Jdnz6F1e0-OdSVmqIqqUg_LIkD_L0";
+    const client = window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_PUBLISHABLE_KEY
+    );
+    const $ = (id) => document.getElementById(id);
+    function showError(message) {
+      $("loading").classList.remove("hidden");
+      $("loading").innerHTML = `
+        <h2>Unable to open your dashboard</h2>
+        <p style="margin-top:12px;color:#c62828"></p>
+        <button class="primary-button" id="errorLogin">Return to login</button>
+      `;
+      $("loading").querySelector("p").textContent = message;
+      $("errorLogin").addEventListener("click", () => {
+        window.location.href = "login.html";
+      });
+    }
+    function formatDate(value) {
+      if (!value) return "Not available";
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) return "Not available";
+      return date.toLocaleDateString("en-NG", {
+        day: "numeric",
+        month: "short",
+        year: "numeric"
+      });
+    }
+    function displayText(id, value) {
+      $(id).textContent = value || "Not provided";
+    }
+    function displayStatus(value) {
+      if (!value) return "Unknown";
+      return value.charAt(0).toUpperCase() + value.slice(1);
+    }
+    async function logout() {
+      await client.auth.signOut();
+      window.location.replace("login.html");
+    }
+    $("logoutButton").addEventListener("click", logout);
+    $("logoutButton2").addEventListener("click", logout);
+    $("printButton").addEventListener("click", () => window.print());
+    $("printButton2").addEventListener("click", () => window.print());
+    document.querySelectorAll(".nav-button").forEach((button) => {
+      button.addEventListener("click", () => {
+        document.querySelectorAll(".nav-button").forEach((item) => {
+          item.classList.remove("active");
+        });
+        button.classList.add("active");
+        document.querySelectorAll(".page-section").forEach((section) => {
+          section.classList.add("hidden");
+        });
+        $(button.dataset.section).classList.remove("hidden");
+      });
+    });
+    async function initializeDashboard() {
+      try {
+        const { data: sessionData, error: sessionError } =
+          await client.auth.getSession();
+        if (sessionError || !sessionData.session) {
+          window.location.replace("login.html");
+          return;
+        }
+        const user = sessionData.session.user;
+        // RLS must restrict this query to the signed-in member.
+        const { data: member, error: memberError } = await client
+          .from("members")
+          .select("id, full_name, phone, email, approval_status, created_at")
+          .eq("id", user.id)
+          .maybeSingle();
+        if (memberError) {
+          console.error("Member profile query failed:", memberError);
+          showError("We could not load your member profile. Please try again later.");
+          return;
+        }
+        if (!member) {
+          showError("Your member profile was not found. Please contact the administrator.");
+          return;
+        }
+        if (member.approval_status !== "approved") {
+          showError("Your membership has not been approved. Please contact the administrator.");
+          return;
+        }
+        // Do not display the dashboard until server-side verification
+        // has been checked. This endpoint must be deployed before launch.
+        const { data: verification, error: verificationError } =
+          await client.functions.invoke("member-dashboard-access", {
+            body: {}
+          });
+        if (verificationError || !verification || verification.verified !== true) {
+          showError(
+            verification?.error ||
+            "We could not confirm your verification status. Please try again later."
+          );
+          return;
+        }
+        const name = member.full_name || "UK49 Member";
+        const memberId = member.id;
+        const date = formatDate(member.created_at);
+        const status = displayStatus(member.approval_status);
+        displayText("welcomeName", "Welcome, " + name + "!");
+        displayText("overviewStatus", status);
+        displayText("overviewId", memberId.slice(0, 8).toUpperCase());
+        displayText("overviewDate", date);
+        displayText("cardName", name);
+        displayText("cardId", memberId.slice(0, 8).toUpperCase());
+        displayText("cardDate", date);
+        displayText("cardStatus", status);
+        displayText("cardName2", name);
+        displayText("cardId2", memberId.slice(0, 8).toUpperCase());
+        displayText("cardDate2", date);
+        displayText("cardStatus2", status);
+        displayText("profileName", name);
+        displayText("profileEmail", member.email || user.email);
+        displayText("profilePhone", member.phone);
+        displayText("profileStatus", status);
+        displayText("profileDate", date);
+        displayText("profileId", memberId);
+        displayText("settingsEmail", user.email);
+        $("loading").classList.add("hidden");
+        $("dashboard").classList.remove("hidden");
+      } catch (error) {
+        console.error("Dashboard error:", error);
+        showError("Something went wrong while loading your dashboard.");
+      }
+    }
+    initializeDashboard();
+  </script>
+</body>
+</html>
