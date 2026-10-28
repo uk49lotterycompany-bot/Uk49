@@ -747,14 +747,16 @@ membersTable.addEventListener("click", async event => {
         It does not currently return code, phone or expires_at.
       */
 
-      if (!data.message || !data.expire_at) {
-        console.error("Unexpected server response:", data);
+      const expiryValue = data.expires_at || data.expire_at;
 
-        throw new Error(
-          "The server response is incomplete. Returned fields: " +
-          Object.keys(data).join(", ")
-        );
-      }
+if (!data.message || !expiryValue) {
+  console.error("Unexpected server response:", data);
+
+  throw new Error(
+    "The server response is incomplete. Returned fields: " +
+    Object.keys(data).join(", ")
+  );
+}
 
       document.getElementById("codeMember").textContent =
         "Member: " + memberName;
