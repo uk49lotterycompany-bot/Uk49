@@ -8,220 +8,179 @@
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 
 <style>
-* {
-  box-sizing: border-box;
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  padding:20px;
+  font-family:Arial,sans-serif;
+  background:#f3f5f9;
+  color:#172033;
 }
 
-body {
-  margin: 0;
-  padding: 20px;
-  font-family: Arial, sans-serif;
-  background: #f3f5f9;
-  color: #172033;
+.container{max-width:1200px;margin:auto}
+
+header{
+  background:#102b21;
+  color:white;
+  padding:24px;
+  border-radius:14px;
+  margin-bottom:20px;
 }
 
-.container {
-  max-width: 1200px;
-  margin: auto;
+header h1{margin:0 0 8px}
+header p{margin:0;color:#d2e8dc}
+
+.card{
+  background:white;
+  padding:20px;
+  border-radius:12px;
+  margin-bottom:20px;
+  box-shadow:0 2px 10px #0000000a;
 }
 
-header {
-  background: #102b21;
-  color: white;
-  padding: 24px;
-  border-radius: 14px;
-  margin-bottom: 20px;
+input,button{
+  padding:12px;
+  border-radius:7px;
+  font-size:14px;
 }
 
-header h1 {
-  margin: 0 0 8px;
+input{
+  display:block;
+  width:100%;
+  margin:10px 0;
+  border:1px solid #cbd5e1;
 }
 
-header p {
-  margin: 0;
-  color: #d2e8dc;
+button{
+  border:0;
+  cursor:pointer;
+  font-weight:bold;
+  margin:2px;
 }
 
-.card {
-  background: white;
-  padding: 20px;
-  border-radius: 12px;
-  margin-bottom: 20px;
-  box-shadow: 0 2px 10px #0000000a;
+button:disabled{
+  opacity:.6;
+  cursor:wait;
 }
 
-input,
-button {
-  padding: 12px;
-  border-radius: 7px;
-  font-size: 14px;
+.primary,.generate{
+  background:#147d50;
+  color:white;
 }
 
-input {
-  display: block;
-  width: 100%;
-  margin: 10px 0;
-  border: 1px solid #cbd5e1;
+.approve{
+  background:#d8f5e5;
+  color:#12683f;
 }
 
-button {
-  border: 0;
-  cursor: pointer;
-  font-weight: bold;
-  margin: 2px;
+.reject{
+  background:#ffe0e0;
+  color:#a11c1c;
 }
 
-button:disabled {
-  opacity: 0.6;
-  cursor: wait;
+.secondary{
+  background:#e8edf4;
+  color:#172033;
 }
 
-.primary,
-.generate {
-  background: #147d50;
-  color: white;
+.check{
+  background:#dceafe;
+  color:#174a83;
 }
 
-.approve {
-  background: #d8f5e5;
-  color: #12683f;
+#message,#dashboardMessage{
+  margin-top:12px;
+  overflow-wrap:anywhere;
+  line-height:1.5;
 }
 
-.reject {
-  background: #ffe0e0;
-  color: #a11c1c;
+.error{color:#b42318}
+.success{color:#147d50}
+
+.stats{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:12px;
 }
 
-.secondary {
-  background: #e8edf4;
-  color: #172033;
+.stat{
+  background:#f4f7fa;
+  padding:16px;
+  border-radius:9px;
 }
 
-.check {
-  background: #dceafe;
-  color: #174a83;
+.stat strong{
+  display:block;
+  font-size:25px;
+  margin-top:8px;
 }
 
-#message,
-#dashboardMessage {
-  margin-top: 12px;
-  overflow-wrap: anywhere;
+.table-wrap{overflow-x:auto}
+
+table{
+  width:100%;
+  min-width:950px;
+  border-collapse:collapse;
 }
 
-.error {
-  color: #b42318;
+th,td{
+  padding:13px;
+  text-align:left;
+  border-bottom:1px solid #e6eaf0;
 }
 
-.success {
-  color: #147d50;
+th{background:#f6f8fb}
+
+.status{
+  display:inline-block;
+  padding:5px 9px;
+  border-radius:20px;
+  font-size:12px;
+  font-weight:bold;
 }
 
-.stats {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 12px;
+.pending{
+  background:#fff0c2;
+  color:#785300;
 }
 
-.stat {
-  background: #f4f7fa;
-  padding: 16px;
-  border-radius: 9px;
+.approved{
+  background:#d8f5e5;
+  color:#12683f;
 }
 
-.stat strong {
-  display: block;
-  font-size: 25px;
-  margin-top: 8px;
+.rejected{
+  background:#ffe0e0;
+  color:#a11c1c;
 }
 
-.table-wrap {
-  overflow-x: auto;
+.actions{
+  display:flex;
+  gap:5px;
+  flex-wrap:wrap;
 }
 
-table {
-  width: 100%;
-  min-width: 950px;
-  border-collapse: collapse;
+.hidden{display:none!important}
+
+#codePanel{
+  border:1px solid #cbd5e1;
+  background:#f7faf8;
+  border-radius:10px;
+  padding:16px;
+  margin-top:15px;
 }
 
-th,
-td {
-  padding: 13px;
-  text-align: left;
-  border-bottom: 1px solid #e6eaf0;
+.small{
+  font-size:13px;
+  color:#64748b;
+  line-height:1.6;
 }
 
-th {
-  background: #f6f8fb;
-}
-
-.status {
-  display: inline-block;
-  padding: 5px 9px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: bold;
-}
-
-.pending {
-  background: #fff0c2;
-  color: #785300;
-}
-
-.approved {
-  background: #d8f5e5;
-  color: #12683f;
-}
-
-.rejected {
-  background: #ffe0e0;
-  color: #a11c1c;
-}
-
-.actions {
-  display: flex;
-  gap: 5px;
-  flex-wrap: wrap;
-}
-
-.hidden {
-  display: none !important;
-}
-
-#codePanel {
-  border: 1px solid #cbd5e1;
-  background: #f7faf8;
-  border-radius: 10px;
-  padding: 16px;
-  margin-top: 15px;
-}
-
-#generatedCode {
-  font-size: 28px;
-  letter-spacing: 5px;
-  font-weight: bold;
-  color: #147d50;
-}
-
-.small {
-  font-size: 13px;
-  color: #64748b;
-  line-height: 1.6;
-}
-
-@media(max-width: 600px) {
-  body {
-    padding: 12px;
-  }
-
-  .stats {
-    grid-template-columns: 1fr;
-  }
-
-  header,
-  .card {
-    padding: 16px;
-  }
+@media(max-width:600px){
+  body{padding:12px}
+  .stats{grid-template-columns:1fr}
+  header,.card{padding:16px}
 }
 </style>
 </head>
@@ -232,14 +191,16 @@ th {
 
 <header>
   <h1>UK49 Admin Dashboard</h1>
-  <p>Manage member registrations, approvals and email verification.</p>
+  <p>Manage member registrations, approvals and verification.</p>
 </header>
 
 <section class="card" id="loginCard">
+
   <h2>Administrator Login</h2>
   <p>Sign in using your authorized administrator account.</p>
 
   <form id="loginForm">
+
     <input
       id="email"
       type="email"
@@ -256,10 +217,14 @@ th {
       required
     >
 
-    <button class="primary" type="submit">Sign In</button>
+    <button class="primary" type="submit">
+      Sign In
+    </button>
+
   </form>
 
   <p id="loginMessage" role="status"></p>
+
 </section>
 
 <section id="dashboard" class="hidden">
@@ -282,25 +247,20 @@ th {
 
       <p id="codeMember"></p>
 
-      <p id="generatedCode"></p>
-
       <p id="codePhone"></p>
 
       <p id="codeExpiry" class="small"></p>
 
-      <p id="emailStatus" class="small"></p>
-
-      <button class="primary" id="copyCodeButton">
-        Copy Code
-      </button>
+      <p id="emailStatus" role="status"></p>
 
       <p class="small">
-        Verification codes expire after 10 minutes.
-        Do not share codes publicly. The system should email
-        the code to the member's registered email address.
+        Check the email delivery status before assuming the
+        member has received a verification email. Verification
+        codes should never be shared publicly.
       </p>
 
     </div>
+
   </div>
 
   <div class="card">
@@ -325,6 +285,7 @@ th {
       </div>
 
     </div>
+
   </div>
 
   <div class="card">
@@ -355,6 +316,7 @@ th {
       </table>
 
     </div>
+
   </div>
 
 </section>
@@ -369,11 +331,14 @@ const SUPABASE_URL =
   "https://jtwrktxkkngbxrvifoax.supabase.co";
 
 const SUPABASE_KEY =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp0d3JrdHhra25nYnhydmlmb2F4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI5NjIxOTYsImV4cCI6MjEwODUzODE5Nn0.UdIx-fE463fVrVeL3IZ7ZIe7zNF6a1wtaNWuLwRyjRM";
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp0d3JrdHhra25nYnhydmlmb2F4Iiwicm9sZSI6IkFOT04iLCJpYXQiOjE3OTI5NjIxOTYsImV4cCI6MjEwODUzODE5OX0.placeholder";
 
 /*
-  This is the deployed Edge Function URL slug.
-  Do not change it unless you confirm a different deployed slug.
+  IMPORTANT:
+  Replace SUPABASE_KEY above with the same public anon/publishable
+  key already used in your existing admin.html.
+
+  Never use a service-role key in this file.
 */
 
 const VERIFICATION_FUNCTION = "swift-task";
@@ -383,8 +348,6 @@ const client = window.supabase.createClient(
   SUPABASE_KEY
 );
 
-/* PAGE ELEMENTS */
-
 const loginCard = document.getElementById("loginCard");
 const dashboard = document.getElementById("dashboard");
 const loginMessage = document.getElementById("loginMessage");
@@ -393,8 +356,6 @@ const dashboardMessage =
 const membersTable = document.getElementById("membersTable");
 const codePanel = document.getElementById("codePanel");
 
-let currentCode = "";
-
 /* MESSAGE DISPLAY */
 
 function showMessage(element, message, isError = false) {
@@ -402,7 +363,7 @@ function showMessage(element, message, isError = false) {
   element.className = isError ? "error" : "success";
 }
 
-/* SAFE HTML DISPLAY */
+/* ESCAPE HTML */
 
 function escapeHTML(value) {
   return String(value ?? "").replace(/[&<>"']/g, character => ({
@@ -435,6 +396,8 @@ async function checkAdmin() {
     .maybeSingle();
 
   if (adminError || !data) {
+    console.error("Administrator check failed:", adminError);
+
     await client.auth.signOut();
 
     loginCard.classList.remove("hidden");
@@ -445,10 +408,6 @@ async function checkAdmin() {
       "This account is not authorized as an administrator.",
       true
     );
-
-    if (adminError) {
-      console.error("Administrator check failed:", adminError);
-    }
 
     return false;
   }
@@ -537,7 +496,6 @@ async function loadMembers() {
         '<tr><td colspan="6">No registrations found.</td></tr>';
 
       showMessage(dashboardMessage, "No members found.");
-
       return;
     }
 
@@ -589,11 +547,9 @@ async function loadMembers() {
           <td>${escapeHTML(member.full_name)}</td>
           <td>${escapeHTML(member.phone)}</td>
           <td>${escapeHTML(member.email)}</td>
-
           <td>
             <span class="status ${status}">${status}</span>
           </td>
-
           <td>${escapeHTML(date)}</td>
           <td>${actions}</td>
         </tr>`;
@@ -606,17 +562,17 @@ async function loadMembers() {
 
     showMessage(
       dashboardMessage,
-      "Unexpected error loading members: " +
+      "Could not load members: " +
         (error.message || "Unknown error"),
       true
     );
   }
 }
 
-/* DISPLAY THE COMPLETE SERVER ERROR */
+/* READ DETAILED EDGE FUNCTION ERRORS */
 
 async function getDetailedFunctionError(error) {
-  let details = error?.message || "Code generation failed.";
+  let details = error?.message || "Request failed.";
 
   try {
     const context = error?.context;
@@ -638,8 +594,7 @@ async function getDetailedFunctionError(error) {
           body.details,
           body.message,
           body.code ? "Error code: " + body.code : null,
-          body.raw_response,
-          body.hint ? "Hint: " + body.hint : null
+          body.raw_response
         ].filter(Boolean);
 
         if (parts.length) {
@@ -647,14 +602,10 @@ async function getDetailedFunctionError(error) {
         }
       }
 
-      details =
-        "HTTP " + context.status + ": " + details;
+      details = "HTTP " + context.status + ": " + details;
     }
   } catch (readError) {
-    console.error(
-      "Could not read the server error response:",
-      readError
-    );
+    console.error("Could not read server response:", readError);
   }
 
   return details;
@@ -692,7 +643,7 @@ membersTable.addEventListener("click", async event => {
       );
 
       if (error) {
-        console.error("Member status update failed:", error);
+        console.error("Status update failed:", error);
 
         showMessage(
           dashboardMessage,
@@ -711,8 +662,6 @@ membersTable.addEventListener("click", async event => {
       await loadMembers();
 
     } catch (error) {
-      console.error("Unexpected status-update error:", error);
-
       showMessage(
         dashboardMessage,
         "Update failed: " +
@@ -727,7 +676,7 @@ membersTable.addEventListener("click", async event => {
     return;
   }
 
-  /* GENERATE VERIFICATION CODE AND REQUEST EMAIL */
+  /* GENERATE VERIFICATION CODE */
 
   const generateButton = event.target.closest(
     "button[data-generate]"
@@ -739,21 +688,19 @@ membersTable.addEventListener("click", async event => {
     const memberPhone = generateButton.dataset.phone;
 
     if (!confirm(
-      `Generate and email a new verification code to ${memberName}? ` +
+      `Generate a new verification code for ${memberName}? ` +
       "Any existing code may be replaced."
     )) {
       return;
     }
 
     generateButton.disabled = true;
+    codePanel.classList.add("hidden");
 
     showMessage(
       dashboardMessage,
-      "Generating the code and requesting email delivery..."
+      "Generating verification code and requesting email delivery..."
     );
-
-    codePanel.classList.add("hidden");
-    currentCode = "";
 
     try {
       const { data, error } =
@@ -771,89 +718,80 @@ membersTable.addEventListener("click", async event => {
         const details =
           await getDetailedFunctionError(error);
 
-        console.error("Code generation request failed:", {
-          details,
-          error
-        });
+        console.error("Code generation failed:", details);
 
         throw new Error(details);
       }
 
       if (!data) {
         throw new Error(
-          "The server returned an empty response. " +
-          "Please check the deployed verification function."
+          "The verification server returned an empty response."
         );
       }
 
       if (data.error) {
-        const details = [
-          data.error,
-          data.details,
-          data.message,
-          data.code ? "Error code: " + data.code : null
-        ].filter(Boolean).join(" | ");
-
         throw new Error(
-          details || "The server reported an error."
+          [
+            data.error,
+            data.details,
+            data.message
+          ].filter(Boolean).join(" | ")
         );
       }
 
       /*
-        This dashboard expects the function to return:
-        code, phone and expires_at.
+        Your current function response uses:
+        message
+        expire_at
 
-        The email sender must independently confirm
-        that Gmail accepted the email before the
-        function reports successful email delivery.
+        It does not currently return code, phone or expires_at.
       */
 
-      if (
-        !data.code ||
-        !data.phone ||
-        !data.expires_at
-      ) {
-        console.error(
-          "Unexpected code-generation response:",
-          data
-        );
+      if (!data.message || !data.expire_at) {
+        console.error("Unexpected server response:", data);
 
         throw new Error(
-          "The server response is missing code, phone or " +
-          "expires_at. Returned fields: " +
+          "The server response is incomplete. Returned fields: " +
           Object.keys(data).join(", ")
         );
       }
 
-      currentCode = String(data.code);
-
       document.getElementById("codeMember").textContent =
         "Member: " + memberName;
 
-      document.getElementById("generatedCode").textContent =
-        currentCode;
-
       document.getElementById("codePhone").textContent =
-        "Phone: " + (data.phone || memberPhone);
+        "Registered phone: " + memberPhone;
+
+      const expiryDate = new Date(data.expire_at);
 
       document.getElementById("codeExpiry").textContent =
-        "Expires: " +
-        new Date(data.expires_at).toLocaleString();
+        "Code expiry: " +
+        (Number.isNaN(expiryDate.getTime())
+          ? String(data.expire_at)
+          : expiryDate.toLocaleString());
 
       document.getElementById("emailStatus").textContent =
-        data.email_sent === true
-          ? "Email delivery: confirmed by the server."
-          : "The server did not confirm email delivery. Check the response before assuming the email was sent.";
+        data.message;
 
       codePanel.classList.remove("hidden");
 
-      showMessage(
-        dashboardMessage,
-        data.email_sent === true
-          ? "Verification code generated and email delivery confirmed."
-          : "Code generated, but email delivery was not confirmed.",
-        data.email_sent !== true
-      );
+      /*
+        Do not claim email delivery is confirmed unless
+        the server explicitly returns email_sent: true.
+      */
+
+      if (data.email_sent === true) {
+        showMessage(
+          dashboardMessage,
+          "Verification request completed. The server confirmed email sending."
+        );
+      } else {
+        showMessage(
+          dashboardMessage,
+          "Server response received, but email delivery has not been confirmed.",
+          true
+        );
+      }
 
     } catch (error) {
       console.error("Verification code error:", error);
@@ -903,11 +841,6 @@ membersTable.addEventListener("click", async event => {
         const details =
           await getDetailedFunctionError(error);
 
-        console.error(
-          "Verification status request failed:",
-          details
-        );
-
         throw new Error(details);
       }
 
@@ -942,10 +875,7 @@ membersTable.addEventListener("click", async event => {
       }
 
     } catch (error) {
-      console.error(
-        "Verification status error:",
-        error
-      );
+      console.error("Status check failed:", error);
 
       showMessage(
         dashboardMessage,
@@ -958,35 +888,6 @@ membersTable.addEventListener("click", async event => {
     }
   }
 });
-
-/* COPY CODE */
-
-document.getElementById("copyCodeButton").addEventListener(
-  "click",
-  async () => {
-    if (!currentCode) {
-      return;
-    }
-
-    try {
-      await navigator.clipboard.writeText(currentCode);
-
-      showMessage(
-        dashboardMessage,
-        "Verification code copied."
-      );
-
-    } catch (error) {
-      console.error("Copy failed:", error);
-
-      showMessage(
-        dashboardMessage,
-        "Copy failed. Please select and copy the code manually.",
-        true
-      );
-    }
-  }
-);
 
 /* REFRESH MEMBERS */
 
@@ -1002,18 +903,13 @@ document.getElementById("logoutButton").addEventListener(
   async () => {
     await client.auth.signOut();
 
-    currentCode = "";
-
     codePanel.classList.add("hidden");
     dashboard.classList.add("hidden");
     loginCard.classList.remove("hidden");
 
     document.getElementById("password").value = "";
 
-    showMessage(
-      loginMessage,
-      "You have signed out."
-    );
+    showMessage(loginMessage, "You have signed out.");
   }
 );
 
@@ -1021,8 +917,6 @@ document.getElementById("logoutButton").addEventListener(
 
 client.auth.onAuthStateChange(event => {
   if (event === "SIGNED_OUT") {
-    currentCode = "";
-
     codePanel.classList.add("hidden");
     loginCard.classList.remove("hidden");
     dashboard.classList.add("hidden");
