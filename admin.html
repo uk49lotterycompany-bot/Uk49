@@ -4,134 +4,406 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>UK49 Admin Dashboard</title>
+
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+
 <style>
-*{box-sizing:border-box}
-body{margin:0;padding:20px;font-family:Arial,sans-serif;background:#f3f5f9;color:#172033}
-.container{max-width:1200px;margin:auto}
-header{background:#102b21;color:white;padding:24px;border-radius:14px;margin-bottom:20px}
-header h1{margin:0 0 8px}
-header p{margin:0;color:#d2e8dc}
-.card{background:white;padding:20px;border-radius:12px;margin-bottom:20px;box-shadow:0 2px 10px #0000000a}
-input,button{padding:12px;border-radius:7px;font-size:14px}
-input{display:block;width:100%;margin:10px 0;border:1px solid #cbd5e1}
-button{border:0;cursor:pointer;font-weight:bold;margin:2px}
-button:disabled{opacity:.6;cursor:wait}
-.primary,.generate{background:#147d50;color:white}
-.approve{background:#d8f5e5;color:#12683f}
-.reject{background:#ffe0e0;color:#a11c1c}
-.secondary{background:#e8edf4;color:#172033}
-.check{background:#dceafe;color:#174a83}
-#message,#dashboardMessage{margin-top:12px;overflow-wrap:anywhere}
-.error{color:#b42318}
-.success{color:#147d50}
-.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
-.stat{background:#f4f7fa;padding:16px;border-radius:9px}
-.stat strong{display:block;font-size:25px;margin-top:8px}
-.table-wrap{overflow-x:auto}
-table{width:100%;min-width:950px;border-collapse:collapse}
-th,td{padding:13px;text-align:left;border-bottom:1px solid #e6eaf0}
-th{background:#f6f8fb}
-.status{display:inline-block;padding:5px 9px;border-radius:20px;font-size:12px;font-weight:bold}
-.pending{background:#fff0c2;color:#785300}
-.approved{background:#d8f5e5;color:#12683f}
-.rejected{background:#ffe0e0;color:#a11c1c}
-.actions{display:flex;gap:5px;flex-wrap:wrap}
-.hidden{display:none!important}
-#codePanel{border:1px solid #cbd5e1;background:#f7faf8;border-radius:10px;padding:16px;margin-top:15px}
-#generatedCode{font-size:28px;letter-spacing:5px;font-weight:bold;color:#147d50}
-.small{font-size:13px;color:#64748b;line-height:1.6}
-@media(max-width:600px){body{padding:12px}.stats{grid-template-columns:1fr}header,.card{padding:16px}}
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+  background: #f3f5f9;
+  color: #172033;
+}
+
+.container {
+  max-width: 1200px;
+  margin: auto;
+}
+
+header {
+  background: #102b21;
+  color: white;
+  padding: 24px;
+  border-radius: 14px;
+  margin-bottom: 20px;
+}
+
+header h1 {
+  margin: 0 0 8px;
+}
+
+header p {
+  margin: 0;
+  color: #d2e8dc;
+}
+
+.card {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 10px #0000000a;
+}
+
+input,
+button {
+  padding: 12px;
+  border-radius: 7px;
+  font-size: 14px;
+}
+
+input {
+  display: block;
+  width: 100%;
+  margin: 10px 0;
+  border: 1px solid #cbd5e1;
+}
+
+button {
+  border: 0;
+  cursor: pointer;
+  font-weight: bold;
+  margin: 2px;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.primary,
+.generate {
+  background: #147d50;
+  color: white;
+}
+
+.approve {
+  background: #d8f5e5;
+  color: #12683f;
+}
+
+.reject {
+  background: #ffe0e0;
+  color: #a11c1c;
+}
+
+.secondary {
+  background: #e8edf4;
+  color: #172033;
+}
+
+.check {
+  background: #dceafe;
+  color: #174a83;
+}
+
+#message,
+#dashboardMessage {
+  margin-top: 12px;
+  overflow-wrap: anywhere;
+}
+
+.error {
+  color: #b42318;
+}
+
+.success {
+  color: #147d50;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.stat {
+  background: #f4f7fa;
+  padding: 16px;
+  border-radius: 9px;
+}
+
+.stat strong {
+  display: block;
+  font-size: 25px;
+  margin-top: 8px;
+}
+
+.table-wrap {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  min-width: 950px;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  padding: 13px;
+  text-align: left;
+  border-bottom: 1px solid #e6eaf0;
+}
+
+th {
+  background: #f6f8fb;
+}
+
+.status {
+  display: inline-block;
+  padding: 5px 9px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.pending {
+  background: #fff0c2;
+  color: #785300;
+}
+
+.approved {
+  background: #d8f5e5;
+  color: #12683f;
+}
+
+.rejected {
+  background: #ffe0e0;
+  color: #a11c1c;
+}
+
+.actions {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+
+.hidden {
+  display: none !important;
+}
+
+#codePanel {
+  border: 1px solid #cbd5e1;
+  background: #f7faf8;
+  border-radius: 10px;
+  padding: 16px;
+  margin-top: 15px;
+}
+
+#generatedCode {
+  font-size: 28px;
+  letter-spacing: 5px;
+  font-weight: bold;
+  color: #147d50;
+}
+
+.small {
+  font-size: 13px;
+  color: #64748b;
+  line-height: 1.6;
+}
+
+@media(max-width: 600px) {
+  body {
+    padding: 12px;
+  }
+
+  .stats {
+    grid-template-columns: 1fr;
+  }
+
+  header,
+  .card {
+    padding: 16px;
+  }
+}
 </style>
 </head>
+
 <body>
+
 <div class="container">
+
 <header>
-<h1>UK49 Admin Dashboard</h1>
-<p>Manage member registrations, approvals and verification.</p>
+  <h1>UK49 Admin Dashboard</h1>
+  <p>Manage member registrations, approvals and email verification.</p>
 </header>
+
 <section class="card" id="loginCard">
-<h2>Administrator Login</h2>
-<p>Sign in using your authorized administrator account.</p>
-<form id="loginForm">
-<input id="email" type="email" placeholder="Admin email" required>
-<input id="password" type="password" placeholder="Password" required>
-<button class="primary" type="submit">Sign In</button>
-</form>
-<p id="loginMessage" role="status"></p>
+  <h2>Administrator Login</h2>
+  <p>Sign in using your authorized administrator account.</p>
+
+  <form id="loginForm">
+    <input
+      id="email"
+      type="email"
+      placeholder="Admin email"
+      autocomplete="username"
+      required
+    >
+
+    <input
+      id="password"
+      type="password"
+      placeholder="Password"
+      autocomplete="current-password"
+      required
+    >
+
+    <button class="primary" type="submit">Sign In</button>
+  </form>
+
+  <p id="loginMessage" role="status"></p>
 </section>
+
 <section id="dashboard" class="hidden">
-<div class="card">
-<button class="secondary" id="refreshButton">Refresh Members</button>
-<button class="secondary" id="logoutButton">Sign Out</button>
-<p id="dashboardMessage" role="status"></p>
-<div id="codePanel" class="hidden">
-<h3>Member Verification Code</h3>
-<p id="codeMember"></p>
-<p id="generatedCode"></p>
-<p id="codePhone"></p>
-<p id="codeExpiry" class="small"></p>
-<button class="primary" id="copyCodeButton">Copy Code</button>
-<p class="small">
-Send this code privately to the approved member through WhatsApp.
-Never post verification codes publicly. Codes expire after 10 minutes.
-</p>
-</div>
-</div>
-<div class="card">
-<h2>Registration Summary</h2>
-<div class="stats">
-<div class="stat">Total Members<strong id="totalCount">0</strong></div>
-<div class="stat">Pending<strong id="pendingCount">0</strong></div>
-<div class="stat">Approved<strong id="approvedCount">0</strong></div>
-</div>
-</div>
-<div class="card">
-<h2>Registered Members</h2>
-<div class="table-wrap">
-<table>
-<thead>
-<tr>
-<th>Name</th>
-<th>Phone</th>
-<th>Email</th>
-<th>Status</th>
-<th>Registered</th>
-<th>Actions</th>
-</tr>
-</thead>
-<tbody id="membersTable">
-<tr><td colspan="6">Sign in to load members.</td></tr>
-</tbody>
-</table>
-</div>
-</div>
+
+  <div class="card">
+
+    <button class="secondary" id="refreshButton">
+      Refresh Members
+    </button>
+
+    <button class="secondary" id="logoutButton">
+      Sign Out
+    </button>
+
+    <p id="dashboardMessage" role="status"></p>
+
+    <div id="codePanel" class="hidden">
+
+      <h3>Member Verification</h3>
+
+      <p id="codeMember"></p>
+
+      <p id="generatedCode"></p>
+
+      <p id="codePhone"></p>
+
+      <p id="codeExpiry" class="small"></p>
+
+      <p id="emailStatus" class="small"></p>
+
+      <button class="primary" id="copyCodeButton">
+        Copy Code
+      </button>
+
+      <p class="small">
+        Verification codes expire after 10 minutes.
+        Do not share codes publicly. The system should email
+        the code to the member's registered email address.
+      </p>
+
+    </div>
+  </div>
+
+  <div class="card">
+
+    <h2>Registration Summary</h2>
+
+    <div class="stats">
+
+      <div class="stat">
+        Total Members
+        <strong id="totalCount">0</strong>
+      </div>
+
+      <div class="stat">
+        Pending
+        <strong id="pendingCount">0</strong>
+      </div>
+
+      <div class="stat">
+        Approved
+        <strong id="approvedCount">0</strong>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="card">
+
+    <h2>Registered Members</h2>
+
+    <div class="table-wrap">
+
+      <table>
+
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Phone</th>
+            <th>Email</th>
+            <th>Status</th>
+            <th>Registered</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+
+        <tbody id="membersTable">
+          <tr>
+            <td colspan="6">Sign in to load members.</td>
+          </tr>
+        </tbody>
+
+      </table>
+
+    </div>
+  </div>
+
 </section>
 </div>
+
 <script>
 "use strict";
-const SUPABASE_URL = "https://jtwrktxkkngbxrvifoax.supabase.co";
-const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp0d3JrdHhra25nYnhydmlmb2F4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI5NjIxOTYsImV4cCI6MjEwODUzODE5Nn0.UdIx-fE463fVrVeL3IZ7ZIe7zNF6a1wtaNWuLwRyjRM";
-// IMPORTANT:
-// The actual deployed Edge Function slug shown in your screenshot
-// is "swift-task", even though its dashboard display name is
-// "manage-member-verification".
+
+/* SUPABASE CONFIGURATION */
+
+const SUPABASE_URL =
+  "https://jtwrktxkkngbxrvifoax.supabase.co";
+
+const SUPABASE_KEY =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp0d3JrdHhra25nYnhydmlmb2F4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI5NjIxOTYsImV4cCI6MjEwODUzODE5Nn0.UdIx-fE463fVrVeL3IZ7ZIe7zNF6a1wtaNWuLwRyjRM";
+
+/*
+  This is the deployed Edge Function URL slug.
+  Do not change it unless you confirm a different deployed slug.
+*/
+
 const VERIFICATION_FUNCTION = "swift-task";
+
 const client = window.supabase.createClient(
   SUPABASE_URL,
   SUPABASE_KEY
 );
+
+/* PAGE ELEMENTS */
+
 const loginCard = document.getElementById("loginCard");
 const dashboard = document.getElementById("dashboard");
 const loginMessage = document.getElementById("loginMessage");
-const dashboardMessage = document.getElementById("dashboardMessage");
+const dashboardMessage =
+  document.getElementById("dashboardMessage");
 const membersTable = document.getElementById("membersTable");
 const codePanel = document.getElementById("codePanel");
+
 let currentCode = "";
+
+/* MESSAGE DISPLAY */
+
 function showMessage(element, message, isError = false) {
   element.textContent = message;
   element.className = isError ? "error" : "success";
 }
+
+/* SAFE HTML DISPLAY */
+
 function escapeHTML(value) {
   return String(value ?? "").replace(/[&<>"']/g, character => ({
     "&": "&amp;",
@@ -141,271 +413,521 @@ function escapeHTML(value) {
     "'": "&#39;"
   })[character]);
 }
+
+/* CHECK ADMIN ACCESS */
+
 async function checkAdmin() {
-  const { data: { user }, error } = await client.auth.getUser();
+  const {
+    data: { user },
+    error
+  } = await client.auth.getUser();
+
   if (error || !user) {
     loginCard.classList.remove("hidden");
     dashboard.classList.add("hidden");
     return false;
   }
+
   const { data, error: adminError } = await client
     .from("admin_users")
     .select("user_id")
     .eq("user_id", user.id)
     .maybeSingle();
+
   if (adminError || !data) {
     await client.auth.signOut();
+
     loginCard.classList.remove("hidden");
     dashboard.classList.add("hidden");
+
     showMessage(
       loginMessage,
       "This account is not authorized as an administrator.",
       true
     );
+
+    if (adminError) {
+      console.error("Administrator check failed:", adminError);
+    }
+
     return false;
   }
+
   loginCard.classList.add("hidden");
   dashboard.classList.remove("hidden");
+
   return true;
 }
+
+/* ADMIN LOGIN */
+
 document.getElementById("loginForm").addEventListener(
   "submit",
   async event => {
     event.preventDefault();
+
     showMessage(loginMessage, "Signing in...");
-    const email = document.getElementById("email").value.trim();
-    const password = document.getElementById("password").value;
+
+    const email =
+      document.getElementById("email").value.trim();
+
+    const password =
+      document.getElementById("password").value;
+
     const { error } = await client.auth.signInWithPassword({
       email,
       password
     });
+
     if (error) {
       showMessage(loginMessage, error.message, true);
       return;
     }
+
     if (await checkAdmin()) {
       await loadMembers();
     }
   }
 );
+
+/* LOAD MEMBERS */
+
 async function loadMembers() {
   showMessage(dashboardMessage, "Loading members...");
-  const { data, error } = await client.rpc("admin_get_members");
-  if (error) {
+
+  membersTable.innerHTML =
+    '<tr><td colspan="6">Loading members...</td></tr>';
+
+  try {
+    const { data, error } =
+      await client.rpc("admin_get_members");
+
+    if (error) {
+      console.error("Member list error:", error);
+
+      showMessage(
+        dashboardMessage,
+        "Could not load members: " + error.message,
+        true
+      );
+
+      membersTable.innerHTML =
+        '<tr><td colspan="6">Could not load members.</td></tr>';
+
+      return;
+    }
+
+    const members = data || [];
+
+    document.getElementById("totalCount").textContent =
+      members.length;
+
+    document.getElementById("pendingCount").textContent =
+      members.filter(
+        member => member.approval_status === "pending"
+      ).length;
+
+    document.getElementById("approvedCount").textContent =
+      members.filter(
+        member => member.approval_status === "approved"
+      ).length;
+
+    if (!members.length) {
+      membersTable.innerHTML =
+        '<tr><td colspan="6">No registrations found.</td></tr>';
+
+      showMessage(dashboardMessage, "No members found.");
+
+      return;
+    }
+
+    membersTable.innerHTML = members.map(member => {
+      const status = escapeHTML(member.approval_status);
+      const memberId = escapeHTML(member.id);
+
+      const date = member.created_at
+        ? new Date(member.created_at).toLocaleString()
+        : "Unknown";
+
+      let actions = "";
+
+      if (member.approval_status === "pending") {
+        actions = `
+          <div class="actions">
+            <button class="approve"
+              data-id="${memberId}"
+              data-status="approved">
+              Approve
+            </button>
+
+            <button class="reject"
+              data-id="${memberId}"
+              data-status="rejected">
+              Reject
+            </button>
+          </div>`;
+      } else if (member.approval_status === "approved") {
+        actions = `
+          <div class="actions">
+            <button class="generate"
+              data-generate="${memberId}"
+              data-name="${escapeHTML(member.full_name)}"
+              data-phone="${escapeHTML(member.phone)}">
+              Generate Code
+            </button>
+
+            <button class="check" data-check="${memberId}">
+              Check Verification
+            </button>
+          </div>`;
+      } else {
+        actions = "<span>Rejected</span>";
+      }
+
+      return `
+        <tr>
+          <td>${escapeHTML(member.full_name)}</td>
+          <td>${escapeHTML(member.phone)}</td>
+          <td>${escapeHTML(member.email)}</td>
+
+          <td>
+            <span class="status ${status}">${status}</span>
+          </td>
+
+          <td>${escapeHTML(date)}</td>
+          <td>${actions}</td>
+        </tr>`;
+    }).join("");
+
+    showMessage(dashboardMessage, "Member list updated.");
+
+  } catch (error) {
+    console.error("Unexpected member-list error:", error);
+
     showMessage(
       dashboardMessage,
-      "Could not load members: " + error.message,
+      "Unexpected error loading members: " +
+        (error.message || "Unknown error"),
       true
     );
-    return;
   }
-  const members = data || [];
-  document.getElementById("totalCount").textContent = members.length;
-  document.getElementById("pendingCount").textContent =
-    members.filter(m => m.approval_status === "pending").length;
-  document.getElementById("approvedCount").textContent =
-    members.filter(m => m.approval_status === "approved").length;
-  if (!members.length) {
-    membersTable.innerHTML =
-      '<tr><td colspan="6">No registrations found.</td></tr>';
-    showMessage(dashboardMessage, "No members found.");
-    return;
-  }
-  membersTable.innerHTML = members.map(member => {
-    const status = escapeHTML(member.approval_status);
-    const memberId = escapeHTML(member.id);
-    const date = member.created_at
-      ? new Date(member.created_at).toLocaleString()
-      : "Unknown";
-    let actions = "";
-    if (member.approval_status === "pending") {
-      actions = `
-        <div class="actions">
-          <button class="approve"
-            data-id="${memberId}"
-            data-status="approved">Approve</button>
-          <button class="reject"
-            data-id="${memberId}"
-            data-status="rejected">Reject</button>
-        </div>`;
-    } else if (member.approval_status === "approved") {
-      actions = `
-        <div class="actions">
-          <button class="generate"
-            data-generate="${memberId}"
-            data-name="${escapeHTML(member.full_name)}"
-            data-phone="${escapeHTML(member.phone)}">
-            Generate Code
-          </button>
-          <button class="check" data-check="${memberId}">
-            Check Verification
-          </button>
-        </div>`;
-    } else {
-      actions = "<span>Rejected</span>";
-    }
-    return `
-      <tr>
-        <td>${escapeHTML(member.full_name)}</td>
-        <td>${escapeHTML(member.phone)}</td>
-        <td>${escapeHTML(member.email)}</td>
-        <td>
-          <span class="status ${status}">${status}</span>
-        </td>
-        <td>${escapeHTML(date)}</td>
-        <td>${actions}</td>
-      </tr>`;
-  }).join("");
-  showMessage(dashboardMessage, "Member list updated.");
 }
+
+/* DISPLAY THE COMPLETE SERVER ERROR */
+
+async function getDetailedFunctionError(error) {
+  let details = error?.message || "Code generation failed.";
+
+  try {
+    const context = error?.context;
+
+    if (context instanceof Response) {
+      const responseText = await context.clone().text();
+
+      if (responseText) {
+        let body;
+
+        try {
+          body = JSON.parse(responseText);
+        } catch {
+          body = { raw_response: responseText };
+        }
+
+        const parts = [
+          body.error,
+          body.details,
+          body.message,
+          body.code ? "Error code: " + body.code : null,
+          body.raw_response,
+          body.hint ? "Hint: " + body.hint : null
+        ].filter(Boolean);
+
+        if (parts.length) {
+          details = parts.join(" | ");
+        }
+      }
+
+      details =
+        "HTTP " + context.status + ": " + details;
+    }
+  } catch (readError) {
+    console.error(
+      "Could not read the server error response:",
+      readError
+    );
+  }
+
+  return details;
+}
+
+/* MEMBER ACTIONS */
+
 membersTable.addEventListener("click", async event => {
-  // APPROVE OR REJECT A MEMBER
+
+  /* APPROVE OR REJECT */
+
   const approveButton = event.target.closest(
     "button[data-id][data-status]"
   );
+
   if (approveButton) {
     const status = approveButton.dataset.status;
     const memberId = approveButton.dataset.id;
-    if (!confirm(`Are you sure you want to ${status} this member?`)) {
+
+    if (!confirm(
+      `Are you sure you want to ${status} this member?`
+    )) {
       return;
     }
+
     approveButton.disabled = true;
-    const { error } = await client.rpc(
-      "admin_update_member_status",
-      {
-        target_member_id: memberId,
-        new_status: status
+
+    try {
+      const { error } = await client.rpc(
+        "admin_update_member_status",
+        {
+          target_member_id: memberId,
+          new_status: status
+        }
+      );
+
+      if (error) {
+        console.error("Member status update failed:", error);
+
+        showMessage(
+          dashboardMessage,
+          "Update failed: " + error.message,
+          true
+        );
+
+        return;
       }
-    );
-    if (error) {
+
       showMessage(
         dashboardMessage,
-        "Update failed: " + error.message,
+        `Member ${status} successfully.`
+      );
+
+      await loadMembers();
+
+    } catch (error) {
+      console.error("Unexpected status-update error:", error);
+
+      showMessage(
+        dashboardMessage,
+        "Update failed: " +
+          (error.message || "Unknown error"),
         true
       );
+
+    } finally {
       approveButton.disabled = false;
-      return;
     }
-    showMessage(
-      dashboardMessage,
-      `Member ${status} successfully.`
-    );
-    await loadMembers();
+
     return;
   }
-  // GENERATE A VERIFICATION CODE
+
+  /* GENERATE VERIFICATION CODE AND REQUEST EMAIL */
+
   const generateButton = event.target.closest(
     "button[data-generate]"
   );
+
   if (generateButton) {
     const memberId = generateButton.dataset.generate;
     const memberName = generateButton.dataset.name;
     const memberPhone = generateButton.dataset.phone;
+
     if (!confirm(
-      `Generate a new verification code for ${memberName}? ` +
+      `Generate and email a new verification code to ${memberName}? ` +
       "Any existing code may be replaced."
     )) {
       return;
     }
+
     generateButton.disabled = true;
+
     showMessage(
       dashboardMessage,
-      "Generating verification code..."
+      "Generating the code and requesting email delivery..."
     );
+
     codePanel.classList.add("hidden");
     currentCode = "";
+
     try {
-      // Uses the actual function slug: swift-task.
-      const { data, error } = await client.functions.invoke(
-        VERIFICATION_FUNCTION,
-        {
-          body: {
-            action: "generate",
-            member_id: memberId
+      const { data, error } =
+        await client.functions.invoke(
+          VERIFICATION_FUNCTION,
+          {
+            body: {
+              action: "generate",
+              member_id: memberId
+            }
           }
-        }
-      );
+        );
+
       if (error) {
-  let details = error.message || "Code generation failed.";
-  try {
-    if (error.context instanceof Response) {
-      const responseBody = await error.context.clone().json();
-      details =
-        responseBody.error ||
-        responseBody.message ||
-        JSON.stringify(responseBody) ||
-        details;
-    }
-  } catch (e) {
-    console.log("Could not read the server error response.");
-  }
-  console.error("Code generation request failed:", details);
-  throw new Error(details);
-}
-      if (!data || !data.code || !data.phone || !data.expires_at) {
-        console.error("Unexpected code-generation response:", data);
+        const details =
+          await getDetailedFunctionError(error);
+
+        console.error("Code generation request failed:", {
+          details,
+          error
+        });
+
+        throw new Error(details);
+      }
+
+      if (!data) {
         throw new Error(
-          data?.error ||
-          "The server did not return all required verification details."
+          "The server returned an empty response. " +
+          "Please check the deployed verification function."
         );
       }
+
+      if (data.error) {
+        const details = [
+          data.error,
+          data.details,
+          data.message,
+          data.code ? "Error code: " + data.code : null
+        ].filter(Boolean).join(" | ");
+
+        throw new Error(
+          details || "The server reported an error."
+        );
+      }
+
+      /*
+        This dashboard expects the function to return:
+        code, phone and expires_at.
+
+        The email sender must independently confirm
+        that Gmail accepted the email before the
+        function reports successful email delivery.
+      */
+
+      if (
+        !data.code ||
+        !data.phone ||
+        !data.expires_at
+      ) {
+        console.error(
+          "Unexpected code-generation response:",
+          data
+        );
+
+        throw new Error(
+          "The server response is missing code, phone or " +
+          "expires_at. Returned fields: " +
+          Object.keys(data).join(", ")
+        );
+      }
+
       currentCode = String(data.code);
+
       document.getElementById("codeMember").textContent =
         "Member: " + memberName;
+
       document.getElementById("generatedCode").textContent =
         currentCode;
+
       document.getElementById("codePhone").textContent =
         "Phone: " + (data.phone || memberPhone);
+
       document.getElementById("codeExpiry").textContent =
-        "Expires: " + new Date(data.expires_at).toLocaleString();
+        "Expires: " +
+        new Date(data.expires_at).toLocaleString();
+
+      document.getElementById("emailStatus").textContent =
+        data.email_sent === true
+          ? "Email delivery: confirmed by the server."
+          : "The server did not confirm email delivery. Check the response before assuming the email was sent.";
+
       codePanel.classList.remove("hidden");
+
       showMessage(
         dashboardMessage,
-        "Code generated. Send it privately through WhatsApp."
+        data.email_sent === true
+          ? "Verification code generated and email delivery confirmed."
+          : "Code generated, but email delivery was not confirmed.",
+        data.email_sent !== true
       );
+
     } catch (error) {
       console.error("Verification code error:", error);
+
       showMessage(
         dashboardMessage,
         error.message || "Code generation failed.",
         true
       );
+
     } finally {
       generateButton.disabled = false;
     }
+
     return;
   }
-  // CHECK VERIFICATION STATUS
+
+  /* CHECK VERIFICATION STATUS */
+
   const checkButton = event.target.closest(
     "button[data-check]"
   );
+
   if (checkButton) {
     const memberId = checkButton.dataset.check;
+
     checkButton.disabled = true;
+
     showMessage(
       dashboardMessage,
       "Checking verification status..."
     );
+
     try {
-      // Uses the same actual function slug: swift-task.
-      const { data, error } = await client.functions.invoke(
-        VERIFICATION_FUNCTION,
-        {
-          body: {
-            action: "status",
-            member_id: memberId
+      const { data, error } =
+        await client.functions.invoke(
+          VERIFICATION_FUNCTION,
+          {
+            body: {
+              action: "status",
+              member_id: memberId
+            }
           }
-        }
-      );
+        );
+
       if (error) {
-        console.error("Verification status request failed:", error);
+        const details =
+          await getDetailedFunctionError(error);
+
+        console.error(
+          "Verification status request failed:",
+          details
+        );
+
+        throw new Error(details);
+      }
+
+      if (!data) {
         throw new Error(
-          data?.error ||
-          error.message ||
-          "Could not check verification status."
+          "The server returned an empty response."
         );
       }
-      if (data?.verified) {
+
+      if (data.error) {
+        throw new Error(
+          [
+            data.error,
+            data.details,
+            data.message
+          ].filter(Boolean).join(" | ")
+        );
+      }
+
+      if (data.verified) {
         showMessage(
           dashboardMessage,
           "This member has verified their account."
@@ -413,35 +935,50 @@ membersTable.addEventListener("click", async event => {
       } else {
         showMessage(
           dashboardMessage,
-          data?.expired
+          data.expired
             ? "The verification code has expired. Generate a new code if appropriate."
             : "This member has not completed verification."
         );
       }
+
     } catch (error) {
-      console.error("Verification status error:", error);
+      console.error(
+        "Verification status error:",
+        error
+      );
+
       showMessage(
         dashboardMessage,
         error.message || "Status check failed.",
         true
       );
+
     } finally {
       checkButton.disabled = false;
     }
   }
 });
-// COPY THE GENERATED CODE
+
+/* COPY CODE */
+
 document.getElementById("copyCodeButton").addEventListener(
   "click",
   async () => {
-    if (!currentCode) return;
+    if (!currentCode) {
+      return;
+    }
+
     try {
       await navigator.clipboard.writeText(currentCode);
+
       showMessage(
         dashboardMessage,
         "Verification code copied."
       );
-    } catch {
+
+    } catch (error) {
+      console.error("Copy failed:", error);
+
       showMessage(
         dashboardMessage,
         "Copy failed. Please select and copy the code manually.",
@@ -450,39 +987,67 @@ document.getElementById("copyCodeButton").addEventListener(
     }
   }
 );
-// REFRESH MEMBERS
+
+/* REFRESH MEMBERS */
+
 document.getElementById("refreshButton").addEventListener(
   "click",
   loadMembers
 );
-// SIGN OUT
+
+/* SIGN OUT */
+
 document.getElementById("logoutButton").addEventListener(
   "click",
   async () => {
     await client.auth.signOut();
+
     currentCode = "";
+
     codePanel.classList.add("hidden");
     dashboard.classList.add("hidden");
     loginCard.classList.remove("hidden");
+
     document.getElementById("password").value = "";
-    showMessage(loginMessage, "You have signed out.");
+
+    showMessage(
+      loginMessage,
+      "You have signed out."
+    );
   }
 );
-// HANDLE SIGN-OUT EVENTS
+
+/* HANDLE SIGN-OUT EVENTS */
+
 client.auth.onAuthStateChange(event => {
   if (event === "SIGNED_OUT") {
     currentCode = "";
+
     codePanel.classList.add("hidden");
     loginCard.classList.remove("hidden");
     dashboard.classList.add("hidden");
   }
 });
-// INITIALIZE THE DASHBOARD
+
+/* INITIALIZE DASHBOARD */
+
 (async function start() {
-  if (await checkAdmin()) {
-    await loadMembers();
+  try {
+    if (await checkAdmin()) {
+      await loadMembers();
+    }
+  } catch (error) {
+    console.error("Dashboard initialization failed:", error);
+
+    showMessage(
+      loginMessage,
+      "Dashboard initialization failed: " +
+        (error.message || "Unknown error"),
+      true
+    );
   }
 })();
 </script>
+
 </body>
 </html>
