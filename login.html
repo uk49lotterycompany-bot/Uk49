@@ -270,7 +270,7 @@
           );
           const { data: access, error: accessError } =
             await client.functions.invoke(
-              "member-dashboard-access",
+              "member_dashboard_access",
               { method: "POST" }
             );
           if (accessError) {
