@@ -4,7 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>UK49 | Member Dashboard</title>
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
   <style>
     :root {
       --blue: #1769e0;
@@ -18,22 +20,29 @@
       --green: #14804a;
       --red: #c62828;
     }
+
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
     }
+
     body {
       font-family: Arial, sans-serif;
       background: var(--background);
       color: var(--text);
     }
-    button {
-      cursor: pointer;
+
+    button, input, select {
       font: inherit;
     }
+
+    button {
+      cursor: pointer;
+    }
+
     .topbar {
-      background: var(--white);
+      background: white;
       border-bottom: 1px solid var(--border);
       padding: 16px 5%;
       display: flex;
@@ -44,12 +53,14 @@
       top: 0;
       z-index: 5;
     }
+
     .brand {
       color: var(--blue);
       font-size: 25px;
       font-weight: 800;
       letter-spacing: 1px;
     }
+
     .brand small {
       display: block;
       color: var(--muted);
@@ -57,27 +68,28 @@
       letter-spacing: 2px;
       margin-top: 3px;
     }
+
     .logout {
-      background: #fff;
+      background: white;
       color: var(--blue);
       border: 1px solid var(--blue);
       border-radius: 8px;
       padding: 10px 16px;
     }
-    .logout:hover {
-      background: var(--light-blue);
-    }
+
     .layout {
       display: flex;
       min-height: calc(100vh - 75px);
     }
+
     .sidebar {
       width: 230px;
-      background: var(--white);
+      background: white;
       border-right: 1px solid var(--border);
       padding: 24px 14px;
       flex-shrink: 0;
     }
+
     .nav-title {
       font-size: 11px;
       color: var(--muted);
@@ -85,6 +97,7 @@
       padding: 0 12px;
       margin-bottom: 12px;
     }
+
     .nav-button {
       display: block;
       width: 100%;
@@ -96,28 +109,34 @@
       color: #475467;
       margin-bottom: 5px;
     }
+
     .nav-button:hover,
     .nav-button.active {
       background: var(--light-blue);
       color: var(--blue);
       font-weight: 700;
     }
+
     main {
       flex: 1;
       padding: 30px;
       min-width: 0;
     }
+
     .welcome {
       margin-bottom: 25px;
     }
+
     .welcome h1 {
       font-size: 27px;
       margin-bottom: 8px;
     }
+
     .welcome p {
       color: var(--muted);
       line-height: 1.5;
     }
+
     .notice {
       background: var(--light-blue);
       border: 1px solid #d4e5ff;
@@ -128,119 +147,61 @@
       line-height: 1.5;
       overflow-wrap: anywhere;
     }
+
     .notice.error {
       background: #fff0f0;
       border-color: #ffd0d0;
       color: var(--red);
     }
+
     .grid {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 18px;
       margin-bottom: 25px;
     }
+
     .card {
-      background: var(--white);
+      background: white;
       border: 1px solid var(--border);
       border-radius: 13px;
       padding: 22px;
       box-shadow: 0 3px 12px rgba(16, 36, 70, 0.03);
       min-width: 0;
     }
+
     .card-label {
       color: var(--muted);
       font-size: 13px;
       margin-bottom: 12px;
     }
+
     .card-value {
       font-size: 21px;
       font-weight: 700;
       overflow-wrap: anywhere;
     }
+
     .section {
       margin-bottom: 25px;
     }
+
     .section h2 {
       font-size: 19px;
       margin-bottom: 15px;
     }
-    .id-card {
-      background: linear-gradient(125deg, #1558bd, #2b85f6);
-      color: white;
-      border-radius: 17px;
-      padding: 25px;
-      max-width: 600px;
-      min-height: 240px;
-      box-shadow: 0 10px 28px rgba(23, 105, 224, 0.2);
-    }
-    .id-top {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      margin-bottom: 30px;
-    }
-    .id-logo {
-      font-size: 23px;
-      font-weight: 800;
-      letter-spacing: 2px;
-    }
-    .id-label {
-      font-size: 10px;
-      letter-spacing: 2px;
-      opacity: 0.85;
-      text-align: right;
-    }
-    .id-name {
-      font-size: 23px;
-      font-weight: 700;
-      overflow-wrap: anywhere;
-      margin-bottom: 7px;
-    }
-    .id-number {
-      font-size: 13px;
-      opacity: 0.9;
-      overflow-wrap: anywhere;
-    }
-    .id-bottom {
-      border-top: 1px solid rgba(255,255,255,.3);
-      margin-top: 22px;
-      padding-top: 14px;
-      display: flex;
-      justify-content: space-between;
-      gap: 15px;
-      font-size: 12px;
-    }
-    .details {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 15px;
-    }
-    .detail {
-      background: #f8faff;
-      border: 1px solid var(--border);
-      padding: 15px;
-      border-radius: 9px;
-      overflow-wrap: anywhere;
-    }
-    .detail-label {
-      color: var(--muted);
-      font-size: 12px;
-      margin-bottom: 8px;
-    }
-    .detail-value {
-      font-weight: 600;
-      line-height: 1.5;
-    }
+
     .hidden {
       display: none !important;
     }
+
     .loading {
       padding: 60px 20px;
       text-align: center;
       color: var(--muted);
       overflow-wrap: anywhere;
     }
+
     .primary-button {
       background: var(--blue);
       color: white;
@@ -249,30 +210,152 @@
       padding: 12px 18px;
       margin-top: 16px;
     }
+
     .primary-button:hover {
       background: var(--dark-blue);
     }
+
+    .primary-button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .form-card {
+      max-width: 600px;
+      margin-bottom: 24px;
+    }
+
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .form-group input,
+    .form-group select {
+      display: block;
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #cfd8e5;
+      border-radius: 8px;
+      background: white;
+      color: var(--text);
+    }
+
+    .form-help {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.5;
+      margin-top: 7px;
+    }
+
+    .message {
+      font-size: 14px;
+      line-height: 1.5;
+      margin-top: 12px;
+      overflow-wrap: anywhere;
+    }
+
+    .message.success {
+      color: var(--green);
+    }
+
+    .message.error {
+      color: var(--red);
+    }
+
+    .id-card {
+      background: linear-gradient(135deg, #1558bd, #2b85f6);
+      color: white;
+      border-radius: 17px;
+      padding: 24px;
+      max-width: 420px;
+      min-height: 270px;
+      box-shadow: 0 10px 28px rgba(23, 105, 224, 0.2);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      text-align: center;
+    }
+
+    .id-photo {
+      width: 145px;
+      height: 145px;
+      border-radius: 12px;
+      border: 3px solid white;
+      object-fit: cover;
+      background: #e8eef7;
+      color: #475467;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+    }
+
+    .id-gender {
+      font-size: 19px;
+      font-weight: 700;
+      overflow-wrap: anywhere;
+    }
+
+    .details {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 15px;
+    }
+
+    .detail {
+      background: #f8faff;
+      border: 1px solid var(--border);
+      padding: 15px;
+      border-radius: 9px;
+      overflow-wrap: anywhere;
+    }
+
+    .detail-label {
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 8px;
+    }
+
+    .detail-value {
+      font-weight: 600;
+      line-height: 1.5;
+    }
+
     footer {
       color: var(--muted);
       font-size: 12px;
       text-align: center;
       padding: 20px;
     }
+
     @media (max-width: 850px) {
       .grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }
+
       .sidebar {
         width: 190px;
       }
+
       main {
         padding: 22px;
       }
     }
+
     @media (max-width: 600px) {
       .layout {
         display: block;
       }
+
       .sidebar {
         width: 100%;
         display: flex;
@@ -281,181 +364,261 @@
         border-right: 0;
         border-bottom: 1px solid var(--border);
       }
+
       .nav-title {
         display: none;
       }
+
       .nav-button {
         width: auto;
         white-space: nowrap;
         margin: 0 4px 0 0;
         padding: 11px 12px;
       }
+
       main {
         padding: 18px 14px;
       }
-      .grid {
-        grid-template-columns: 1fr;
-        gap: 12px;
-      }
+
+      .grid,
       .details {
         grid-template-columns: 1fr;
       }
+
       .welcome h1 {
         font-size: 23px;
       }
+
       .id-card {
         padding: 20px;
       }
     }
+
     @media print {
       body * {
         visibility: hidden;
       }
+
       #memberIdCard,
       #memberIdCard * {
         visibility: visible;
       }
+
       #memberIdCard {
         position: absolute;
         left: 0;
         top: 0;
         width: 100%;
-        max-width: 600px;
+        max-width: 420px;
         print-color-adjust: exact;
         -webkit-print-color-adjust: exact;
       }
+
       .id-card {
         box-shadow: none;
       }
     }
   </style>
 </head>
+
 <body>
   <header class="topbar">
     <div class="brand">
       UK49
       <small>MEMBER PORTAL</small>
     </div>
+
     <button class="logout" id="logoutButton">Log out</button>
   </header>
+
   <div id="loading" class="loading" role="status" aria-live="polite">
     <h2>Loading your dashboard...</h2>
     <p style="margin-top:10px">
       Please wait while we check your account.
     </p>
   </div>
+
   <div id="dashboard" class="layout hidden">
     <aside class="sidebar">
       <div class="nav-title">MEMBER MENU</div>
-      <button class="nav-button active" data-section="overview">🏠 Overview</button>
-      <button class="nav-button" data-section="identity">🪪 My ID Card</button>
-      <button class="nav-button" data-section="profile">👤 My Profile</button>
-      <button class="nav-button" data-section="bank">🏦 Bank Information</button>
-      <button class="nav-button" data-section="settings">⚙️ Account</button>
+
+      <button class="nav-button active" data-section="overview">
+        🏠 Overview
+      </button>
+
+      <button class="nav-button" data-section="identity">
+        🪪 My ID Card
+      </button>
+
+      <button class="nav-button" data-section="profile">
+        👤 My Profile
+      </button>
+
+      <button class="nav-button" data-section="bank">
+        🏦 Bank Information
+      </button>
+
+      <button class="nav-button" data-section="settings">
+        ⚙️ Account
+      </button>
     </aside>
+
     <main>
       <div class="welcome">
         <h1 id="welcomeName">Welcome!</h1>
         <p>Welcome to your UK49 member portal.</p>
       </div>
+
       <div id="accountNotice" class="notice hidden"></div>
+
+      <!-- OVERVIEW -->
       <section id="overview" class="page-section">
         <div class="grid">
           <div class="card">
             <div class="card-label">Membership Status</div>
             <div class="card-value" id="overviewStatus">Loading...</div>
           </div>
+
           <div class="card">
             <div class="card-label">Member ID</div>
             <div class="card-value" id="overviewId">Loading...</div>
           </div>
+
           <div class="card">
             <div class="card-label">Registration Date</div>
             <div class="card-value" id="overviewDate">Loading...</div>
           </div>
         </div>
+
         <div class="section">
           <h2>Your Digital Member Card</h2>
+
           <div class="id-card" id="memberIdCard">
-            <div class="id-top">
-              <div class="id-logo">UK49</div>
-              <div class="id-label">OFFICIAL<br>MEMBER CARD</div>
+            <img
+              class="id-photo"
+              id="cardPhoto"
+              alt="Member photo"
+              src=""
+              hidden
+            >
+
+            <div class="id-photo" id="cardPhotoPlaceholder">
+              Photo not uploaded
             </div>
-            <div class="id-name" id="cardName">Member Name</div>
-            <div class="id-number">
-              MEMBER ID: <span id="cardId">Loading...</span>
-            </div>
-            <div class="id-bottom">
-              <div>
-                <div style="opacity:.8;margin-bottom:5px">MEMBER SINCE</div>
-                <div id="cardDate">Loading...</div>
-              </div>
-              <div>
-                <div style="opacity:.8;margin-bottom:5px">STATUS</div>
-                <div id="cardStatus">Loading...</div>
-              </div>
+
+            <div class="id-gender" id="cardGender">
+              Gender not selected
             </div>
           </div>
+
           <button class="primary-button" id="printButton">
             Print / Save ID Card
           </button>
         </div>
       </section>
+
+      <!-- IDENTITY / PHOTO UPLOAD -->
       <section id="identity" class="page-section hidden">
-        <div class="section">
-          <h2>My Digital ID Card</h2>
-          <p style="color:#667085;margin-bottom:18px">
-            Your membership information is linked to your account.
+        <div class="card form-card">
+          <h2>My ID Card Details</h2>
+
+          <p style="color:#667085;line-height:1.6;margin-bottom:20px">
+            Upload your photo and select your gender. These are the only
+            details that will appear on your digital ID card.
           </p>
-          <div class="id-card">
-            <div class="id-top">
-              <div class="id-logo">UK49</div>
-              <div class="id-label">OFFICIAL<br>MEMBER CARD</div>
-            </div>
-            <div class="id-name" id="cardName2">Member Name</div>
-            <div class="id-number">
-              MEMBER ID: <span id="cardId2">Loading...</span>
-            </div>
-            <div class="id-bottom">
-              <div>
-                <div style="opacity:.8;margin-bottom:5px">MEMBER SINCE</div>
-                <div id="cardDate2">Loading...</div>
+
+          <form id="cardDetailsForm">
+            <div class="form-group">
+              <label for="photoInput">Upload your photo</label>
+
+              <input
+                id="photoInput"
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+              >
+
+              <div class="form-help">
+                Accepted formats: JPG, PNG, or WebP. Maximum file size: 5 MB.
               </div>
-              <div>
-                <div style="opacity:.8;margin-bottom:5px">STATUS</div>
-                <div id="cardStatus2">Loading...</div>
-              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="genderInput">Select your gender</label>
+
+              <select id="genderInput" required>
+                <option value="">Choose gender</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Prefer not to say">Prefer not to say</option>
+              </select>
+            </div>
+
+            <button class="primary-button" id="saveCardButton" type="submit">
+              Save ID Card Details
+            </button>
+
+            <div id="cardMessage" class="message" role="status"></div>
+          </form>
+        </div>
+
+        <div class="section">
+          <h2>My Digital ID Card Preview</h2>
+
+          <div class="id-card" id="memberIdCard2">
+            <img
+              class="id-photo"
+              id="cardPhoto2"
+              alt="Member photo"
+              src=""
+              hidden
+            >
+
+            <div class="id-photo" id="cardPhotoPlaceholder2">
+              Photo not uploaded
+            </div>
+
+            <div class="id-gender" id="cardGender2">
+              Gender not selected
             </div>
           </div>
+
           <button class="primary-button" id="printButton2">
             Print / Save ID Card
           </button>
         </div>
       </section>
+
+      <!-- PROFILE -->
       <section id="profile" class="page-section hidden">
         <div class="card section">
           <h2>My Profile</h2>
+
           <div class="details">
             <div class="detail">
               <div class="detail-label">Full Name</div>
               <div class="detail-value" id="profileName">Loading...</div>
             </div>
+
             <div class="detail">
               <div class="detail-label">Email Address</div>
               <div class="detail-value" id="profileEmail">Loading...</div>
             </div>
+
             <div class="detail">
               <div class="detail-label">Phone Number</div>
               <div class="detail-value" id="profilePhone">Loading...</div>
             </div>
+
             <div class="detail">
               <div class="detail-label">Membership Status</div>
               <div class="detail-value" id="profileStatus">Loading...</div>
             </div>
+
             <div class="detail">
               <div class="detail-label">Registration Date</div>
               <div class="detail-value" id="profileDate">Loading...</div>
             </div>
+
             <div class="detail">
               <div class="detail-label">Member ID</div>
               <div class="detail-value" id="profileId">Loading...</div>
@@ -463,64 +626,88 @@
           </div>
         </div>
       </section>
+
+      <!-- BANK -->
       <section id="bank" class="page-section hidden">
         <div class="card section">
           <h2>Bank Information</h2>
+
           <div class="notice">
-            This section is for viewing administrator-provided information only.
-            It does not support deposits, withdrawals, or transfers.
+            This section is for viewing administrator-provided information
+            only. It does not support deposits, withdrawals, or transfers.
           </div>
+
           <div class="details">
             <div class="detail">
               <div class="detail-label">Bank Name</div>
               <div class="detail-value">Not configured</div>
             </div>
+
             <div class="detail">
               <div class="detail-label">Account Name</div>
               <div class="detail-value">Not configured</div>
             </div>
+
             <div class="detail">
               <div class="detail-label">Account Number</div>
               <div class="detail-value">Not configured</div>
             </div>
           </div>
+
           <p style="margin-top:15px;color:#667085;font-size:13px">
             Bank information will appear here once the administrator-controlled
             database fields have been configured.
           </p>
         </div>
       </section>
+
+      <!-- SETTINGS -->
       <section id="settings" class="page-section hidden">
         <div class="card section">
           <h2>Account Settings</h2>
+
           <div class="detail">
             <div class="detail-label">Signed-in email</div>
             <div class="detail-value" id="settingsEmail">Loading...</div>
           </div>
+
           <button class="primary-button" id="logoutButton2">
             Log out securely
           </button>
         </div>
       </section>
+
       <footer>UK49 Member Portal</footer>
     </main>
   </div>
+
   <script>
     "use strict";
+
     const SUPABASE_URL =
       "https://jtwrktxkkngbxrvifoax.supabase.co";
-    // This is the publishable key supplied in your existing file.
-    // Never put a service-role or secret key in frontend code.
+
     const SUPABASE_PUBLISHABLE_KEY =
-      "sb_publishable_7Jdnz6F1e0-OdSVmqIqqUg_LIkD_L0O";
+      "sb_publishable_7Jdnz6F1e0-OdSVmqIqqUg_LIkD_L0";
+
+    const PHOTO_BUCKET = "member-photos";
+    const MAX_PHOTO_SIZE = 5 * 1024 * 1024;
+
     const client = window.supabase.createClient(
       SUPABASE_URL,
       SUPABASE_PUBLISHABLE_KEY
     );
+
     const $ = (id) => document.getElementById(id);
+
+    let currentUser = null;
+    let currentPhotoPath = null;
+    let currentPhotoUrl = null;
+
     function showError(message) {
       $("loading").classList.remove("hidden");
       $("dashboard").classList.add("hidden");
+
       $("loading").innerHTML = `
         <h2>Unable to open your dashboard</h2>
         <p id="errorMessage"
@@ -529,34 +716,50 @@
           Return to login
         </button>
       `;
-      // Use textContent so the error is displayed safely as text.
+
       $("errorMessage").textContent = message;
+
       $("errorLogin").addEventListener("click", () => {
         window.location.href = "login.html";
       });
     }
+
     function formatDate(value) {
       if (!value) return "Not available";
+
       const date = new Date(value);
+
       if (Number.isNaN(date.getTime())) {
         return "Not available";
       }
+
       return date.toLocaleDateString("en-NG", {
         day: "numeric",
         month: "short",
         year: "numeric"
       });
     }
+
     function displayText(id, value) {
       $(id).textContent =
         value === null || value === undefined || value === ""
           ? "Not provided"
           : String(value);
     }
+
     function displayStatus(value) {
       if (!value) return "Unknown";
+
       return value.charAt(0).toUpperCase() + value.slice(1);
     }
+
+    function setMessage(message, type = "") {
+      const box = $("cardMessage");
+
+      box.textContent = message;
+      box.className = "message" + (type ? " " + type : "");
+    }
+
     async function logout() {
       try {
         await client.auth.signOut();
@@ -564,50 +767,266 @@
         window.location.replace("login.html");
       }
     }
+
     $("logoutButton").addEventListener("click", logout);
     $("logoutButton2").addEventListener("click", logout);
+
+    function printCard(cardId) {
+      const selectedCard = $(cardId);
+
+      document.querySelectorAll(".id-card").forEach((card) => {
+        card.dataset.printHidden = card.id === cardId ? "false" : "true";
+      });
+
+      window.print();
+
+      document.querySelectorAll(".id-card").forEach((card) => {
+        delete card.dataset.printHidden;
+      });
+    }
+
     $("printButton").addEventListener("click", () => {
-      window.print();
+      printCard("memberIdCard");
     });
+
     $("printButton2").addEventListener("click", () => {
-      window.print();
+      printCard("memberIdCard2");
     });
+
     document.querySelectorAll(".nav-button").forEach((button) => {
       button.addEventListener("click", () => {
         document.querySelectorAll(".nav-button").forEach((item) => {
           item.classList.remove("active");
         });
+
         button.classList.add("active");
+
         document.querySelectorAll(".page-section").forEach((section) => {
           section.classList.add("hidden");
         });
+
         const target = $(button.dataset.section);
+
         if (target) {
           target.classList.remove("hidden");
         }
       });
     });
+
+    function updatePhotoDisplay(url) {
+      const photoIds = ["cardPhoto", "cardPhoto2"];
+      const placeholderIds = [
+        "cardPhotoPlaceholder",
+        "cardPhotoPlaceholder2"
+      ];
+
+      photoIds.forEach((id) => {
+        const img = $(id);
+
+        if (url) {
+          img.src = url;
+          img.hidden = false;
+        } else {
+          img.removeAttribute("src");
+          img.hidden = true;
+        }
+      });
+
+      placeholderIds.forEach((id) => {
+        $(id).hidden = Boolean(url);
+      });
+    }
+
+    function updateGenderDisplay(gender) {
+      const value = gender || "Gender not selected";
+
+      $("cardGender").textContent = value;
+      $("cardGender2").textContent = value;
+      $("genderInput").value = gender || "";
+    }
+
+    async function loadCardDetails() {
+      const {
+        data: details,
+        error
+      } = await client
+        .from("member_card_details")
+        .select("gender, photo_path")
+        .eq("member_id", currentUser.id)
+        .maybeSingle();
+
+      if (error) {
+        throw new Error("Could not load ID card details: " + error.message);
+      }
+
+      currentPhotoPath = details?.photo_path || null;
+
+      updateGenderDisplay(details?.gender || "");
+
+      if (!currentPhotoPath) {
+        currentPhotoUrl = null;
+        updatePhotoDisplay(null);
+        return;
+      }
+
+      const {
+        data: signedData,
+        error: signedError
+      } = await client.storage
+        .from(PHOTO_BUCKET)
+        .createSignedUrl(currentPhotoPath, 3600);
+
+      if (signedError) {
+        throw new Error("Could not load your private photo: " +
+          signedError.message);
+      }
+
+      currentPhotoUrl = signedData.signedUrl;
+      updatePhotoDisplay(currentPhotoUrl);
+    }
+
+    async function saveCardDetails(event) {
+      event.preventDefault();
+
+      if (!currentUser) {
+        setMessage("Your login session has expired. Please log in again.", "error");
+        return;
+      }
+
+      const gender = $("genderInput").value;
+      const file = $("photoInput").files[0];
+      const button = $("saveCardButton");
+
+      if (!gender) {
+        setMessage("Please select your gender.", "error");
+        return;
+      }
+
+      if (file) {
+        const allowedTypes = [
+          "image/jpeg",
+          "image/png",
+          "image/webp"
+        ];
+
+        if (!allowedTypes.includes(file.type)) {
+          setMessage("Please upload a JPG, PNG, or WebP image.", "error");
+          return;
+        }
+
+        if (file.size > MAX_PHOTO_SIZE) {
+          setMessage("Your photo must be 5 MB or smaller.", "error");
+          return;
+        }
+      }
+
+      button.disabled = true;
+      button.textContent = "Saving...";
+      setMessage("");
+
+      try {
+        let photoPath = currentPhotoPath;
+
+        if (file) {
+          const extensionByType = {
+            "image/jpeg": "jpg",
+            "image/png": "png",
+            "image/webp": "webp"
+          };
+
+          const extension = extensionByType[file.type];
+          const uniqueName = `${Date.now()}-${crypto.randomUUID()}.${extension}`;
+          photoPath = `${currentUser.id}/${uniqueName}`;
+
+          const {
+            error: uploadError
+          } = await client.storage
+            .from(PHOTO_BUCKET)
+            .upload(photoPath, file, {
+              contentType: file.type,
+              upsert: false
+            });
+
+          if (uploadError) {
+            throw new Error("Photo upload failed: " + uploadError.message);
+          }
+        }
+
+        const {
+          error: saveError
+        } = await client
+          .from("member_card_details")
+          .upsert({
+            member_id: currentUser.id,
+            gender: gender,
+            photo_path: photoPath,
+            updated_at: new Date().toISOString()
+          }, {
+            onConflict: "member_id"
+          });
+
+        if (saveError) {
+          throw new Error("Could not save ID card details: " + saveError.message);
+        }
+
+        currentPhotoPath = photoPath;
+
+        if (photoPath) {
+          const {
+            data: signedData,
+            error: signedError
+          } = await client.storage
+            .from(PHOTO_BUCKET)
+            .createSignedUrl(photoPath, 3600);
+
+          if (signedError) {
+            throw new Error("Details saved, but the photo preview failed: " +
+              signedError.message);
+          }
+
+          currentPhotoUrl = signedData.signedUrl;
+          updatePhotoDisplay(currentPhotoUrl);
+        }
+
+        updateGenderDisplay(gender);
+        $("photoInput").value = "";
+
+        setMessage("Your ID card details have been saved successfully.", "success");
+      } catch (error) {
+        console.error("Saving ID card details failed:", error);
+
+        setMessage(
+          error.message || "Something went wrong while saving your details.",
+          "error"
+        );
+      } finally {
+        button.disabled = false;
+        button.textContent = "Save ID Card Details";
+      }
+    }
+
+    $("cardDetailsForm").addEventListener("submit", saveCardDetails);
+
     async function initializeDashboard() {
       try {
-        // 1. Confirm that the user has an active login session.
+        // 1. Confirm the user's login session.
         const {
           data: sessionData,
           error: sessionError
         } = await client.auth.getSession();
+
         if (sessionError) {
-          console.error("Session check failed:", sessionError);
-          showError(
-            "We could not check your login session: " +
-            sessionError.message
-          );
-          return;
+          throw new Error("Session check failed: " + sessionError.message);
         }
+
         if (!sessionData.session) {
           window.location.replace("login.html");
           return;
         }
-        const user = sessionData.session.user;
-        // 2. Load only this signed-in user's member profile.
+
+        currentUser = sessionData.session.user;
+
+        // 2. Load the signed-in member's profile.
         const {
           data: member,
           error: memberError
@@ -616,40 +1035,27 @@
           .select(
             "id, full_name, phone, email, approval_status, created_at"
           )
-          .eq("id", user.id)
+          .eq("id", currentUser.id)
           .maybeSingle();
-        // Show the actual database error instead of hiding it.
+
         if (memberError) {
-          console.error(
-            "Member profile query failed:",
-            memberError
-          );
-          showError(
-            "Profile error: " +
-            memberError.message +
-            " (Code: " +
-            (memberError.code || "unknown") +
-            ")"
-          );
-          return;
+          throw new Error("Profile error: " + memberError.message);
         }
+
         if (!member) {
-          showError(
-            "Your member profile was not found. " +
-            "Please contact the administrator."
+          throw new Error(
+            "Your member profile was not found. Please contact the administrator."
           );
-          return;
         }
-        // 3. Confirm membership approval.
+
+        // 3. Require administrator approval.
         if (member.approval_status !== "approved") {
-          showError(
-            "Your membership has not been approved. " +
-            "Please contact the administrator."
+          throw new Error(
+            "Your membership has not been approved. Please contact the administrator."
           );
-          return;
         }
-        // 4. Check the server-side verification gate.
-        // The function name must match the deployed Supabase function.
+
+        // 4. Preserve the existing server-side verification check.
         const {
           data: verification,
           error: verificationError
@@ -660,78 +1066,54 @@
             body: {}
           }
         );
+
         if (verificationError) {
-          console.error(
-            "Dashboard access check failed:",
-            verificationError
+          throw new Error(
+            "Dashboard access check failed: " + verificationError.message
           );
-          let details = verificationError.message ||
-            "Unknown function error";
-          // Try to read the response body for additional details.
-          if (verificationError.context) {
-            try {
-              const response = verificationError.context;
-              if (typeof response.clone === "function") {
-                const body = await response.clone().text();
-                if (body) {
-                  details += " Server response: " + body;
-                }
-              }
-            } catch (readError) {
-              console.error(
-                "Could not read function response:",
-                readError
-              );
-            }
-          }
-          showError(
-            "Dashboard access check failed: " + details
-          );
-          return;
         }
+
         if (!verification || verification.verified !== true) {
-          showError(
+          throw new Error(
             verification?.error ||
-            "We could not confirm your verification status. " +
             "Please complete email verification or try again."
           );
-          return;
         }
-        // 5. Fill the dashboard with the verified member's information.
+
+        // 5. Populate the existing dashboard profile information.
         const name = member.full_name || "UK49 Member";
         const memberId = member.id;
         const date = formatDate(member.created_at);
         const status = displayStatus(member.approval_status);
+
         displayText("welcomeName", "Welcome, " + name + "!");
         displayText("overviewStatus", status);
         displayText("overviewId", memberId.slice(0, 8).toUpperCase());
         displayText("overviewDate", date);
-        displayText("cardName", name);
-        displayText("cardId", memberId.slice(0, 8).toUpperCase());
-        displayText("cardDate", date);
-        displayText("cardStatus", status);
-        displayText("cardName2", name);
-        displayText("cardId2", memberId.slice(0, 8).toUpperCase());
-        displayText("cardDate2", date);
-        displayText("cardStatus2", status);
+
         displayText("profileName", name);
-        displayText("profileEmail", member.email || user.email);
+        displayText("profileEmail", member.email || currentUser.email);
         displayText("profilePhone", member.phone);
         displayText("profileStatus", status);
         displayText("profileDate", date);
         displayText("profileId", memberId);
-        displayText("settingsEmail", user.email);
-        // 6. Show the dashboard only after all checks pass.
+        displayText("settingsEmail", currentUser.email);
+
+        // 6. Load the member's saved photo and gender.
+        await loadCardDetails();
+
+        // 7. Show the dashboard only after all checks pass.
         $("loading").classList.add("hidden");
         $("dashboard").classList.remove("hidden");
+
       } catch (error) {
         console.error("Dashboard initialization failed:", error);
         showError(
-          "Unexpected dashboard error: " +
-          (error?.message || "Unknown error")
+          error.message || "Unexpected dashboard error. Please try again."
         );
       }
     }
+
     initializeDashboard();
   </script>
 </body>
