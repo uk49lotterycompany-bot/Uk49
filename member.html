@@ -126,6 +126,7 @@
       margin-bottom: 20px;
       color: var(--dark-blue);
       line-height: 1.5;
+      overflow-wrap: anywhere;
     }
     .notice.error {
       background: #fff0f0;
@@ -210,16 +211,6 @@
       gap: 15px;
       font-size: 12px;
     }
-    .status {
-      display: inline-block;
-      background: #e5f8ed;
-      color: var(--green);
-      border-radius: 20px;
-      padding: 6px 10px;
-      font-size: 12px;
-      font-weight: 700;
-      text-transform: capitalize;
-    }
     .details {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -248,6 +239,7 @@
       padding: 60px 20px;
       text-align: center;
       color: var(--muted);
+      overflow-wrap: anywhere;
     }
     .primary-button {
       background: var(--blue);
@@ -346,9 +338,11 @@
     </div>
     <button class="logout" id="logoutButton">Log out</button>
   </header>
-  <div id="loading" class="loading">
+  <div id="loading" class="loading" role="status" aria-live="polite">
     <h2>Loading your dashboard...</h2>
-    <p style="margin-top:10px">Please wait while we check your account.</p>
+    <p style="margin-top:10px">
+      Please wait while we check your account.
+    </p>
   </div>
   <div id="dashboard" class="layout hidden">
     <aside class="sidebar">
@@ -369,7 +363,7 @@
         <div class="grid">
           <div class="card">
             <div class="card-label">Membership Status</div>
-            <div class="card-value"><span id="overviewStatus">Loading...</span></div>
+            <div class="card-value" id="overviewStatus">Loading...</div>
           </div>
           <div class="card">
             <div class="card-label">Member ID</div>
@@ -388,7 +382,9 @@
               <div class="id-label">OFFICIAL<br>MEMBER CARD</div>
             </div>
             <div class="id-name" id="cardName">Member Name</div>
-            <div class="id-number">MEMBER ID: <span id="cardId">Loading...</span></div>
+            <div class="id-number">
+              MEMBER ID: <span id="cardId">Loading...</span>
+            </div>
             <div class="id-bottom">
               <div>
                 <div style="opacity:.8;margin-bottom:5px">MEMBER SINCE</div>
@@ -400,7 +396,9 @@
               </div>
             </div>
           </div>
-          <button class="primary-button" id="printButton">Print / Save ID Card</button>
+          <button class="primary-button" id="printButton">
+            Print / Save ID Card
+          </button>
         </div>
       </section>
       <section id="identity" class="page-section hidden">
@@ -415,7 +413,9 @@
               <div class="id-label">OFFICIAL<br>MEMBER CARD</div>
             </div>
             <div class="id-name" id="cardName2">Member Name</div>
-            <div class="id-number">MEMBER ID: <span id="cardId2">Loading...</span></div>
+            <div class="id-number">
+              MEMBER ID: <span id="cardId2">Loading...</span>
+            </div>
             <div class="id-bottom">
               <div>
                 <div style="opacity:.8;margin-bottom:5px">MEMBER SINCE</div>
@@ -427,7 +427,9 @@
               </div>
             </div>
           </div>
-          <button class="primary-button" id="printButton2">Print / Save ID Card</button>
+          <button class="primary-button" id="printButton2">
+            Print / Save ID Card
+          </button>
         </div>
       </section>
       <section id="profile" class="page-section hidden">
@@ -495,16 +497,22 @@
             <div class="detail-label">Signed-in email</div>
             <div class="detail-value" id="settingsEmail">Loading...</div>
           </div>
-          <button class="primary-button" id="logoutButton2">Log out securely</button>
+          <button class="primary-button" id="logoutButton2">
+            Log out securely
+          </button>
         </div>
       </section>
       <footer>UK49 Member Portal</footer>
     </main>
   </div>
   <script>
-    const SUPABASE_URL = "https://jtwrktxkkngbxrvifoax.supabase.co";
+    "use strict";
+    const SUPABASE_URL =
+      "https://jtwrktxkkngbxrvifoax.supabase.co";
+    // This is the publishable key supplied in your existing file.
+    // Never put a service-role or secret key in frontend code.
     const SUPABASE_PUBLISHABLE_KEY =
-      "sb_publishable_7Jdnz6F1e0-OdSVmqIqqUg_LIkD_L0O";
+      "sb_publishable_7Jdnz6F1e0-OdSVmqIqqUg_LIkD_L0";
     const client = window.supabase.createClient(
       SUPABASE_URL,
       SUPABASE_PUBLISHABLE_KEY
@@ -512,12 +520,17 @@
     const $ = (id) => document.getElementById(id);
     function showError(message) {
       $("loading").classList.remove("hidden");
+      $("dashboard").classList.add("hidden");
       $("loading").innerHTML = `
         <h2>Unable to open your dashboard</h2>
-        <p style="margin-top:12px;color:#c62828"></p>
-        <button class="primary-button" id="errorLogin">Return to login</button>
+        <p id="errorMessage"
+           style="margin-top:12px;color:#c62828;line-height:1.6"></p>
+        <button class="primary-button" id="errorLogin">
+          Return to login
+        </button>
       `;
-      $("loading").querySelector("p").textContent = message;
+      // Use textContent so the error is displayed safely as text.
+      $("errorMessage").textContent = message;
       $("errorLogin").addEventListener("click", () => {
         window.location.href = "login.html";
       });
@@ -525,7 +538,9 @@
     function formatDate(value) {
       if (!value) return "Not available";
       const date = new Date(value);
-      if (Number.isNaN(date.getTime())) return "Not available";
+      if (Number.isNaN(date.getTime())) {
+        return "Not available";
+      }
       return date.toLocaleDateString("en-NG", {
         day: "numeric",
         month: "short",
@@ -533,20 +548,30 @@
       });
     }
     function displayText(id, value) {
-      $(id).textContent = value || "Not provided";
+      $(id).textContent =
+        value === null || value === undefined || value === ""
+          ? "Not provided"
+          : String(value);
     }
     function displayStatus(value) {
       if (!value) return "Unknown";
       return value.charAt(0).toUpperCase() + value.slice(1);
     }
     async function logout() {
-      await client.auth.signOut();
-      window.location.replace("login.html");
+      try {
+        await client.auth.signOut();
+      } finally {
+        window.location.replace("login.html");
+      }
     }
     $("logoutButton").addEventListener("click", logout);
     $("logoutButton2").addEventListener("click", logout);
-    $("printButton").addEventListener("click", () => window.print());
-    $("printButton2").addEventListener("click", () => window.print());
+    $("printButton").addEventListener("click", () => {
+      window.print();
+    });
+    $("printButton2").addEventListener("click", () => {
+      window.print();
+    });
     document.querySelectorAll(".nav-button").forEach((button) => {
       button.addEventListener("click", () => {
         document.querySelectorAll(".nav-button").forEach((item) => {
@@ -556,50 +581,123 @@
         document.querySelectorAll(".page-section").forEach((section) => {
           section.classList.add("hidden");
         });
-        $(button.dataset.section).classList.remove("hidden");
+        const target = $(button.dataset.section);
+        if (target) {
+          target.classList.remove("hidden");
+        }
       });
     });
     async function initializeDashboard() {
       try {
-        const { data: sessionData, error: sessionError } =
-          await client.auth.getSession();
-        if (sessionError || !sessionData.session) {
+        // 1. Confirm that the user has an active login session.
+        const {
+          data: sessionData,
+          error: sessionError
+        } = await client.auth.getSession();
+        if (sessionError) {
+          console.error("Session check failed:", sessionError);
+          showError(
+            "We could not check your login session: " +
+            sessionError.message
+          );
+          return;
+        }
+        if (!sessionData.session) {
           window.location.replace("login.html");
           return;
         }
         const user = sessionData.session.user;
-        // RLS must restrict this query to the signed-in member.
-        const { data: member, error: memberError } = await client
+        // 2. Load only this signed-in user's member profile.
+        const {
+          data: member,
+          error: memberError
+        } = await client
           .from("members")
-          .select("id, full_name, phone, email, approval_status, created_at")
+          .select(
+            "id, full_name, phone, email, approval_status, created_at"
+          )
           .eq("id", user.id)
           .maybeSingle();
+        // Show the actual database error instead of hiding it.
         if (memberError) {
-          console.error("Member profile query failed:", memberError);
-          showError("We could not load your member profile. Please try again later.");
-          return;
-        }
-        if (!member) {
-          showError("Your member profile was not found. Please contact the administrator.");
-          return;
-        }
-        if (member.approval_status !== "approved") {
-          showError("Your membership has not been approved. Please contact the administrator.");
-          return;
-        }
-        // Do not display the dashboard until server-side verification
-        // has been checked. This endpoint must be deployed before launch.
-        const { data: verification, error: verificationError } =
-          await client.functions.invoke("member-dashboard-access", {
-            body: {}
-          });
-        if (verificationError || !verification || verification.verified !== true) {
+          console.error(
+            "Member profile query failed:",
+            memberError
+          );
           showError(
-            verification?.error ||
-            "We could not confirm your verification status. Please try again later."
+            "Profile error: " +
+            memberError.message +
+            " (Code: " +
+            (memberError.code || "unknown") +
+            ")"
           );
           return;
         }
+        if (!member) {
+          showError(
+            "Your member profile was not found. " +
+            "Please contact the administrator."
+          );
+          return;
+        }
+        // 3. Confirm membership approval.
+        if (member.approval_status !== "approved") {
+          showError(
+            "Your membership has not been approved. " +
+            "Please contact the administrator."
+          );
+          return;
+        }
+        // 4. Check the server-side verification gate.
+        // The function name must match the deployed Supabase function.
+        const {
+          data: verification,
+          error: verificationError
+        } = await client.functions.invoke(
+          "member_dashboard_access",
+          {
+            method: "POST",
+            body: {}
+          }
+        );
+        if (verificationError) {
+          console.error(
+            "Dashboard access check failed:",
+            verificationError
+          );
+          let details = verificationError.message ||
+            "Unknown function error";
+          // Try to read the response body for additional details.
+          if (verificationError.context) {
+            try {
+              const response = verificationError.context;
+              if (typeof response.clone === "function") {
+                const body = await response.clone().text();
+                if (body) {
+                  details += " Server response: " + body;
+                }
+              }
+            } catch (readError) {
+              console.error(
+                "Could not read function response:",
+                readError
+              );
+            }
+          }
+          showError(
+            "Dashboard access check failed: " + details
+          );
+          return;
+        }
+        if (!verification || verification.verified !== true) {
+          showError(
+            verification?.error ||
+            "We could not confirm your verification status. " +
+            "Please complete email verification or try again."
+          );
+          return;
+        }
+        // 5. Fill the dashboard with the verified member's information.
         const name = member.full_name || "UK49 Member";
         const memberId = member.id;
         const date = formatDate(member.created_at);
@@ -623,11 +721,15 @@
         displayText("profileDate", date);
         displayText("profileId", memberId);
         displayText("settingsEmail", user.email);
+        // 6. Show the dashboard only after all checks pass.
         $("loading").classList.add("hidden");
         $("dashboard").classList.remove("hidden");
       } catch (error) {
-        console.error("Dashboard error:", error);
-        showError("Something went wrong while loading your dashboard.");
+        console.error("Dashboard initialization failed:", error);
+        showError(
+          "Unexpected dashboard error: " +
+          (error?.message || "Unknown error")
+        );
       }
     }
     initializeDashboard();
