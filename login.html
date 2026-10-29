@@ -40,9 +40,16 @@
       margin: 45px auto;
       padding: 0 18px;
     }
-    .intro { text-align: center; margin-bottom: 24px; }
-    .intro h1 { font-size: 27px; margin-bottom: 10px; }
-    .intro p, .description {
+    .intro {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+    .intro h1 {
+      font-size: 27px;
+      margin-bottom: 10px;
+    }
+    .intro p,
+    .description {
       color: var(--muted);
       font-size: 14px;
       line-height: 1.6;
@@ -55,7 +62,10 @@
       box-shadow: 0 10px 35px rgba(20,60,40,.06);
     }
     .card h2 { margin-top: 0; }
-    .description { font-size: 13px; margin-bottom: 24px; }
+    .description {
+      font-size: 13px;
+      margin-bottom: 24px;
+    }
     .form-group { margin-bottom: 18px; }
     label {
       display: block;
@@ -89,7 +99,10 @@
       font-size: 15px;
     }
     .primary:hover { background: var(--dark-green); }
-    .primary:disabled { opacity: .6; cursor: wait; }
+    .primary:disabled {
+      opacity: .6;
+      cursor: wait;
+    }
     .notice {
       display: none;
       margin: 17px 0;
@@ -99,16 +112,31 @@
       line-height: 1.6;
       overflow-wrap: anywhere;
     }
-    .notice.info { display: block; background: #edf5ff; color: #174a83; }
-    .notice.error { display: block; background: #fff0f0; color: #a11b1b; }
-    .notice.success { display: block; background: #eaf8ef; color: #17663a; }
+    .notice.info {
+      display: block;
+      background: #edf5ff;
+      color: #174a83;
+    }
+    .notice.error {
+      display: block;
+      background: #fff0f0;
+      color: #a11b1b;
+    }
+    .notice.success {
+      display: block;
+      background: #eaf8ef;
+      color: #17663a;
+    }
     .links {
       text-align: center;
       font-size: 13px;
       line-height: 2;
       margin-top: 18px;
     }
-    a { color: var(--green); font-weight: bold; }
+    a {
+      color: var(--green);
+      font-weight: bold;
+    }
     footer {
       padding: 20px 10px 30px;
       text-align: center;
@@ -127,31 +155,40 @@
       <h1>Member Login</h1>
       <p>Sign in with the email address and password you registered with.</p>
     </section>
-<section class="card">
-  <h2>Sign In</h2>
-  <p class="description">Enter your account details below.</p>
-  <form id="loginForm">
-    <div class="form-group">
-      <label for="email">Email Address</label>
-      <input id="email" type="email" autocomplete="email"
-        maxlength="254" required>
-    </div>
-    <div class="form-group">
-      <label for="password">Password</label>
-      <input id="password" type="password"
-        autocomplete="current-password" required>
-    </div>
-    <div id="notice" class="notice" role="status"
-      aria-live="polite"></div>
-    <button id="loginButton" class="primary" type="submit">
-      Sign In
-    </button>
-  </form>
-  <div class="links">
-    <p><a href="register.html">Create an account</a></p>
-    <p><a href="index.html">Return to the homepage</a></p>
-  </div>
-</section>
+    <section class="card">
+      <h2>Sign In</h2>
+      <p class="description">Enter your account details below.</p>
+      <form id="loginForm">
+        <div class="form-group">
+          <label for="email">Email Address</label>
+          <input
+            id="email"
+            type="email"
+            autocomplete="email"
+            maxlength="254"
+            required
+          >
+        </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input
+            id="password"
+            type="password"
+            autocomplete="current-password"
+            required
+          >
+        </div>
+        <div id="notice" class="notice" role="status"
+          aria-live="polite"></div>
+        <button id="loginButton" class="primary" type="submit">
+          Sign In
+        </button>
+      </form>
+      <div class="links">
+        <p><a href="register.html">Create an account</a></p>
+        <p><a href="index.html">Return to the homepage</a></p>
+      </div>
+    </section>
   </main>
   <footer>
     &copy; <span id="year"></span> UK49.
@@ -161,7 +198,7 @@
     const SUPABASE_URL =
       "https://jtwrktxkkngbxrvifoax.supabase.co";
     const SUPABASE_PUBLISHABLE_KEY =
-      "sb_publishable_7Jdnz6F1e0-OdSVmqIqqUg_LIkD_L0O";
+      "sb_publishable_7Jdnz6F1e0-OdSVmqIqqUg_LIkD_L0";
     document.getElementById("year").textContent =
       new Date().getFullYear();
     const client = window.supabase.createClient(
@@ -178,35 +215,94 @@
     form.addEventListener("submit", async (event) => {
       event.preventDefault();
       if (!navigator.onLine) {
-        showNotice("Check your internet connection and try again.", "error");
+        showNotice(
+          "Check your internet connection and try again.",
+          "error"
+        );
         return;
       }
       button.disabled = true;
       button.textContent = "Signing in...";
       try {
-        const email = document.getElementById("email").value.trim();
-        const password = document.getElementById("password").value;
-        const { data, error } = await client.auth.signInWithPassword({
-          email,
-          password
-        });
-        if (error) throw error;
-        if (!data.user) throw new Error("Sign-in failed. Please try again.");
-        /*
-         * A successful password login does NOT mean the member is approved
-         * or verified. Those checks must be performed securely before giving
-         * access to any protected member features.
-         */
+        const email =
+          document.getElementById("email").value.trim();
+        const password =
+          document.getElementById("password").value;
+        // Step 1: Sign in.
+        const { data, error } =
+          await client.auth.signInWithPassword({
+            email,
+            password
+          });
+        if (error) {
+          throw new Error(
+            error.message || "Unable to sign in."
+          );
+        }
+        if (!data.user) {
+          throw new Error(
+            "Sign-in failed. Please try again."
+          );
+        }
+        // Step 2: Check the member's approval status.
+        const { data: member, error: memberError } =
+          await client
+            .from("members")
+            .select("approval_status")
+            .eq("id", data.user.id)
+            .maybeSingle();
+        if (memberError) {
+          throw new Error(
+            "We couldn't check your membership approval. Please try again."
+          );
+        }
+        if (!member) {
+          throw new Error(
+            "Your member profile was not found. Please contact the administrator."
+          );
+        }
+        if (member.approval_status !== "approved") {
+          throw new Error(
+            "Your account has not been approved yet. Please contact the administrator."
+          );
+        }
+        // Step 3: Verify access through the server-side function.
         showNotice(
-          "You have signed in successfully. Member approval and verification must be checked before accessing protected features.",
+          "Login successful. Checking your verification...",
+          "info"
+        );
+        const { data: access, error: accessError } =
+          await client.functions.invoke(
+            "member-dashboard-access"
+          );
+        if (accessError) {
+          console.error(
+            "Dashboard access check failed:",
+            accessError
+          );
+          throw new Error(
+            "We couldn't confirm your verification. Please check that your verification is complete, then try again."
+          );
+        }
+        if (!access || access.verified !== true) {
+          throw new Error(
+            "Your account has not completed verification. Please verify your account first."
+          );
+        }
+        // Step 4: Open the member dashboard.
+        showNotice(
+          "Everything is confirmed! Opening your dashboard...",
           "success"
         );
+        button.textContent = "Opening dashboard...";
+        window.location.replace("member.html");
       } catch (error) {
+        console.error("Login error:", error);
         showNotice(
-          error.message || "Unable to sign in. Please try again.",
+          error.message ||
+          "Unable to complete login. Please try again.",
           "error"
         );
-      } finally {
         button.disabled = false;
         button.textContent = "Sign In";
       }
