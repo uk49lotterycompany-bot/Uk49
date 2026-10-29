@@ -283,12 +283,15 @@
           throw new Error(
             "We couldn't confirm your verification. Please check that your verification is complete, then try again."
           );
-        }
-        if (!access || access.verified !== true) {
-          throw new Error(
-            "Your account has not completed verification. Please verify your account first."
-          );
-        }
+          {
+            if (accessError) {
+  console.error("Account access check failed:", accessError);
+
+  throw new Error(
+    "Access check failed: " +
+    (accessError.message || "Unknown error")
+  );
+}
         // Step 4: Open the member dashboard.
         showNotice(
           "Everything is confirmed! Opening your dashboard...",
