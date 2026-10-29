@@ -6,9 +6,7 @@
   <meta name="description" content="Sign in to your UK49 membership account.">
   <title>UK49 | Member Login</title>
   <style>
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
     :root {
       --green: #087f5b;
       --dark-green: #056344;
@@ -36,9 +34,7 @@
       letter-spacing: 2px;
       color: var(--green);
     }
-    .logo span {
-      color: #e2a52e;
-    }
+    .logo span { color: #e2a52e; }
     main {
       max-width: 440px;
       margin: 45px auto;
@@ -63,18 +59,14 @@
       padding: 26px 22px;
       border: 1px solid var(--border);
       border-radius: 18px;
-      box-shadow: 0 10px 35px rgba(20, 60, 40, .06);
+      box-shadow: 0 10px 35px rgba(20,60,40,.06);
     }
-    .card h2 {
-      margin-top: 0;
-    }
+    .card h2 { margin-top: 0; }
     .description {
       font-size: 13px;
       margin-bottom: 24px;
     }
-    .form-group {
-      margin-bottom: 18px;
-    }
+    .form-group { margin-bottom: 18px; }
     label {
       display: block;
       margin-bottom: 8px;
@@ -90,7 +82,7 @@
       font-size: 15px;
     }
     input:focus {
-      outline: 2px solid rgba(8, 127, 91, .15);
+      outline: 2px solid rgba(8,127,91,.15);
       border-color: var(--green);
     }
     button {
@@ -106,9 +98,7 @@
       color: white;
       font-size: 15px;
     }
-    .primary:hover {
-      background: var(--dark-green);
-    }
+    .primary:hover { background: var(--dark-green); }
     .primary:disabled {
       opacity: .6;
       cursor: wait;
@@ -121,6 +111,7 @@
       font-size: 13px;
       line-height: 1.6;
       overflow-wrap: anywhere;
+      white-space: pre-wrap;
     }
     .notice.info {
       display: block;
@@ -216,98 +207,131 @@
   <footer>
     &copy; <span id="year"></span> UK49.
   </footer>
-  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
     const SUPABASE_URL =
       "https://jtwrktxkkngbxrvifoax.supabase.co";
     const SUPABASE_PUBLISHABLE_KEY =
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp0d3JrdHhra25nYnhydmlmb2F4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI5NjIxOTYsImV4cCI6MjEwODUzODE5Nn0.UdIx-fE463fVrVeL3IZ7ZIe7zNF6a1wtaNWuLwRyjRM";
-    document.getElementById("year").textContent =
-      new Date().getFullYear();
-    const client = window.supabase.createClient(
-      SUPABASE_URL,
-      SUPABASE_PUBLISHABLE_KEY
-    );
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXJhYmFzZSIsInJlZiI6Imp0d3JrdHhra25nYnhydmlmb2F4IiwiYXVkIjoiYW5vbiIsImlhdCI6MTc5Mjk2MjE5NiwiZXhwIjoyMTA4NTM4MTk2fQ.UdIx-fE463fVrVeL3IZ7ZIe7zNF6a1wtaNWuLwRyjRM";
     const form = document.getElementById("loginForm");
     const notice = document.getElementById("notice");
     const button = document.getElementById("loginButton");
+    document.getElementById("year").textContent =
+      new Date().getFullYear();
     function showNotice(message, type) {
       notice.className = "notice " + type;
       notice.textContent = message;
     }
-    form.addEventListener("submit", async (event) => {
-      event.preventDefault();
-      if (!navigator.onLine) {
-        showNotice(
-          "Check your internet connection and try again.",
-          "error"
-        );
-        return;
-      }
+    if (!window.supabase) {
+      showNotice(
+        "The sign-in service could not load. Refresh the page and try again.",
+        "error"
+      );
       button.disabled = true;
-      button.textContent = "Signing in...";
-      try {
-        const email =
-          document.getElementById("email").value.trim();
-        const password =
-          document.getElementById("password").value;
-        // Step 1: Sign in.
-        const { data, error } =
-          await client.auth.signInWithPassword({
-            email,
-            password
-          });
-        if (error) {
-          throw new Error(error.message);
+    } else {
+      const client = window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_PUBLISHABLE_KEY
+      );
+      form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        if (!navigator.onLine) {
+          showNotice(
+            "Check your internet connection and try again.",
+            "error"
+          );
+          return;
         }
-        if (!data.user) {
-          throw new Error(
-            "Sign-in failed. Please try again."
+        button.disabled = true;
+        button.textContent = "Signing in...";
+        try {
+          const email =
+            document.getElementById("email").value.trim();
+          const password =
+            document.getElementById("password").value;
+          // Step 1: Sign in.
+          const { data, error } =
+            await client.auth.signInWithPassword({
+              email,
+              password
+            });
+          if (error) {
+            throw new Error(error.message);
+          }
+          if (!data.user) {
+            throw new Error(
+              "Sign-in failed. Please try again."
+            );
+          }
+          // Step 2: Check approval and email verification.
+          showNotice(
+            "Login successful. Checking your account...",
+            "info"
           );
+          const { data: access, error: accessError } =
+            await client.functions.invoke(
+              "member-dashboard-access",
+              { method: "POST" }
+            );
+          if (accessError) {
+            console.error(
+              "Dashboard access check failed:",
+              accessError
+            );
+            let details =
+              accessError.message || "Unknown error";
+            if (accessError.context) {
+              try {
+                const response =
+                  await accessError.context.clone();
+                const body = await response.text();
+                if (body) {
+                  details +=
+                    "\nServer response: " + body;
+                }
+              } catch (readError) {
+                console.error(
+                  "Could not read server response:",
+                  readError
+                );
+              }
+            }
+            showNotice(
+              "Access check failed:\n" + details,
+              "error"
+            );
+            button.disabled = false;
+            button.textContent = "Sign In";
+            return;
+          }
+          if (!access || access.verified !== true) {
+            throw new Error(
+              access?.error ||
+              access?.message ||
+              "Your account is not yet approved or verified."
+            );
+          }
+          // Step 3: Open the dashboard only when approved
+          // and email verification has been completed.
+          showNotice(
+            "Account confirmed! Opening your dashboard...",
+            "success"
+          );
+          button.textContent = "Opening dashboard...";
+          window.location.replace("member.html");
+        } catch (error) {
+          console.error("Login error:", error);
+          showNotice(
+            error instanceof Error
+              ? error.message
+              : "Unable to complete login. Please try again.",
+            "error"
+          );
+          button.disabled = false;
+          button.textContent = "Sign In";
         }
-        // Step 2: Check approval and verification securely.
-        showNotice(
-          "Login successful. Checking your account...",
-          "info"
-        );
-        const { data: access, error: accessError } =
-          await client.functions.invoke(
-            "member-dashboard-access"
-          );
-        if (accessError) {
-          console.error(
-            "Dashboard access check failed:",
-            accessError
-          );
-          throw new Error(
-            "Access check failed: " +
-            (accessError.message || "Unknown error")
-          );
-        }
-        if (!access || access.verified !== true) {
-          throw new Error(
-            access?.message ||
-            "Your account is not yet approved or verified."
-          );
-        }
-        // Step 3: Open the member dashboard.
-        showNotice(
-          "Everything is confirmed! Opening your dashboard...",
-          "success"
-        );
-        button.textContent = "Opening dashboard...";
-        window.location.replace("member.html");
-      } catch (error) {
-        console.error("Login error:", error);
-        showNotice(
-          error.message ||
-          "Unable to complete login. Please try again.",
-          "error"
-        );
-        button.disabled = false;
-        button.textContent = "Sign In";
-      }
-    });
+      });
+    }
   </script>
 </body>
 </html>
