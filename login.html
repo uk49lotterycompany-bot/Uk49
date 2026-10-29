@@ -6,7 +6,9 @@
   <meta name="description" content="Sign in to your UK49 membership account.">
   <title>UK49 | Member Login</title>
   <style>
-    * { box-sizing: border-box; }
+    * {
+      box-sizing: border-box;
+    }
     :root {
       --green: #087f5b;
       --dark-green: #056344;
@@ -34,7 +36,9 @@
       letter-spacing: 2px;
       color: var(--green);
     }
-    .logo span { color: #e2a52e; }
+    .logo span {
+      color: #e2a52e;
+    }
     main {
       max-width: 440px;
       margin: 45px auto;
@@ -59,14 +63,18 @@
       padding: 26px 22px;
       border: 1px solid var(--border);
       border-radius: 18px;
-      box-shadow: 0 10px 35px rgba(20,60,40,.06);
+      box-shadow: 0 10px 35px rgba(20, 60, 40, .06);
     }
-    .card h2 { margin-top: 0; }
+    .card h2 {
+      margin-top: 0;
+    }
     .description {
       font-size: 13px;
       margin-bottom: 24px;
     }
-    .form-group { margin-bottom: 18px; }
+    .form-group {
+      margin-bottom: 18px;
+    }
     label {
       display: block;
       margin-bottom: 8px;
@@ -82,7 +90,7 @@
       font-size: 15px;
     }
     input:focus {
-      outline: 2px solid rgba(8,127,91,.15);
+      outline: 2px solid rgba(8, 127, 91, .15);
       border-color: var(--green);
     }
     button {
@@ -98,7 +106,9 @@
       color: white;
       font-size: 15px;
     }
-    .primary:hover { background: var(--dark-green); }
+    .primary:hover {
+      background: var(--dark-green);
+    }
     .primary:disabled {
       opacity: .6;
       cursor: wait;
@@ -153,11 +163,16 @@
   <main>
     <section class="intro">
       <h1>Member Login</h1>
-      <p>Sign in with the email address and password you registered with.</p>
+      <p>
+        Sign in with the email address and password
+        you registered with.
+      </p>
     </section>
     <section class="card">
       <h2>Sign In</h2>
-      <p class="description">Enter your account details below.</p>
+      <p class="description">
+        Enter your account details below.
+      </p>
       <form id="loginForm">
         <div class="form-group">
           <label for="email">Email Address</label>
@@ -178,9 +193,17 @@
             required
           >
         </div>
-        <div id="notice" class="notice" role="status"
-          aria-live="polite"></div>
-        <button id="loginButton" class="primary" type="submit">
+        <div
+          id="notice"
+          class="notice"
+          role="status"
+          aria-live="polite"
+        ></div>
+        <button
+          id="loginButton"
+          class="primary"
+          type="submit"
+        >
           Sign In
         </button>
       </form>
@@ -198,7 +221,7 @@
     const SUPABASE_URL =
       "https://jtwrktxkkngbxrvifoax.supabase.co";
     const SUPABASE_PUBLISHABLE_KEY =
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp0d3JrdHhra25nYnhydmlmb2F4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI5NjIxOTYsImV4cCI6MjEwODUzODE5Nn0.UdIx-fE463fVrVeL3IZ7ZIe7zNF6a1wtaNWuLwRyjRM";
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXJhYmFzZSIsInJlZiI6Imp0d3JrdHhra25nYnhydmlmb2F4IiwiYXVkIjoiYW5vbiIsImlhdCI6MTc5Mjk2MjE5NiwiZXhwIjoyMTA4NTM4MTk2fQ.UdIx-fE463fVrVeL3IZ7ZIe7zNF6a1wtaNWuLwRyjRM";
     document.getElementById("year").textContent =
       new Date().getFullYear();
     const client = window.supabase.createClient(
@@ -235,40 +258,16 @@
             password
           });
         if (error) {
-          throw new Error(
-            error.message || "Unable to sign in."
-          );
+          throw new Error(error.message);
         }
         if (!data.user) {
           throw new Error(
             "Sign-in failed. Please try again."
           );
         }
-        // Step 2: Check the member's approval status.
-        const { data: member, error: memberError } =
-          await client
-            .from("members")
-            .select("approval_status")
-            .eq("id", data.user.id)
-            .maybeSingle();
-        if (memberError) {
-          throw new Error(
-            "We couldn't check your membership approval. Please try again."
-          );
-        }
-        if (!member) {
-          throw new Error(
-            "Your member profile was not found. Please contact the administrator."
-          );
-        }
-        if (member.approval_status !== "approved") {
-          throw new Error(
-            "Your account has not been approved yet. Please contact the administrator."
-          );
-        }
-        // Step 3: Verify access through the server-side function.
+        // Step 2: Check approval and verification securely.
         showNotice(
-          "Login successful. Checking your verification...",
+          "Login successful. Checking your account...",
           "info"
         );
         const { data: access, error: accessError } =
@@ -281,18 +280,17 @@
             accessError
           );
           throw new Error(
-            "We couldn't confirm your verification. Please check that your verification is complete, then try again."
+            "Access check failed: " +
+            (accessError.message || "Unknown error")
           );
-          {
-            if (accessError) {
-  console.error("Account access check failed:", accessError);
-
-  throw new Error(
-    "Access check failed: " +
-    (accessError.message || "Unknown error")
-  );
-}
-        // Step 4: Open the member dashboard.
+        }
+        if (!access || access.verified !== true) {
+          throw new Error(
+            access?.message ||
+            "Your account is not yet approved or verified."
+          );
+        }
+        // Step 3: Open the member dashboard.
         showNotice(
           "Everything is confirmed! Opening your dashboard...",
           "success"
