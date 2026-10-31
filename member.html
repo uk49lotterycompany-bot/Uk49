@@ -1,1279 +1,1334 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>UK49 | Member Dashboard</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UK49 | Member Dashboard</title>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: Arial, sans-serif;
-    }
+<style>
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif;
+}
 
-    body {
-      background: #f3f5f9;
-      color: #222;
-    }
+body {
+  background: #f3f5f9;
+  color: #222;
+}
 
-    button, input, select {
-      font: inherit;
-    }
+button, input, select {
+  font: inherit;
+}
 
-    .topbar {
-      background: #071b38;
-      color: white;
-      padding: 18px 25px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
+.topbar {
+  background: #071b38;
+  color: white;
+  padding: 18px 25px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
 
-    .topbar h2 {
-      letter-spacing: 2px;
-    }
+.topbar h2 {
+  letter-spacing: 2px;
+}
 
-    .logout-btn {
-      background: #e63946;
-      color: white;
-      border: none;
-      padding: 10px 17px;
-      border-radius: 6px;
-      cursor: pointer;
-    }
+.logout-btn {
+  background: #e63946;
+  color: white;
+  border: none;
+  padding: 10px 17px;
+  border-radius: 6px;
+  cursor: pointer;
+}
 
-    .layout {
-      display: flex;
-      min-height: calc(100vh - 65px);
-    }
+.layout {
+  display: flex;
+  min-height: calc(100vh - 65px);
+}
 
-    .sidebar {
-      width: 230px;
-      background: #102b50;
-      padding: 25px 15px;
-      color: white;
-      flex-shrink: 0;
-    }
+.sidebar {
+  width: 230px;
+  background: #102b50;
+  padding: 25px 15px;
+  color: white;
+  flex-shrink: 0;
+}
 
-    .sidebar h3 {
-      margin-bottom: 25px;
-    }
+.sidebar h3 {
+  margin-bottom: 25px;
+}
 
-    .sidebar button {
-      width: 100%;
-      padding: 13px;
-      margin-bottom: 8px;
-      border: none;
-      background: transparent;
-      color: white;
-      text-align: left;
-      cursor: pointer;
-      border-radius: 6px;
-    }
+.sidebar button {
+  width: 100%;
+  padding: 13px;
+  margin-bottom: 8px;
+  border: none;
+  background: transparent;
+  color: white;
+  text-align: left;
+  cursor: pointer;
+  border-radius: 6px;
+}
 
-    .sidebar button:hover,
-    .sidebar button.active {
-      background: #24558c;
-    }
+.sidebar button:hover,
+.sidebar button.active {
+  background: #24558c;
+}
 
-    .main {
-      flex: 1;
-      padding: 28px;
-      min-width: 0;
-    }
+.main {
+  flex: 1;
+  padding: 28px;
+  min-width: 0;
+}
 
-    .section {
-      display: none;
-    }
+.section {
+  display: none;
+}
 
-    .section.active {
-      display: block;
-    }
+.section.active {
+  display: block;
+}
 
-    .section h1 {
-      margin-bottom: 10px;
-      color: #102b50;
-    }
+.section h1 {
+  margin-bottom: 10px;
+  color: #102b50;
+}
 
-    .subtitle {
-      color: #777;
-      margin-bottom: 25px;
-    }
+.subtitle {
+  color: #777;
+  margin-bottom: 25px;
+}
 
-    .cards {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
-      gap: 18px;
-      margin-top: 25px;
-    }
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 18px;
+  margin-top: 25px;
+}
 
-    .summary-card,
-    .panel {
-      background: white;
-      padding: 22px;
-      border-radius: 10px;
-      box-shadow: 0 3px 12px rgba(0,0,0,0.05);
-      margin-bottom: 20px;
-    }
+.summary-card,
+.panel {
+  background: white;
+  padding: 22px;
+  border-radius: 10px;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.05);
+  margin-bottom: 20px;
+}
 
-    .summary-card h3 {
-      color: #777;
-      font-size: 14px;
-      margin-bottom: 12px;
-    }
+.summary-card h3 {
+  color: #777;
+  font-size: 14px;
+  margin-bottom: 12px;
+}
 
-    .summary-card p {
-      font-size: 20px;
-      font-weight: bold;
-      color: #102b50;
-      overflow-wrap: anywhere;
-    }
+.summary-card p {
+  font-size: 20px;
+  font-weight: bold;
+  color: #102b50;
+  overflow-wrap: anywhere;
+}
 
-    .panel h2 {
-      margin-bottom: 18px;
-      color: #102b50;
-    }
+.panel h2 {
+  margin-bottom: 18px;
+  color: #102b50;
+}
 
-    /* ID CARD */
+/* ID CARD */
 
-    .id-card {
-      width: 100%;
-      max-width: 430px;
-      min-height: 340px;
-      padding: 24px;
-      border-radius: 15px;
-      background: linear-gradient(135deg, #071b38, #174b78);
-      color: white;
-      margin: 20px 0;
-      box-shadow: 0 8px 25px rgba(0,0,0,0.18);
-      overflow: hidden;
-    }
+.id-card {
+  width: 100%;
+  max-width: 430px;
+  min-height: 340px;
+  padding: 24px;
+  border-radius: 15px;
+  background: linear-gradient(135deg, #071b38, #174b78);
+  color: white;
+  margin: 20px 0;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.18);
+  overflow: hidden;
+}
 
-    .id-top {
-      width: 100%;
-      border-bottom: 1px solid rgba(255,255,255,0.4);
-      padding-bottom: 13px;
-      margin-bottom: 17px;
-    }
+.id-top {
+  width: 100%;
+  border-bottom: 1px solid rgba(255,255,255,0.4);
+  padding-bottom: 13px;
+  margin-bottom: 17px;
+}
 
-    .id-top h2 {
-      font-size: 28px;
-      letter-spacing: 3px;
-      color: white;
-      margin-bottom: 4px;
-    }
+.id-top h2 {
+  font-size: 28px;
+  letter-spacing: 3px;
+  color: white;
+  margin-bottom: 4px;
+}
 
-    .id-top p {
-      font-size: 10px;
-      letter-spacing: 2px;
-    }
+.id-top p {
+  font-size: 10px;
+  letter-spacing: 2px;
+}
 
-    .id-content {
-      display: flex;
-      gap: 17px;
-      align-items: center;
-      margin-bottom: 18px;
-    }
+.id-content {
+  display: flex;
+  gap: 17px;
+  align-items: center;
+  margin-bottom: 18px;
+}
 
-    .id-photo {
-      width: 105px;
-      height: 120px;
-      object-fit: cover;
-      border-radius: 8px;
-      border: 2px solid white;
-      flex-shrink: 0;
-    }
+.id-photo {
+  width: 105px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 2px solid white;
+  flex-shrink: 0;
+}
 
-    .id-photo-placeholder {
-      width: 105px;
-      height: 120px;
-      border: 2px dashed rgba(255,255,255,0.7);
-      border-radius: 8px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      text-align: center;
-      font-size: 12px;
-      padding: 8px;
-      flex-shrink: 0;
-    }
+.id-photo-placeholder {
+  width: 105px;
+  height: 120px;
+  border: 2px dashed rgba(255,255,255,0.7);
+  border-radius: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  font-size: 12px;
+  padding: 8px;
+  flex-shrink: 0;
+}
 
-    .id-photo[hidden],
-    .id-photo-placeholder[hidden] {
-      display: none !important;
-    }
+.id-photo[hidden],
+.id-photo-placeholder[hidden] {
+  display: none !important;
+}
 
-    .id-details {
-      min-width: 0;
-    }
+.id-details {
+  min-width: 0;
+}
 
-    .id-details h3 {
-      font-size: 19px;
-      margin-bottom: 12px;
-      overflow-wrap: anywhere;
-    }
+.id-details h3 {
+  font-size: 19px;
+  margin-bottom: 12px;
+  overflow-wrap: anywhere;
+}
 
-    .id-details p {
-      font-size: 12px;
-      margin: 8px 0;
-      overflow-wrap: anywhere;
-    }
+.id-details p {
+  font-size: 12px;
+  margin: 8px 0;
+  overflow-wrap: anywhere;
+}
 
-    .id-footer {
-      border-top: 1px solid rgba(255,255,255,0.4);
-      padding-top: 12px;
-      font-size: 11px;
-      letter-spacing: 1px;
-    }
+.id-footer {
+  border-top: 1px solid rgba(255,255,255,0.4);
+  padding-top: 12px;
+  font-size: 11px;
+  letter-spacing: 1px;
+  line-height: 1.8;
+}
 
-    /* FORMS */
+.locked-label {
+  display: inline-block;
+  background: #1c9b60;
+  color: white;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-weight: bold;
+}
 
-    .form-group {
-      margin-bottom: 17px;
-    }
+/* FORMS */
 
-    .form-group label {
-      display: block;
-      margin-bottom: 7px;
-      font-weight: bold;
-    }
+.form-group {
+  margin-bottom: 17px;
+}
 
-    .form-group input,
-    .form-group select {
-      width: 100%;
-      padding: 12px;
-      border: 1px solid #ddd;
-      border-radius: 6px;
-      background: white;
-    }
+.form-group label {
+  display: block;
+  margin-bottom: 7px;
+  font-weight: bold;
+}
 
-    .primary-btn {
-      background: #102b50;
-      color: white;
-      padding: 12px 20px;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-    }
+.form-group input,
+.form-group select {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background: white;
+}
 
-    .primary-btn:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-    }
+.primary-btn {
+  background: #102b50;
+  color: white;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
 
-    .message {
-      margin-top: 12px;
-      font-size: 14px;
-    }
+.primary-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
 
-    .detail-row {
-      padding: 13px 0;
-      border-bottom: 1px solid #eee;
-      overflow-wrap: anywhere;
-    }
+.message {
+  margin-top: 12px;
+  font-size: 14px;
+}
 
-    .detail-row strong {
-      display: inline-block;
-      min-width: 135px;
-    }
+.detail-row {
+  padding: 13px 0;
+  border-bottom: 1px solid #eee;
+  overflow-wrap: anywhere;
+}
 
-    .muted {
-      color: #777;
-    }
+.detail-row strong {
+  display: inline-block;
+  min-width: 135px;
+}
 
-    @media(max-width: 700px) {
-      .layout {
-        display: block;
-      }
+.muted {
+  color: #777;
+}
 
-      .sidebar {
-        width: 100%;
-        display: flex;
-        overflow-x: auto;
-        padding: 10px;
-        gap: 5px;
-      }
+@media(max-width: 700px) {
+  .layout {
+    display: block;
+  }
 
-      .sidebar h3 {
-        display: none;
-      }
+  .sidebar {
+    width: 100%;
+    display: flex;
+    overflow-x: auto;
+    padding: 10px;
+    gap: 5px;
+  }
 
-      .sidebar button {
-        width: auto;
-        min-width: max-content;
-        margin: 0;
-        padding: 12px;
-        font-size: 12px;
-      }
+  .sidebar h3 {
+    display: none;
+  }
 
-      .main {
-        padding: 17px;
-      }
+  .sidebar button {
+    width: auto;
+    min-width: max-content;
+    margin: 0;
+    padding: 12px;
+    font-size: 12px;
+  }
 
-      .id-card {
-        max-width: 100%;
-      }
-    }
+  .main {
+    padding: 17px;
+  }
 
-    @media print {
-      body.printing * {
-        visibility: hidden !important;
-      }
+  .id-card {
+    max-width: 100%;
+  }
+}
 
-      body.printing .id-card.print-target,
-      body.printing .id-card.print-target * {
-        visibility: visible !important;
-      }
+@media print {
+  body.printing * {
+    visibility: hidden !important;
+  }
 
-      body.printing .id-card.print-target {
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: 430px;
-        margin: 0;
-        -webkit-print-color-adjust: exact;
-        print-color-adjust: exact;
-      }
-    }
-  </style>
+  body.printing .id-card.print-target,
+  body.printing .id-card.print-target * {
+    visibility: visible !important;
+  }
+
+  body.printing .id-card.print-target {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 430px;
+    margin: 0;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}
+</style>
 </head>
 
 <body>
 
-  <header class="topbar">
-    <h2>UK49</h2>
-    <button class="logout-btn" id="logoutButton">Log Out</button>
-  </header>
-
-  <div class="layout">
-
-    <aside class="sidebar">
-      <h3>MEMBER MENU</h3>
-
-      <button class="active" data-section="overview">Overview</button>
-      <button data-section="idcard">My ID Card</button>
-      <button data-section="profile">My Profile</button>
-      <button data-section="bank">Bank Information</button>
-      <button data-section="account">Account Settings</button>
-    </aside>
-
-    <main class="main">
-
-      <!-- OVERVIEW -->
-
-      <section class="section active" id="overview">
-        <h1 id="welcomeName">Welcome!</h1>
-        <p class="subtitle">Welcome to your UK49 member dashboard.</p>
-
-        <div class="cards">
-
-          <div class="summary-card">
-            <h3>Membership Status</h3>
-            <p id="overviewStatus">Loading...</p>
-          </div>
-
-          <div class="summary-card">
-            <h3>Member ID</h3>
-            <p id="overviewId">Loading...</p>
-          </div>
-
-          <div class="summary-card">
-            <h3>Registration Date</h3>
-            <p id="overviewDate">Loading...</p>
-          </div>
-
-        </div>
-
-        <div class="panel">
-          <h2>Your Member ID Card</h2>
-
-          <div class="id-card" id="memberIdCard">
-
-            <div class="id-top">
-              <h2>UK49</h2>
-              <p>OFFICIAL MEMBER CARD</p>
-            </div>
-
-            <div class="id-content">
-
-              <img
-                class="id-photo"
-                id="cardPhoto"
-                alt="Member photograph"
-                hidden
-              >
-
-              <div
-                class="id-photo-placeholder"
-                id="cardPhotoPlaceholder"
-              >
-                Photo not uploaded
-              </div>
-
-              <div class="id-details">
-
-                <h3 id="cardName">Member Name</h3>
-
-                <p>
-                  Member ID:
-                  <span id="cardId">Loading...</span>
-                </p>
-
-                <p>
-                  Member Since:
-                  <span id="cardDate">Loading...</span>
-                </p>
-
-                <p>
-                  Status:
-                  <span id="cardStatus">Loading...</span>
-                </p>
-
-                <p>
-                  Gender:
-                  <span id="cardGender">Not selected</span>
-                </p>
-
-              </div>
-
-            </div>
-
-            <div class="id-footer">
-              UK49 OFFICIAL MEMBERSHIP
-            </div>
-
-          </div>
-
-          <button class="primary-btn" onclick="printCard('memberIdCard')">
-            Print ID Card
-          </button>
-        </div>
-      </section>
-
-
-      <!-- ID CARD -->
-
-      <section class="section" id="idcard">
-
-        <h1>My ID Card</h1>
-        <p class="subtitle">
-          Upload your photograph and select your gender.
-        </p>
-
-        <div class="panel">
-
-          <h2>Update ID Card Details</h2>
-
-          <form id="cardDetailsForm">
-
-            <div class="form-group">
-              <label for="photoInput">Member Photograph</label>
-              <input
-                type="file"
-                id="photoInput"
-                accept="image/jpeg,image/png,image/webp"
-              >
-              <small class="muted">
-                Maximum image size: 5MB.
-              </small>
-            </div>
-
-            <div class="form-group">
-              <label for="genderInput">Gender</label>
-
-              <select id="genderInput" required>
-                <option value="">Select Gender</option>
-                <option value="Male">Male</option>
-                <option value="Female">Female</option>
-                <option value="Prefer not to say">
-                  Prefer not to say
-                </option>
-              </select>
-            </div>
-
-            <button
-              class="primary-btn"
-              type="submit"
-              id="saveCardButton"
-            >
-              Save ID Card Details
-            </button>
-
-            <p class="message" id="cardMessage"></p>
-
-          </form>
-
-        </div>
-
-        <div class="panel">
-
-          <h2>My Official ID Card</h2>
-
-          <div class="id-card" id="memberIdCard2">
-
-            <div class="id-top">
-              <h2>UK49</h2>
-              <p>OFFICIAL MEMBER CARD</p>
-            </div>
-
-            <div class="id-content">
-
-              <img
-                class="id-photo"
-                id="cardPhoto2"
-                alt="Member photograph"
-                hidden
-              >
-
-              <div
-                class="id-photo-placeholder"
-                id="cardPhotoPlaceholder2"
-              >
-                Photo not uploaded
-              </div>
-
-              <div class="id-details">
-
-                <h3 id="cardName2">Member Name</h3>
-
-                <p>
-                  Member ID:
-                  <span id="cardId2">Loading...</span>
-                </p>
-
-                <p>
-                  Member Since:
-                  <span id="cardDate2">Loading...</span>
-                </p>
-
-                <p>
-                  Status:
-                  <span id="cardStatus2">Loading...</span>
-                </p>
-
-                <p>
-                  Gender:
-                  <span id="cardGender2">Not selected</span>
-                </p>
-
-              </div>
-
-            </div>
-
-            <div class="id-footer">
-              UK49 OFFICIAL MEMBERSHIP
-            </div>
-
-          </div>
-
-          <button
-            class="primary-btn"
-            id="printButton2"
-          >
-            Print ID Card
-          </button>
-
-        </div>
-
-      </section>
-
-
-      <!-- PROFILE -->
-
-      <section class="section" id="profile">
-
-        <h1>My Profile</h1>
-        <p class="subtitle">Your registered membership information.</p>
-
-        <div class="panel">
-
-          <div class="detail-row">
-            <strong>Full Name:</strong>
-            <span id="profileName">Loading...</span>
-          </div>
-
-          <div class="detail-row">
-            <strong>Email:</strong>
-            <span id="profileEmail">Loading...</span>
-          </div>
-
-          <div class="detail-row">
-            <strong>Phone:</strong>
-            <span id="profilePhone">Loading...</span>
-          </div>
-
-          <div class="detail-row">
-            <strong>Member ID:</strong>
-            <span id="profileId">Loading...</span>
-          </div>
-
-          <div class="detail-row">
-            <strong>Status:</strong>
-            <span id="profileStatus">Loading...</span>
-          </div>
-
-          <div class="detail-row">
-            <strong>Registered:</strong>
-            <span id="profileDate">Loading...</span>
-          </div>
-
-        </div>
-
-      </section>
-
-
-      <!-- BANK INFORMATION -->
-
-      <section class="section" id="bank">
-
-        <h1>Bank Information</h1>
-        <p class="subtitle">
-          Your bank information section.
-        </p>
-
-        <div class="panel">
-
-          <h2>Bank Details</h2>
-
-          <p class="muted">
-            Bank information has not been configured.
-          </p>
-
-          <div class="detail-row">
-            <strong>Bank Name:</strong>
-            <span>Not configured</span>
-          </div>
-
-          <div class="detail-row">
-            <strong>Account Name:</strong>
-            <span>Not configured</span>
-          </div>
-
-          <div class="detail-row">
-            <strong>Account Number:</strong>
-            <span>Not configured</span>
-          </div>
-
-        </div>
-
-      </section>
-
-
-      <!-- ACCOUNT SETTINGS -->
-
-      <section class="section" id="account">
-
-        <h1>Account Settings</h1>
-        <p class="subtitle">
-          Manage your account information.
-        </p>
-
-        <div class="panel">
-
-          <h2>Account Information</h2>
-
-          <div class="detail-row">
-            <strong>Signed-in Email:</strong>
-            <span id="settingsEmail">Loading...</span>
-          </div>
-
-          <button class="logout-btn" id="settingsLogout">
-            Log Out
-          </button>
-
-        </div>
-
-      </section>
-
-    </main>
+<header class="topbar">
+  <h2>UK49</h2>
+  <button class="logout-btn" id="logoutButton">Log Out</button>
+</header>
+
+<div class="layout">
+
+<aside class="sidebar">
+  <h3>MEMBER MENU</h3>
+  <button class="active" data-section="overview">Overview</button>
+  <button data-section="idcard">My ID Card</button>
+  <button data-section="profile">My Profile</button>
+  <button data-section="bank">Bank Information</button>
+  <button data-section="account">Account Settings</button>
+</aside>
+
+<main class="main">
+
+<!-- OVERVIEW -->
+
+<section class="section active" id="overview">
+
+  <h1 id="welcomeName">Welcome!</h1>
+  <p class="subtitle">Welcome to your UK49 member dashboard.</p>
+
+  <div class="cards">
+
+    <div class="summary-card">
+      <h3>Membership Status</h3>
+      <p id="overviewStatus">Loading...</p>
+    </div>
+
+    <div class="summary-card">
+      <h3>Member ID</h3>
+      <p id="overviewId">Loading...</p>
+    </div>
+
+    <div class="summary-card">
+      <h3>Registration Date</h3>
+      <p id="overviewDate">Loading...</p>
+    </div>
 
   </div>
 
+  <div class="panel">
+    <h2>Your Member ID Card</h2>
 
-  <script>
-    // ==========================================
-    // SUPABASE CONFIGURATION
-    // ==========================================
+    <div class="id-card" id="memberIdCard">
 
-    const SUPABASE_URL =
-      "https://jtwrktxkkngbxrvifoax.supabase.co";
+      <div class="id-top">
+        <h2>UK49</h2>
+        <p>OFFICIAL MEMBER CARD</p>
+      </div>
 
-    const SUPABASE_PUBLISHABLE_KEY =
-      "sb_publishable_7Jdnz6F1e0-OdSVmqIqqUg_LIkD_L0O";
+      <div class="id-content">
 
-    const PHOTO_BUCKET = "member-photo";
+        <img class="id-photo" id="cardPhoto"
+             alt="Member photograph" hidden>
 
-    const MAX_PHOTO_SIZE = 5 * 1024 * 1024;
+        <div class="id-photo-placeholder"
+             id="cardPhotoPlaceholder">
+          Photo not uploaded
+        </div>
 
-    const supabaseClient = window.supabase.createClient(
-      SUPABASE_URL,
-      SUPABASE_PUBLISHABLE_KEY
-    );
+        <div class="id-details">
 
-    let currentUser = null;
-    let currentPhotoPath = null;
+          <h3 id="cardName">Member Name</h3>
 
+          <p>Member ID: <span id="cardId">Loading...</span></p>
 
-    // ==========================================
-    // HELPER FUNCTIONS
-    // ==========================================
+          <p>Member Since: <span id="cardDate">Loading...</span></p>
 
-    function displayText(id, value) {
-      const element = document.getElementById(id);
+          <p>Status: <span id="cardStatus">Loading...</span></p>
 
-      if (element) {
-        element.textContent = value ?? "";
-      }
-    }
+          <p>Gender: <span id="cardGender">Not selected</span></p>
 
-    function formatDate(dateValue) {
-      if (!dateValue) return "Not available";
+        </div>
 
-      const date = new Date(dateValue);
+      </div>
 
-      if (Number.isNaN(date.getTime())) {
-        return "Not available";
-      }
+      <div class="id-footer">
+        UK49 OFFICIAL MEMBERSHIP<br>
+        Card Security:
+        <span class="locked-label" id="cardLockStatus">
+          NOT LOCKED
+        </span>
+      </div>
 
-      return date.toLocaleDateString("en-GB", {
-        day: "2-digit",
-        month: "long",
-        year: "numeric"
-      });
-    }
+    </div>
 
-    function displayStatus(status) {
-      if (!status) return "Unknown";
+    <button class="primary-btn"
+            onclick="printCard('memberIdCard')">
+      Print & Lock ID Card
+    </button>
 
-      return status.charAt(0).toUpperCase() +
-        status.slice(1);
-    }
+  </div>
 
-    function showMessage(message, success = false) {
-      const element = document.getElementById("cardMessage");
-
-      element.textContent = message;
-
-      element.style.color = success ? "green" : "red";
-    }
+</section>
 
 
-    // ==========================================
-    // NAVIGATION
-    // ==========================================
+<!-- ID CARD -->
 
-    document.querySelectorAll(".sidebar button").forEach(button => {
+<section class="section" id="idcard">
 
-      button.addEventListener("click", () => {
+  <h1>My ID Card</h1>
+  <p class="subtitle">Manage your membership card details.</p>
 
-        const target = button.dataset.section;
+  <div class="panel">
 
-        document.querySelectorAll(".section").forEach(section => {
-          section.classList.remove("active");
-        });
+    <h2>Update ID Card Details</h2>
 
-        document.querySelectorAll(".sidebar button").forEach(item => {
-          item.classList.remove("active");
-        });
+    <form id="cardDetailsForm">
 
-        document.getElementById(target).classList.add("active");
+      <div class="form-group">
+        <label for="photoInput">Member Photograph</label>
 
-        button.classList.add("active");
+        <input type="file"
+               id="photoInput"
+               accept="image/jpeg,image/png,image/webp">
 
-      });
+        <small class="muted">Maximum image size: 5MB.</small>
+      </div>
 
+      <div class="form-group">
+        <label for="genderInput">Gender</label>
+
+        <select id="genderInput" required>
+          <option value="">Select Gender</option>
+          <option value="Male">Male</option>
+          <option value="Female">Female</option>
+          <option value="Prefer not to say">Prefer not to say</option>
+        </select>
+      </div>
+
+      <button class="primary-btn"
+              type="submit"
+              id="saveCardButton">
+        Save ID Card Details
+      </button>
+
+      <p class="message" id="cardMessage"></p>
+
+    </form>
+
+  </div>
+
+  <div class="panel">
+
+    <h2>My Official ID Card</h2>
+
+    <div class="id-card" id="memberIdCard2">
+
+      <div class="id-top">
+        <h2>UK49</h2>
+        <p>OFFICIAL MEMBER CARD</p>
+      </div>
+
+      <div class="id-content">
+
+        <img class="id-photo" id="cardPhoto2"
+             alt="Member photograph" hidden>
+
+        <div class="id-photo-placeholder"
+             id="cardPhotoPlaceholder2">
+          Photo not uploaded
+        </div>
+
+        <div class="id-details">
+
+          <h3 id="cardName2">Member Name</h3>
+
+          <p>Member ID: <span id="cardId2">Loading...</span></p>
+
+          <p>Member Since: <span id="cardDate2">Loading...</span></p>
+
+          <p>Status: <span id="cardStatus2">Loading...</span></p>
+
+          <p>Gender: <span id="cardGender2">Not selected</span></p>
+
+        </div>
+
+      </div>
+
+      <div class="id-footer">
+        UK49 OFFICIAL MEMBERSHIP<br>
+        Card Security:
+        <span class="locked-label" id="cardLockStatus2">
+          NOT LOCKED
+        </span>
+      </div>
+
+    </div>
+
+    <button class="primary-btn"
+            onclick="printCard('memberIdCard2')">
+      Print & Lock ID Card
+    </button>
+
+  </div>
+
+</section>
+
+
+<!-- PROFILE -->
+
+<section class="section" id="profile">
+
+  <h1>My Profile</h1>
+  <p class="subtitle">Your registered membership information.</p>
+
+  <div class="panel">
+
+    <div class="detail-row">
+      <strong>Full Name:</strong>
+      <span id="profileName">Loading...</span>
+    </div>
+
+    <div class="detail-row">
+      <strong>Email:</strong>
+      <span id="profileEmail">Loading...</span>
+    </div>
+
+    <div class="detail-row">
+      <strong>Phone:</strong>
+      <span id="profilePhone">Loading...</span>
+    </div>
+
+    <div class="detail-row">
+      <strong>Member ID:</strong>
+      <span id="profileId">Loading...</span>
+    </div>
+
+    <div class="detail-row">
+      <strong>Status:</strong>
+      <span id="profileStatus">Loading...</span>
+    </div>
+
+    <div class="detail-row">
+      <strong>Registered:</strong>
+      <span id="profileDate">Loading...</span>
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- BANK INFORMATION -->
+
+<section class="section" id="bank">
+
+  <h1>Bank Information</h1>
+  <p class="subtitle">Your bank information section.</p>
+
+  <div class="panel">
+
+    <h2>Bank Details</h2>
+
+    <p class="muted">Bank information has not been configured.</p>
+
+    <div class="detail-row">
+      <strong>Bank Name:</strong>
+      <span>Not configured</span>
+    </div>
+
+    <div class="detail-row">
+      <strong>Account Name:</strong>
+      <span>Not configured</span>
+    </div>
+
+    <div class="detail-row">
+      <strong>Account Number:</strong>
+      <span>Not configured</span>
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- ACCOUNT SETTINGS -->
+
+<section class="section" id="account">
+
+  <h1>Account Settings</h1>
+  <p class="subtitle">Manage your account information.</p>
+
+  <div class="panel">
+
+    <h2>Account Information</h2>
+
+    <div class="detail-row">
+      <strong>Signed-in Email:</strong>
+      <span id="settingsEmail">Loading...</span>
+    </div>
+
+    <button class="logout-btn" id="settingsLogout">
+      Log Out
+    </button>
+
+  </div>
+
+</section>
+
+</main>
+</div>
+
+
+<script>
+
+// ==========================================
+// SUPABASE CONFIGURATION
+// ==========================================
+
+const SUPABASE_URL =
+  "https://jtwrktxkkngbxrvifoax.supabase.co";
+
+const SUPABASE_PUBLISHABLE_KEY =
+  "sb_publishable_7Jdnz6F1e0-OdSVmqIqqUg_LIkD_L0O";
+
+const PHOTO_BUCKET = "member-photo";
+
+const MAX_PHOTO_SIZE = 5 * 1024 * 1024;
+
+const supabaseClient = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_PUBLISHABLE_KEY
+);
+
+let currentUser = null;
+let currentPhotoPath = null;
+let cardIsLocked = false;
+
+
+// ==========================================
+// HELPERS
+// ==========================================
+
+function displayText(id, value) {
+  const element = document.getElementById(id);
+
+  if (element) {
+    element.textContent = value ?? "";
+  }
+}
+
+function formatDate(dateValue) {
+
+  if (!dateValue) return "Not available";
+
+  const date = new Date(dateValue);
+
+  if (Number.isNaN(date.getTime())) {
+    return "Not available";
+  }
+
+  return date.toLocaleDateString("en-GB", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric"
+  });
+}
+
+function displayStatus(status) {
+
+  if (!status) return "Unknown";
+
+  return status.charAt(0).toUpperCase() +
+    status.slice(1);
+}
+
+function showMessage(message, success = false) {
+
+  const element = document.getElementById("cardMessage");
+
+  element.textContent = message;
+
+  element.style.color = success ? "green" : "red";
+}
+
+
+// ==========================================
+// NAVIGATION
+// ==========================================
+
+document.querySelectorAll(".sidebar button").forEach(button => {
+
+  button.addEventListener("click", () => {
+
+    const target = button.dataset.section;
+
+    document.querySelectorAll(".section").forEach(section => {
+      section.classList.remove("active");
     });
 
+    document.querySelectorAll(".sidebar button").forEach(item => {
+      item.classList.remove("active");
+    });
 
-    // ==========================================
-    // LOGOUT
-    // ==========================================
+    document.getElementById(target).classList.add("active");
 
-    async function logout() {
+    button.classList.add("active");
 
-      await supabaseClient.auth.signOut();
+  });
+
+});
+
+
+// ==========================================
+// LOGOUT
+// ==========================================
+
+async function logout() {
+
+  await supabaseClient.auth.signOut();
+
+  window.location.href = "login.html";
+
+}
+
+document.getElementById("logoutButton")
+  .addEventListener("click", logout);
+
+document.getElementById("settingsLogout")
+  .addEventListener("click", logout);
+
+
+// ==========================================
+// PHOTO DISPLAY
+// ==========================================
+
+async function displayMemberPhoto(path) {
+
+  const photo1 = document.getElementById("cardPhoto");
+  const photo2 = document.getElementById("cardPhoto2");
+
+  const placeholder1 =
+    document.getElementById("cardPhotoPlaceholder");
+
+  const placeholder2 =
+    document.getElementById("cardPhotoPlaceholder2");
+
+  if (!path) {
+
+    photo1.hidden = true;
+    photo2.hidden = true;
+
+    placeholder1.hidden = false;
+    placeholder2.hidden = false;
+
+    return;
+  }
+
+  const { data, error } = await supabaseClient.storage
+    .from(PHOTO_BUCKET)
+    .createSignedUrl(path, 3600);
+
+  if (error || !data?.signedUrl) {
+
+    photo1.hidden = true;
+    photo2.hidden = true;
+
+    placeholder1.hidden = false;
+    placeholder2.hidden = false;
+
+    console.error("Photo display error:", error);
+
+    return;
+  }
+
+  photo1.src = data.signedUrl;
+  photo2.src = data.signedUrl;
+
+  photo1.hidden = false;
+  photo2.hidden = false;
+
+  placeholder1.hidden = true;
+  placeholder2.hidden = true;
+
+}
+
+
+// ==========================================
+// GENDER DISPLAY
+// ==========================================
+
+function updateGenderDisplay(gender) {
+
+  const value = gender || "Not selected";
+
+  displayText("cardGender", value);
+  displayText("cardGender2", value);
+
+  document.getElementById("genderInput").value =
+    gender || "";
+
+}
+
+
+// ==========================================
+// CARD LOCK DISPLAY
+// ==========================================
+
+function updateCardLockDisplay() {
+
+  const photoInput = document.getElementById("photoInput");
+  const genderInput = document.getElementById("genderInput");
+  const saveButton = document.getElementById("saveCardButton");
+
+  photoInput.disabled = cardIsLocked;
+  genderInput.disabled = cardIsLocked;
+  saveButton.disabled = cardIsLocked;
+
+  if (cardIsLocked) {
+
+    saveButton.textContent = "ID Card Locked";
+
+    showMessage(
+      "Your ID card is locked. You cannot change its details.",
+      true
+    );
+
+  } else {
+
+    saveButton.textContent = "Save ID Card Details";
+
+    showMessage("Your ID card is not locked yet.", true);
+
+  }
+
+  const status = cardIsLocked ? "LOCKED" : "NOT LOCKED";
+
+  displayText("cardLockStatus", status);
+  displayText("cardLockStatus2", status);
+
+}
+
+
+// ==========================================
+// LOAD CARD DETAILS
+// ==========================================
+
+async function loadCardDetails() {
+
+  const { data, error } = await supabaseClient
+    .from("member_card_details")
+    .select("gender, photo_path, is_locked, locked_at")
+    .eq("member_id", currentUser.id)
+    .maybeSingle();
+
+  if (error) {
+
+    console.error("Card details error:", error);
+
+    showMessage("Unable to load ID card details.");
+
+    return;
+  }
+
+  if (!data) {
+
+    cardIsLocked = false;
+    currentPhotoPath = null;
+
+    updateGenderDisplay(null);
+
+    await displayMemberPhoto(null);
+
+    updateCardLockDisplay();
+
+    return;
+  }
+
+  cardIsLocked = data.is_locked === true;
+
+  currentPhotoPath = data.photo_path;
+
+  updateGenderDisplay(data.gender);
+
+  await displayMemberPhoto(data.photo_path);
+
+  updateCardLockDisplay();
+
+}
+
+
+// ==========================================
+// SAVE PHOTO AND GENDER
+// ==========================================
+
+document.getElementById("cardDetailsForm")
+  .addEventListener("submit", async function(event) {
+
+  event.preventDefault();
+
+  if (cardIsLocked) {
+
+    alert("Your ID card is locked. You cannot change its details.");
+
+    return;
+  }
+
+  const saveButton =
+    document.getElementById("saveCardButton");
+
+  const photoInput =
+    document.getElementById("photoInput");
+
+  const gender =
+    document.getElementById("genderInput").value;
+
+  const file = photoInput.files[0];
+
+  if (!gender) {
+
+    showMessage("Please select your gender.");
+
+    return;
+  }
+
+  if (file) {
+
+    if (!file.type.startsWith("image/")) {
+
+      showMessage("Please select a valid image.");
+
+      return;
+    }
+
+    if (file.size > MAX_PHOTO_SIZE) {
+
+      showMessage("Your photograph must not exceed 5MB.");
+
+      return;
+    }
+
+  }
+
+  saveButton.disabled = true;
+  saveButton.textContent = "Saving...";
+
+  showMessage("Saving your ID card details...");
+
+  let photoPath = currentPhotoPath;
+  let uploadedPath = null;
+
+  try {
+
+    if (file) {
+
+      const extension =
+        file.name.split(".").pop().toLowerCase();
+
+      const safeExtension =
+        ["jpg", "jpeg", "png", "webp"].includes(extension)
+          ? extension
+          : "jpg";
+
+      const fileName =
+        currentUser.id + "/" +
+        Date.now() + "-" +
+        crypto.randomUUID() + "." +
+        safeExtension;
+
+      const { data: uploadData, error: uploadError } =
+        await supabaseClient.storage
+          .from(PHOTO_BUCKET)
+          .upload(fileName, file, {
+            contentType: file.type,
+            upsert: false
+          });
+
+      if (uploadError) {
+        throw uploadError;
+      }
+
+      uploadedPath = uploadData.path;
+      photoPath = uploadData.path;
+
+    }
+
+    const { error: databaseError } =
+      await supabaseClient
+        .from("member_card_details")
+        .upsert({
+          member_id: currentUser.id,
+          gender: gender,
+          photo_path: photoPath,
+          updated_at: new Date().toISOString()
+        }, {
+          onConflict: "member_id"
+        });
+
+    if (databaseError) {
+
+      if (uploadedPath) {
+
+        await supabaseClient.storage
+          .from(PHOTO_BUCKET)
+          .remove([uploadedPath]);
+
+      }
+
+      throw databaseError;
+    }
+
+    currentPhotoPath = photoPath;
+
+    updateGenderDisplay(gender);
+
+    await displayMemberPhoto(photoPath);
+
+    photoInput.value = "";
+
+    showMessage(
+      "Your ID card details have been saved successfully!",
+      true
+    );
+
+  } catch (error) {
+
+    console.error("Save card details error:", error);
+
+    showMessage(
+      "Unable to save your details: " +
+      (error.message || "Please try again.")
+    );
+
+  } finally {
+
+    updateCardLockDisplay();
+
+  }
+
+});
+
+
+// ==========================================
+// PRINT AND LOCK ID CARD
+// ==========================================
+
+async function printCard(cardId) {
+
+  const card = document.getElementById(cardId);
+
+  if (!card) return;
+
+  // First printing requires locking.
+
+  if (!cardIsLocked) {
+
+    const gender =
+      document.getElementById("genderInput").value;
+
+    if (!gender || !currentPhotoPath) {
+
+      alert(
+        "Please upload your photograph and select your gender before printing and locking your card."
+      );
+
+      return;
+    }
+
+    const confirmation = confirm(
+      "Are you sure you want to print and lock your ID card? You will not be able to change your photograph or gender afterwards."
+    );
+
+    if (!confirmation) return;
+
+    const { data, error } = await supabaseClient.rpc(
+      "lock_my_member_card"
+    );
+
+    if (error || data !== true) {
+
+      console.error("Card locking error:", error);
+
+      alert(
+        "Your ID card could not be locked. Please try again."
+      );
+
+      return;
+    }
+
+    cardIsLocked = true;
+
+    await loadCardDetails();
+
+  }
+
+  // Print the selected card only.
+
+  document.querySelectorAll(".id-card").forEach(item => {
+    item.classList.remove("print-target");
+  });
+
+  card.classList.add("print-target");
+
+  document.body.classList.add("printing");
+
+  window.print();
+
+}
+
+window.addEventListener("afterprint", () => {
+
+  document.body.classList.remove("printing");
+
+  document.querySelectorAll(".id-card").forEach(item => {
+    item.classList.remove("print-target");
+  });
+
+});
+
+
+// ==========================================
+// LOAD DASHBOARD
+// ==========================================
+
+async function initializeDashboard() {
+
+  try {
+
+    const { data: sessionData, error: sessionError } =
+      await supabaseClient.auth.getSession();
+
+    if (sessionError || !sessionData.session) {
 
       window.location.href = "login.html";
 
+      return;
     }
 
-    document.getElementById("logoutButton")
-      .addEventListener("click", logout);
+    currentUser = sessionData.session.user;
 
-    document.getElementById("settingsLogout")
-      .addEventListener("click", logout);
+    // Load member record.
 
+    const { data: member, error: memberError } =
+      await supabaseClient
+        .from("members")
+        .select("*")
+        .eq("id", currentUser.id)
+        .single();
 
-    // ==========================================
-    // PHOTO DISPLAY
-    // ==========================================
+    if (memberError || !member) {
 
-    async function displayMemberPhoto(path) {
+      alert("Unable to load your member account.");
 
-      const photo1 = document.getElementById("cardPhoto");
-      const photo2 = document.getElementById("cardPhoto2");
+      await logout();
 
-      const placeholder1 =
-        document.getElementById("cardPhotoPlaceholder");
-
-      const placeholder2 =
-        document.getElementById("cardPhotoPlaceholder2");
-
-      if (!path) {
-
-        photo1.hidden = true;
-        photo2.hidden = true;
-
-        placeholder1.hidden = false;
-        placeholder2.hidden = false;
-
-        return;
-      }
-
-      const { data, error } = await supabaseClient.storage
-        .from(PHOTO_BUCKET)
-        .createSignedUrl(path, 3600);
-
-      if (error || !data?.signedUrl) {
-
-        photo1.hidden = true;
-        photo2.hidden = true;
-
-        placeholder1.hidden = false;
-        placeholder2.hidden = false;
-
-        console.error("Photo display error:", error);
-
-        return;
-      }
-
-      photo1.src = data.signedUrl;
-      photo2.src = data.signedUrl;
-
-      photo1.hidden = false;
-      photo2.hidden = false;
-
-      placeholder1.hidden = true;
-      placeholder2.hidden = true;
-
+      return;
     }
 
+    // Approval check.
 
-    // ==========================================
-    // GENDER DISPLAY
-    // ==========================================
+    if (member.approval_status !== "approved") {
 
-    function updateGenderDisplay(gender) {
+      alert(
+        "Your membership is not approved yet. Please contact the administrator."
+      );
 
-      const value = gender || "Not selected";
+      await logout();
 
-      displayText("cardGender", value);
-      displayText("cardGender2", value);
-
-      document.getElementById("genderInput").value =
-        gender || "";
-
+      return;
     }
 
+    // Existing verification check.
 
-    // ==========================================
-    // LOAD MEMBER CARD DETAILS
-    // ==========================================
+    const { data: verification, error: verificationError } =
+      await supabaseClient.functions.invoke(
+        "member_dashboard_access",
+        {
+          method: "POST",
+          body: {}
+        }
+      );
 
-    async function loadCardDetails() {
+    if (
+      verificationError ||
+      !verification ||
+      verification.verified !== true
+    ) {
 
-      const { data, error } = await supabaseClient
-        .from("member_card_details")
-        .select("gender, photo_path")
-        .eq("member_id", currentUser.id)
-        .maybeSingle();
+      console.error("Verification error:", verificationError);
 
-      if (error) {
+      alert(
+        "Your account verification could not be confirmed. Please contact the administrator."
+      );
 
-        console.error("Card details error:", error);
+      await logout();
 
-        showMessage(
-          "Unable to load ID card details. Please refresh."
-        );
-
-        return;
-      }
-
-      if (!data) {
-
-        updateGenderDisplay(null);
-        await displayMemberPhoto(null);
-
-        return;
-      }
-
-      currentPhotoPath = data.photo_path;
-
-      updateGenderDisplay(data.gender);
-
-      await displayMemberPhoto(data.photo_path);
-
+      return;
     }
 
+    // Member information.
 
-    // ==========================================
-    // SAVE PHOTO AND GENDER
-    // ==========================================
+    const name = member.full_name || "UK49 Member";
 
-    document.getElementById("cardDetailsForm")
-      .addEventListener("submit", async function(event) {
+    const memberId = member.id;
 
-      event.preventDefault();
+    const date = formatDate(member.created_at);
 
-      const saveButton =
-        document.getElementById("saveCardButton");
+    const status = displayStatus(member.approval_status);
 
-      const photoInput =
-        document.getElementById("photoInput");
+    const shortId = memberId.slice(0, 8).toUpperCase();
 
-      const gender =
-        document.getElementById("genderInput").value;
+    // Overview.
 
-      const file =
-        photoInput.files[0];
+    displayText("welcomeName", "Welcome, " + name + "!");
 
-      if (!gender) {
+    displayText("overviewStatus", status);
 
-        showMessage("Please select your gender.");
+    displayText("overviewId", shortId);
 
-        return;
-      }
+    displayText("overviewDate", date);
 
-      if (file) {
+    // Original ID card information.
 
-        if (!file.type.startsWith("image/")) {
+    displayText("cardName", name);
+    displayText("cardName2", name);
 
-          showMessage("Please select a valid image.");
+    displayText("cardId", shortId);
+    displayText("cardId2", shortId);
 
-          return;
-        }
+    displayText("cardDate", date);
+    displayText("cardDate2", date);
 
-        if (file.size > MAX_PHOTO_SIZE) {
+    displayText("cardStatus", status);
+    displayText("cardStatus2", status);
 
-          showMessage("Your photograph must not exceed 5MB.");
+    // Profile.
 
-          return;
-        }
+    displayText("profileName", name);
 
-      }
+    displayText(
+      "profileEmail",
+      member.email || currentUser.email
+    );
 
-      saveButton.disabled = true;
-      saveButton.textContent = "Saving...";
+    displayText("profilePhone", member.phone);
 
-      showMessage("Saving your ID card details...");
+    displayText("profileStatus", status);
 
-      let photoPath = currentPhotoPath;
-      let uploadedPath = null;
+    displayText("profileDate", date);
 
-      try {
+    displayText("profileId", memberId);
 
-        // Upload a new photo if selected.
+    // Account settings.
 
-        if (file) {
+    displayText("settingsEmail", currentUser.email);
 
-          const extension =
-            file.name.split(".").pop().toLowerCase();
+    // Load photo, gender and lock status.
 
-          const safeExtension =
-            ["jpg", "jpeg", "png", "webp"].includes(extension)
-              ? extension
-              : "jpg";
+    await loadCardDetails();
 
-          const fileName =
-            currentUser.id + "/" +
-            Date.now() + "-" +
-            crypto.randomUUID() + "." +
-            safeExtension;
+  } catch (error) {
 
-          const { data: uploadData, error: uploadError } =
-            await supabaseClient.storage
-              .from(PHOTO_BUCKET)
-              .upload(fileName, file, {
-                contentType: file.type,
-                upsert: false
-              });
+    console.error("Dashboard error:", error);
 
-          if (uploadError) {
-            throw uploadError;
-          }
+    alert(
+      "Something went wrong while loading your dashboard. Please refresh."
+    );
 
-          uploadedPath = uploadData.path;
-          photoPath = uploadData.path;
+  }
 
-        }
+}
 
-        // Save gender and photograph path.
 
-        const { error: databaseError } =
-          await supabaseClient
-            .from("member_card_details")
-            .upsert({
-              member_id: currentUser.id,
-              gender: gender,
-              photo_path: photoPath,
-              updated_at: new Date().toISOString()
-            }, {
-              onConflict: "member_id"
-            });
+// ==========================================
+// START DASHBOARD
+// ==========================================
 
-        if (databaseError) {
+initializeDashboard();
 
-          if (uploadedPath) {
-
-            await supabaseClient.storage
-              .from(PHOTO_BUCKET)
-              .remove([uploadedPath]);
-
-          }
-
-          throw databaseError;
-        }
-
-        currentPhotoPath = photoPath;
-
-        updateGenderDisplay(gender);
-
-        await displayMemberPhoto(photoPath);
-
-        photoInput.value = "";
-
-        showMessage(
-          "Your ID card details have been saved successfully!",
-          true
-        );
-
-      } catch (error) {
-
-        console.error("Save card details error:", error);
-
-        showMessage(
-          "Unable to save your details: " +
-          (error.message || "Please try again.")
-        );
-
-      } finally {
-
-        saveButton.disabled = false;
-        saveButton.textContent = "Save ID Card Details";
-
-      }
-
-    });
-
-
-    // ==========================================
-    // PRINT ID CARD
-    // ==========================================
-
-    function printCard(cardId) {
-
-      const card = document.getElementById(cardId);
-
-      if (!card) return;
-
-      document.querySelectorAll(".id-card").forEach(item => {
-        item.classList.remove("print-target");
-      });
-
-      card.classList.add("print-target");
-
-      document.body.classList.add("printing");
-
-      window.print();
-
-    }
-
-    window.addEventListener("afterprint", () => {
-
-      document.body.classList.remove("printing");
-
-      document.querySelectorAll(".id-card").forEach(item => {
-        item.classList.remove("print-target");
-      });
-
-    });
-
-    document.getElementById("printButton2")
-      .addEventListener("click", () => {
-        printCard("memberIdCard2");
-      });
-
-
-    // ==========================================
-    // LOAD DASHBOARD
-    // ==========================================
-
-    async function initializeDashboard() {
-
-      try {
-
-        // Check login session.
-
-        const { data: sessionData, error: sessionError } =
-          await supabaseClient.auth.getSession();
-
-        if (sessionError || !sessionData.session) {
-
-          window.location.href = "login.html";
-
-          return;
-        }
-
-        currentUser = sessionData.session.user;
-
-        // Load registered member.
-
-        const { data: member, error: memberError } =
-          await supabaseClient
-            .from("members")
-            .select("*")
-            .eq("id", currentUser.id)
-            .single();
-
-        if (memberError || !member) {
-
-          alert("Unable to load your member account.");
-
-          await logout();
-
-          return;
-        }
-
-        // Check approval.
-
-        if (member.approval_status !== "approved") {
-
-          alert(
-            "Your membership is not approved yet. Please contact the administrator."
-          );
-
-          await logout();
-
-          return;
-        }
-
-        // Check email/member verification through existing Edge Function.
-
-        const { data: verification, error: verificationError } =
-          await supabaseClient.functions.invoke(
-            "member_dashboard_access",
-            {
-              method: "POST",
-              body: {}
-            }
-          );
-
-        if (
-          verificationError ||
-          !verification ||
-          verification.verified !== true
-        ) {
-
-          console.error(
-            "Verification error:",
-            verificationError
-          );
-
-          alert(
-            "Your account verification could not be confirmed. Please contact the administrator."
-          );
-
-          await logout();
-
-          return;
-        }
-
-        // Member information.
-
-        const name = member.full_name || "UK49 Member";
-
-        const memberId = member.id;
-
-        const date = formatDate(member.created_at);
-
-        const status = displayStatus(member.approval_status);
-
-        const shortId =
-          memberId.slice(0, 8).toUpperCase();
-
-        // Overview.
-
-        displayText("welcomeName", "Welcome, " + name + "!");
-
-        displayText("overviewStatus", status);
-
-        displayText("overviewId", shortId);
-
-        displayText("overviewDate", date);
-
-        // Original ID card information.
-
-        displayText("cardName", name);
-        displayText("cardName2", name);
-
-        displayText("cardId", shortId);
-        displayText("cardId2", shortId);
-
-        displayText("cardDate", date);
-        displayText("cardDate2", date);
-
-        displayText("cardStatus", status);
-        displayText("cardStatus2", status);
-
-        // Profile.
-
-        displayText("profileName", name);
-
-        displayText(
-          "profileEmail",
-          member.email || currentUser.email
-        );
-
-        displayText("profilePhone", member.phone);
-
-        displayText("profileStatus", status);
-
-        displayText("profileDate", date);
-
-        displayText("profileId", memberId);
-
-        // Account settings.
-
-        displayText("settingsEmail", currentUser.email);
-
-        // Load photograph and gender.
-
-        await loadCardDetails();
-
-      } catch (error) {
-
-        console.error("Dashboard error:", error);
-
-        alert(
-          "Something went wrong while loading your dashboard. Please refresh."
-        );
-
-      }
-
-    }
-
-
-    // ==========================================
-    // START DASHBOARD
-    // ==========================================
-
-    initializeDashboard();
-
-  </script>
+</script>
 
 </body>
 </html>
