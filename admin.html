@@ -598,12 +598,12 @@ function escapeHTML(value) {
 }
 
 function money(value) {
-  const amount = Number(value || 0);
+  const amount = Number(value ?? 0);
 
-  return "R" + amount.toLocaleString("en-US", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2
-  });
+  return "R" + amount.toFixed(2).replace(
+    /\B(?=(\d{3})+(?!\d))/g,
+    ","
+  );
 }
 
 function memberName(id) {
