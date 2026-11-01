@@ -6,595 +6,348 @@
 <title>UK49 | Member Dashboard</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-  font-family: Arial, sans-serif;
+*{box-sizing:border-box;margin:0;padding:0;font-family:Arial,sans-serif}
+body{background:#f3f5f9;color:#222}
+button,input,select{font:inherit}
+button{cursor:pointer}
+.topbar{background:#071b38;color:white;padding:18px 25px;display:flex;justify-content:space-between;align-items:center}
+.topbar h2{letter-spacing:2px}
+.logout-btn{background:#e63946;color:white;border:0;padding:10px 17px;border-radius:6px}
+.layout{display:flex;min-height:calc(100vh - 65px)}
+.sidebar{width:230px;background:#102b50;padding:25px 15px;color:white;flex-shrink:0}
+.sidebar h3{margin-bottom:25px}
+.sidebar button{width:100%;padding:13px;margin-bottom:8px;border:0;background:transparent;color:white;text-align:left;border-radius:6px}
+.sidebar button:hover,.sidebar button.active{background:#24558c}
+.main{flex:1;padding:28px;min-width:0}
+.section{display:none}
+.section.active{display:block}
+.section h1{margin-bottom:10px;color:#102b50}
+.subtitle{color:#777;margin-bottom:25px;line-height:1.5}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:18px;margin-top:25px}
+.summary-card,.panel{background:white;padding:22px;border-radius:10px;box-shadow:0 3px 12px rgba(0,0,0,.05);margin-bottom:20px}
+.summary-card h3{color:#777;font-size:14px;margin-bottom:12px}
+.summary-card p{font-size:20px;font-weight:bold;color:#102b50;overflow-wrap:anywhere}
+.panel h2{margin-bottom:18px;color:#102b50}
+.id-card{width:100%;max-width:430px;min-height:340px;padding:24px;border-radius:15px;background:linear-gradient(135deg,#071b38,#174b78);color:white;margin:20px 0;box-shadow:0 8px 25px rgba(0,0,0,.18);overflow:hidden}
+.id-top{border-bottom:1px solid rgba(255,255,255,.4);padding-bottom:13px;margin-bottom:17px}
+.id-top h2{font-size:28px;letter-spacing:3px;color:white;margin-bottom:4px}
+.id-top p{font-size:10px;letter-spacing:2px}
+.id-content{display:flex;gap:17px;align-items:center;margin-bottom:18px}
+.id-photo{width:105px;height:120px;object-fit:cover;border-radius:8px;border:2px solid white;flex-shrink:0}
+.id-photo-placeholder{width:105px;height:120px;border:2px dashed rgba(255,255,255,.7);border-radius:8px;display:flex;justify-content:center;align-items:center;text-align:center;font-size:12px;padding:8px;flex-shrink:0}
+.id-photo[hidden],.id-photo-placeholder[hidden]{display:none!important}
+.id-details{min-width:0}
+.id-details h3{font-size:19px;margin-bottom:12px;overflow-wrap:anywhere}
+.id-details p{font-size:12px;margin:8px 0;overflow-wrap:anywhere}
+.id-footer{border-top:1px solid rgba(255,255,255,.4);padding-top:12px;font-size:11px;letter-spacing:1px;line-height:1.8}
+.locked-label{display:inline-block;background:#1c9b60;color:white;padding:3px 8px;border-radius:4px;font-weight:bold}
+.form-group{margin-bottom:17px}
+.form-group label{display:block;margin-bottom:7px;font-weight:bold}
+.form-group input,.form-group select{width:100%;padding:12px;border:1px solid #ddd;border-radius:6px;background:white}
+.primary-btn{background:#102b50;color:white;padding:12px 20px;border:0;border-radius:6px}
+.primary-btn:disabled{opacity:.6;cursor:not-allowed}
+.secondary-btn{background:#e9eef5;color:#102b50;padding:12px 20px;border:0;border-radius:6px}
+.message{margin-top:12px;font-size:14px;overflow-wrap:anywhere;line-height:1.5}
+.detail-row{padding:13px 0;border-bottom:1px solid #eee;overflow-wrap:anywhere;line-height:1.5}
+.detail-row strong{display:inline-block;min-width:135px}
+.muted{color:#777}
+.status-badge{display:inline-block;padding:5px 10px;border-radius:5px;background:#eee;font-weight:bold}
+.wallet-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:20px 0}
+.wallet-tabs button{padding:11px 15px;border:0;border-radius:6px;background:#e7edf5;color:#102b50}
+.wallet-tabs button.active{background:#102b50;color:white}
+.wallet-page{display:none}
+.wallet-page.active{display:block}
+.balance-card{background:linear-gradient(135deg,#071b38,#174b78);color:white;padding:28px;border-radius:12px;margin-bottom:20px}
+.balance-card small{opacity:.85}
+.balance-card h2{font-size:34px;margin-top:12px;color:white}
+.wallet-actions{display:flex;gap:12px;margin-top:22px;flex-wrap:wrap}
+.wallet-actions button{min-width:120px}
+.notice{padding:15px;border-radius:7px;background:#fff3cd;color:#765800;line-height:1.6;margin:12px 0}
+.info-notice{padding:15px;border-radius:7px;background:#e8f2ff;color:#174b78;line-height:1.6;margin:12px 0}
+.danger-notice{padding:15px;border-radius:7px;background:#f8d7da;color:#721c24;line-height:1.6;margin:12px 0}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:620px}
+th,td{text-align:left;padding:12px;border-bottom:1px solid #eee;font-size:13px}
+th{background:#f3f5f9;color:#102b50}
+.empty-state{padding:20px;text-align:center;color:#777}
+.small-text{font-size:12px;color:#777;line-height:1.6}
+.wallet-subheading{font-size:18px;color:#102b50;margin-bottom:15px}
+@media(max-width:700px){
+.layout{display:block}
+.sidebar{width:100%;display:flex;overflow-x:auto;padding:10px;gap:5px}
+.sidebar h3{display:none}
+.sidebar button{width:auto;min-width:max-content;margin:0;padding:12px;font-size:12px}
+.main{padding:17px}
+.id-card{max-width:100%}
+.wallet-tabs{overflow-x:auto;flex-wrap:nowrap}
+.wallet-tabs button{white-space:nowrap}
 }
-body {
-  background: #f3f5f9;
-  color: #222;
-}
-button, input, select {
-  font: inherit;
-}
-.topbar {
-  background: #071b38;
-  color: white;
-  padding: 18px 25px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-.topbar h2 {
-  letter-spacing: 2px;
-}
-.logout-btn {
-  background: #e63946;
-  color: white;
-  border: none;
-  padding: 10px 17px;
-  border-radius: 6px;
-  cursor: pointer;
-}
-.layout {
-  display: flex;
-  min-height: calc(100vh - 65px);
-}
-.sidebar {
-  width: 230px;
-  background: #102b50;
-  padding: 25px 15px;
-  color: white;
-  flex-shrink: 0;
-}
-.sidebar h3 {
-  margin-bottom: 25px;
-}
-.sidebar button {
-  width: 100%;
-  padding: 13px;
-  margin-bottom: 8px;
-  border: none;
-  background: transparent;
-  color: white;
-  text-align: left;
-  cursor: pointer;
-  border-radius: 6px;
-}
-.sidebar button:hover,
-.sidebar button.active {
-  background: #24558c;
-}
-.main {
-  flex: 1;
-  padding: 28px;
-  min-width: 0;
-}
-.section {
-  display: none;
-}
-.section.active {
-  display: block;
-}
-.section h1 {
-  margin-bottom: 10px;
-  color: #102b50;
-}
-.subtitle {
-  color: #777;
-  margin-bottom: 25px;
-}
-.cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
-  gap: 18px;
-  margin-top: 25px;
-}
-.summary-card,
-.panel {
-  background: white;
-  padding: 22px;
-  border-radius: 10px;
-  box-shadow: 0 3px 12px rgba(0,0,0,0.05);
-  margin-bottom: 20px;
-}
-.summary-card h3 {
-  color: #777;
-  font-size: 14px;
-  margin-bottom: 12px;
-}
-.summary-card p {
-  font-size: 20px;
-  font-weight: bold;
-  color: #102b50;
-  overflow-wrap: anywhere;
-}
-.panel h2 {
-  margin-bottom: 18px;
-  color: #102b50;
-}
-/* ID CARD */
-.id-card {
-  width: 100%;
-  max-width: 430px;
-  min-height: 340px;
-  padding: 24px;
-  border-radius: 15px;
-  background: linear-gradient(135deg, #071b38, #174b78);
-  color: white;
-  margin: 20px 0;
-  box-shadow: 0 8px 25px rgba(0,0,0,0.18);
-  overflow: hidden;
-}
-.id-top {
-  width: 100%;
-  border-bottom: 1px solid rgba(255,255,255,0.4);
-  padding-bottom: 13px;
-  margin-bottom: 17px;
-}
-.id-top h2 {
-  font-size: 28px;
-  letter-spacing: 3px;
-  color: white;
-  margin-bottom: 4px;
-}
-.id-top p {
-  font-size: 10px;
-  letter-spacing: 2px;
-}
-.id-content {
-  display: flex;
-  gap: 17px;
-  align-items: center;
-  margin-bottom: 18px;
-}
-.id-photo {
-  width: 105px;
-  height: 120px;
-  object-fit: cover;
-  border-radius: 8px;
-  border: 2px solid white;
-  flex-shrink: 0;
-}
-.id-photo-placeholder {
-  width: 105px;
-  height: 120px;
-  border: 2px dashed rgba(255,255,255,0.7);
-  border-radius: 8px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-  font-size: 12px;
-  padding: 8px;
-  flex-shrink: 0;
-}
-.id-photo[hidden],
-.id-photo-placeholder[hidden] {
-  display: none !important;
-}
-.id-details {
-  min-width: 0;
-}
-.id-details h3 {
-  font-size: 19px;
-  margin-bottom: 12px;
-  overflow-wrap: anywhere;
-}
-.id-details p {
-  font-size: 12px;
-  margin: 8px 0;
-  overflow-wrap: anywhere;
-}
-.id-footer {
-  border-top: 1px solid rgba(255,255,255,0.4);
-  padding-top: 12px;
-  font-size: 11px;
-  letter-spacing: 1px;
-  line-height: 1.8;
-}
-.locked-label {
-  display: inline-block;
-  background: #1c9b60;
-  color: white;
-  padding: 3px 8px;
-  border-radius: 4px;
-  font-weight: bold;
-}
-/* FORMS */
-.form-group {
-  margin-bottom: 17px;
-}
-.form-group label {
-  display: block;
-  margin-bottom: 7px;
-  font-weight: bold;
-}
-.form-group input,
-.form-group select {
-  width: 100%;
-  padding: 12px;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  background: white;
-}
-.primary-btn {
-  background: #102b50;
-  color: white;
-  padding: 12px 20px;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-}
-.primary-btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-.message {
-  margin-top: 12px;
-  font-size: 14px;
-  overflow-wrap: anywhere;
-}
-.detail-row {
-  padding: 13px 0;
-  border-bottom: 1px solid #eee;
-  overflow-wrap: anywhere;
-}
-.detail-row strong {
-  display: inline-block;
-  min-width: 135px;
-}
-.muted {
-  color: #777;
-}
-.status-badge {
-  display: inline-block;
-  padding: 5px 10px;
-  border-radius: 5px;
-  background: #eee;
-  font-weight: bold;
-}
-@media(max-width: 700px) {
-  .layout {
-    display: block;
-  }
-  .sidebar {
-    width: 100%;
-    display: flex;
-    overflow-x: auto;
-    padding: 10px;
-    gap: 5px;
-  }
-  .sidebar h3 {
-    display: none;
-  }
-  .sidebar button {
-    width: auto;
-    min-width: max-content;
-    margin: 0;
-    padding: 12px;
-    font-size: 12px;
-  }
-  .main {
-    padding: 17px;
-  }
-  .id-card {
-    max-width: 100%;
-  }
-}
-@media print {
-  body.printing * {
-    visibility: hidden !important;
-  }
-  body.printing .id-card.print-target,
-  body.printing .id-card.print-target * {
-    visibility: visible !important;
-  }
-  body.printing .id-card.print-target {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 430px;
-    margin: 0;
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
-  }
+@media print{
+body.printing *{visibility:hidden!important}
+body.printing .id-card.print-target,body.printing .id-card.print-target *{visibility:visible!important}
+body.printing .id-card.print-target{position:absolute;left:0;top:0;width:430px;margin:0;-webkit-print-color-adjust:exact;print-color-adjust:exact}
 }
 </style>
 </head>
 <body>
 <header class="topbar">
-  <h2>UK49</h2>
-  <button class="logout-btn" id="logoutButton">Log Out</button>
+<h2>UK49</h2>
+<button class="logout-btn" id="logoutButton">Log Out</button>
 </header>
 <div class="layout">
 <aside class="sidebar">
-  <h3>MEMBER MENU</h3>
-  <button class="active" data-section="overview">Overview</button>
-  <button data-section="idcard">My ID Card</button>
-  <button data-section="profile">My Profile</button>
-  <button data-section="bank">Bank Information</button>
-  <button data-section="account">Account Settings</button>
+<h3>MEMBER MENU</h3>
+<button class="active" data-section="overview">Overview</button>
+<button data-section="idcard">My ID Card</button>
+<button data-section="profile">My Profile</button>
+<button data-section="wallet">Wallet</button>
+<button data-section="account">Account Settings</button>
 </aside>
 <main class="main">
 <!-- OVERVIEW -->
 <section class="section active" id="overview">
-  <h1 id="welcomeName">Welcome!</h1>
-  <p class="subtitle">Welcome to your UK49 member dashboard.</p>
-  <div class="cards">
-    <div class="summary-card">
-      <h3>Membership Status</h3>
-      <p id="overviewStatus">Loading...</p>
-    </div>
-    <div class="summary-card">
-      <h3>Member ID</h3>
-      <p id="overviewId">Loading...</p>
-    </div>
-    <div class="summary-card">
-      <h3>Registration Date</h3>
-      <p id="overviewDate">Loading...</p>
-    </div>
-  </div>
-  <div class="panel">
-    <h2>Your Member ID Card</h2>
-    <div class="id-card" id="memberIdCard">
-      <div class="id-top">
-        <h2>UK49</h2>
-        <p>OFFICIAL MEMBER CARD</p>
-      </div>
-      <div class="id-content">
-        <img class="id-photo" id="cardPhoto"
-             alt="Member photograph" hidden>
-        <div class="id-photo-placeholder"
-             id="cardPhotoPlaceholder">
-          Photo not uploaded
-        </div>
-        <div class="id-details">
-          <h3 id="cardName">Member Name</h3>
-          <p>Member ID: <span id="cardId">Loading...</span></p>
-          <p>Member Since: <span id="cardDate">Loading...</span></p>
-          <p>Status: <span id="cardStatus">Loading...</span></p>
-          <p>Gender: <span id="cardGender">Not selected</span></p>
-        </div>
-      </div>
-      <div class="id-footer">
-        UK49 OFFICIAL MEMBERSHIP<br>
-        Card Security:
-        <span class="locked-label" id="cardLockStatus">
-          NOT LOCKED
-        </span>
-      </div>
-    </div>
-    <button class="primary-btn"
-            onclick="printCard('memberIdCard')">
-      Print & Lock ID Card
-    </button>
-  </div>
+<h1 id="welcomeName">Welcome!</h1>
+<p class="subtitle">Welcome to your UK49 member dashboard.</p>
+<div class="cards">
+<div class="summary-card"><h3>Membership Status</h3><p id="overviewStatus">Loading...</p></div>
+<div class="summary-card"><h3>Member ID</h3><p id="overviewId">Loading...</p></div>
+<div class="summary-card"><h3>Registration Date</h3><p id="overviewDate">Loading...</p></div>
+</div>
+<div class="panel">
+<h2>Your Member ID Card</h2>
+<div class="id-card" id="memberIdCard">
+<div class="id-top"><h2>UK49</h2><p>OFFICIAL MEMBER CARD</p></div>
+<div class="id-content">
+<img class="id-photo" id="cardPhoto" alt="Member photograph" hidden>
+<div class="id-photo-placeholder" id="cardPhotoPlaceholder">Photo not uploaded</div>
+<div class="id-details">
+<h3 id="cardName">Member Name</h3>
+<p>Member ID: <span id="cardId">Loading...</span></p>
+<p>Member Since: <span id="cardDate">Loading...</span></p>
+<p>Status: <span id="cardStatus">Loading...</span></p>
+<p>Gender: <span id="cardGender">Not selected</span></p>
+</div>
+</div>
+<div class="id-footer">UK49 OFFICIAL MEMBERSHIP<br>Card Security: <span class="locked-label" id="cardLockStatus">NOT LOCKED</span></div>
+</div>
+<button class="primary-btn" onclick="printCard('memberIdCard')">Print & Lock ID Card</button>
+</div>
 </section>
 <!-- ID CARD -->
 <section class="section" id="idcard">
-  <h1>My ID Card</h1>
-  <p class="subtitle">Manage your membership card details.</p>
-  <div class="panel">
-    <h2>Update ID Card Details</h2>
-    <form id="cardDetailsForm">
-      <div class="form-group">
-        <label for="photoInput">Member Photograph</label>
-        <input type="file"
-               id="photoInput"
-               accept="image/jpeg,image/png,image/webp">
-        <small class="muted">Maximum image size: 5MB.</small>
-      </div>
-      <div class="form-group">
-        <label for="genderInput">Gender</label>
-        <select id="genderInput" required>
-          <option value="">Select Gender</option>
-          <option value="Male">Male</option>
-          <option value="Female">Female</option>
-          <option value="Prefer not to say">Prefer not to say</option>
-        </select>
-      </div>
-      <button class="primary-btn"
-              type="submit"
-              id="saveCardButton">
-        Save ID Card Details
-      </button>
-      <p class="message" id="cardMessage"></p>
-    </form>
-  </div>
-  <div class="panel">
-    <h2>My Official ID Card</h2>
-    <div class="id-card" id="memberIdCard2">
-      <div class="id-top">
-        <h2>UK49</h2>
-        <p>OFFICIAL MEMBER CARD</p>
-      </div>
-      <div class="id-content">
-        <img class="id-photo" id="cardPhoto2"
-             alt="Member photograph" hidden>
-        <div class="id-photo-placeholder"
-             id="cardPhotoPlaceholder2">
-          Photo not uploaded
-        </div>
-        <div class="id-details">
-          <h3 id="cardName2">Member Name</h3>
-          <p>Member ID: <span id="cardId2">Loading...</span></p>
-          <p>Member Since: <span id="cardDate2">Loading...</span></p>
-          <p>Status: <span id="cardStatus2">Loading...</span></p>
-          <p>Gender: <span id="cardGender2">Not selected</span></p>
-        </div>
-      </div>
-      <div class="id-footer">
-        UK49 OFFICIAL MEMBERSHIP<br>
-        Card Security:
-        <span class="locked-label" id="cardLockStatus2">
-          NOT LOCKED
-        </span>
-      </div>
-    </div>
-    <button class="primary-btn"
-            onclick="printCard('memberIdCard2')">
-      Print & Lock ID Card
-    </button>
-  </div>
+<h1>My ID Card</h1>
+<p class="subtitle">Manage your membership card details.</p>
+<div class="panel">
+<h2>Update ID Card Details</h2>
+<form id="cardDetailsForm">
+<div class="form-group">
+<label for="photoInput">Member Photograph</label>
+<input type="file" id="photoInput" accept="image/jpeg,image/png,image/webp">
+<small class="muted">Maximum image size: 5MB.</small>
+</div>
+<div class="form-group">
+<label for="genderInput">Gender</label>
+<select id="genderInput" required>
+<option value="">Select Gender</option>
+<option value="Male">Male</option>
+<option value="Female">Female</option>
+<option value="Prefer not to say">Prefer not to say</option>
+</select>
+</div>
+<button class="primary-btn" type="submit" id="saveCardButton">Save ID Card Details</button>
+<p class="message" id="cardMessage"></p>
+</form>
+</div>
+<div class="panel">
+<h2>My Official ID Card</h2>
+<div class="id-card" id="memberIdCard2">
+<div class="id-top"><h2>UK49</h2><p>OFFICIAL MEMBER CARD</p></div>
+<div class="id-content">
+<img class="id-photo" id="cardPhoto2" alt="Member photograph" hidden>
+<div class="id-photo-placeholder" id="cardPhotoPlaceholder2">Photo not uploaded</div>
+<div class="id-details">
+<h3 id="cardName2">Member Name</h3>
+<p>Member ID: <span id="cardId2">Loading...</span></p>
+<p>Member Since: <span id="cardDate2">Loading...</span></p>
+<p>Status: <span id="cardStatus2">Loading...</span></p>
+<p>Gender: <span id="cardGender2">Not selected</span></p>
+</div>
+</div>
+<div class="id-footer">UK49 OFFICIAL MEMBERSHIP<br>Card Security: <span class="locked-label" id="cardLockStatus2">NOT LOCKED</span></div>
+</div>
+<button class="primary-btn" onclick="printCard('memberIdCard2')">Print & Lock ID Card</button>
+</div>
 </section>
 <!-- PROFILE -->
 <section class="section" id="profile">
-  <h1>My Profile</h1>
-  <p class="subtitle">Your registered membership information.</p>
-  <div class="panel">
-    <div class="detail-row">
-      <strong>Full Name:</strong>
-      <span id="profileName">Loading...</span>
-    </div>
-    <div class="detail-row">
-      <strong>Email:</strong>
-      <span id="profileEmail">Loading...</span>
-    </div>
-    <div class="detail-row">
-      <strong>Phone:</strong>
-      <span id="profilePhone">Loading...</span>
-    </div>
-    <div class="detail-row">
-      <strong>Member ID:</strong>
-      <span id="profileId">Loading...</span>
-    </div>
-    <div class="detail-row">
-      <strong>Status:</strong>
-      <span id="profileStatus">Loading...</span>
-    </div>
-    <div class="detail-row">
-      <strong>Registered:</strong>
-      <span id="profileDate">Loading...</span>
-    </div>
-  </div>
+<h1>My Profile</h1>
+<p class="subtitle">Your registered membership information.</p>
+<div class="panel">
+<div class="detail-row"><strong>Full Name:</strong><span id="profileName">Loading...</span></div>
+<div class="detail-row"><strong>Email:</strong><span id="profileEmail">Loading...</span></div>
+<div class="detail-row"><strong>Phone:</strong><span id="profilePhone">Loading...</span></div>
+<div class="detail-row"><strong>Member ID:</strong><span id="profileId">Loading...</span></div>
+<div class="detail-row"><strong>Status:</strong><span id="profileStatus">Loading...</span></div>
+<div class="detail-row"><strong>Registered:</strong><span id="profileDate">Loading...</span></div>
+</div>
 </section>
-<!-- BANK INFORMATION -->
-<section class="section" id="bank">
-  <h1>Bank Information</h1>
-  <p class="subtitle">
-    Manage your South African bank details for withdrawal processing.
-  </p>
-  <div class="panel">
-    <h2>Bank Verification Status</h2>
-    <div class="detail-row">
-      <strong>Status:</strong>
-      <span class="status-badge" id="bankVerificationStatus">
-        Loading...
-      </span>
-    </div>
-    <p class="muted" id="bankStatusMessage" style="margin-top:12px;">
-      Your bank details will be reviewed by the administrator.
-    </p>
-  </div>
-  <div class="panel">
-    <h2>My Bank Details</h2>
-    <div class="detail-row">
-      <strong>Bank Name:</strong>
-      <span id="savedBankName">Not provided</span>
-    </div>
-    <div class="detail-row">
-      <strong>Account Name:</strong>
-      <span id="savedAccountName">Not provided</span>
-    </div>
-    <div class="detail-row">
-      <strong>Account Number:</strong>
-      <span id="savedAccountNumber">Not provided</span>
-    </div>
-    <div class="detail-row">
-      <strong>Branch Code:</strong>
-      <span id="savedBranchCode">Not provided</span>
-    </div>
-    <div class="detail-row">
-      <strong>Account Type:</strong>
-      <span id="savedAccountType">Not provided</span>
-    </div>
-  </div>
-  <div class="panel">
-    <h2>Add or Update Bank Details</h2>
-    <p class="muted" style="margin-bottom:20px;">
-      Enter accurate South African bank details. Saving new or changed
-      details will require administrator verification.
-    </p>
-    <form id="bankDetailsForm">
-      <div class="form-group">
-        <label for="bankNameInput">Bank Name</label>
-        <input
-          type="text"
-          id="bankNameInput"
-          placeholder="Enter your bank name"
-          maxlength="100"
-          required
-        >
-      </div>
-      <div class="form-group">
-        <label for="accountNameInput">Account Holder Name</label>
-        <input
-          type="text"
-          id="accountNameInput"
-          placeholder="Enter account holder name"
-          maxlength="150"
-          required
-        >
-      </div>
-      <div class="form-group">
-        <label for="accountNumberInput">Account Number</label>
-        <input
-          type="text"
-          id="accountNumberInput"
-          placeholder="Enter account number"
-          inputmode="numeric"
-          autocomplete="off"
-          maxlength="30"
-          required
-        >
-      </div>
-      <div class="form-group">
-        <label for="branchCodeInput">Branch Code</label>
-        <input
-          type="text"
-          id="branchCodeInput"
-          placeholder="Enter branch code"
-          inputmode="numeric"
-          maxlength="10"
-          required
-        >
-      </div>
-      <div class="form-group">
-        <label for="accountTypeInput">Account Type</label>
-        <select id="accountTypeInput" required>
-          <option value="">Select Account Type</option>
-          <option value="Savings">Savings</option>
-          <option value="Cheque">Cheque</option>
-        </select>
-      </div>
-      <button
-        type="submit"
-        class="primary-btn"
-        id="saveBankButton"
-      >
-        Save Bank Details
-      </button>
-      <p class="message" id="bankMessage"></p>
-    </form>
-  </div>
+<!-- WALLET -->
+<section class="section" id="wallet">
+<h1>My Wallet</h1>
+<p class="subtitle">View your balance, request withdrawals and track wallet activity.</p>
+<div class="wallet-tabs">
+<button class="active" data-wallet-page="walletOverview">Overview</button>
+<button data-wallet-page="walletDeposit">Deposit</button>
+<button data-wallet-page="walletWithdraw">Withdraw</button>
+<button data-wallet-page="walletHistory">Transaction History</button>
+<button data-wallet-page="walletMigration">Account Migration</button>
+</div>
+<!-- WALLET OVERVIEW -->
+<div class="wallet-page active" id="walletOverview">
+<div class="balance-card">
+<small>Available Wallet Balance</small>
+<h2 id="walletBalance">R0.00</h2>
+<small id="walletAccountLevel">Account Level: Basic</small>
+</div>
+<div class="cards">
+<div class="summary-card"><h3>Total Deposits</h3><p id="walletTotalDeposits">R0.00</p></div>
+<div class="summary-card"><h3>Total Withdrawals</h3><p id="walletTotalWithdrawals">R0.00</p></div>
+<div class="summary-card"><h3>Withdrawal Limit</h3><p id="walletLimit">R0.00</p></div>
+</div>
+<div class="panel">
+<h2>Wallet Actions</h2>
+<p class="muted">Choose an action below.</p>
+<div class="wallet-actions">
+<button class="primary-btn" onclick="openWalletPage('walletDeposit')">Deposit</button>
+<button class="primary-btn" onclick="openWalletPage('walletWithdraw')">Withdraw</button>
+</div>
+</div>
+</div>
+<!-- DEPOSIT -->
+<div class="wallet-page" id="walletDeposit">
+<div class="panel">
+<h2>Deposit Information</h2>
+<div class="notice">
+<strong>Administrator-managed deposits</strong><br>
+Deposits are handled by the administrator. You cannot deposit money directly into your account. Please contact the administrator.
+</div>
+<p class="muted">Only deposits confirmed and credited by an authorised administrator will appear in your wallet balance and transaction history.</p>
+</div>
+</div>
+<!-- WITHDRAW -->
+<div class="wallet-page" id="walletWithdraw">
+<div class="panel">
+<h2>Withdrawal Requirements</h2>
+<div class="info-notice">
+Your bank details must be submitted and verified before you can request a withdrawal. The withdrawal fee is separate from your requested payout and is not deducted from your wallet balance.
+</div>
+<div class="detail-row"><strong>Bank status:</strong><span id="withdrawBankStatus">Loading...</span></div>
+<button class="secondary-btn" onclick="openBankDetails()">Manage Bank Details</button>
+</div>
+<div class="panel">
+<h2>My South African Bank Details</h2>
+<p class="muted" style="margin-bottom:15px">These details are used for withdrawal processing.</p>
+<div class="detail-row"><strong>Bank:</strong><span id="savedBankName">Not provided</span></div>
+<div class="detail-row"><strong>Account Name:</strong><span id="savedAccountName">Not provided</span></div>
+<div class="detail-row"><strong>Account Number:</strong><span id="savedAccountNumber">Not provided</span></div>
+<div class="detail-row"><strong>Branch Code:</strong><span id="savedBranchCode">Not provided</span></div>
+<div class="detail-row"><strong>Account Type:</strong><span id="savedAccountType">Not provided</span></div>
+</div>
+<div class="panel">
+<h2>Request a Withdrawal</h2>
+<div class="detail-row"><strong>Minimum:</strong><span id="withdrawMinimum">Loading...</span></div>
+<div class="detail-row"><strong>Maximum:</strong><span id="withdrawMaximum">Loading...</span></div>
+<div class="detail-row"><strong>Separately Payable Withdrawal Fee:</strong><span id="withdrawFee">Loading...</span></div>
+<form id="withdrawForm" style="margin-top:20px">
+<div class="form-group">
+<label for="withdrawAmount">Withdrawal Amount (ZAR)</label>
+<input type="number" id="withdrawAmount" min="0.01" step="0.01" placeholder="Enter amount" required>
+</div>
+<button class="primary-btn" type="submit" id="withdrawButton">Send Withdrawal Request</button>
+<p class="message" id="withdrawMessage"></p>
+</form>
+</div>
+<div class="panel">
+<h2>Submit Withdrawal Fee Payment Reference</h2>
+<p class="muted" style="margin-bottom:15px">After submitting a withdrawal request, use this form to submit the reference for your separately payable fee. Obtain payment instructions directly from the administrator before making payment.</p>
+<div class="danger-notice">
+Do not pay an unknown personal account or rely on an unverified payment instruction. Confirm the recipient and fee amount with the administrator first.
+</div>
+<form id="feePaymentForm">
+<div class="form-group">
+<label for="feeWithdrawalId">Withdrawal Request</label>
+<select id="feeWithdrawalId" required>
+<option value="">Select pending withdrawal</option>
+</select>
+</div>
+<div class="form-group">
+<label for="feePaymentReference">Payment Reference</label>
+<input type="text" id="feePaymentReference" maxlength="200" required placeholder="Enter your payment reference">
+</div>
+<button class="primary-btn" type="submit" id="feePaymentButton">Submit Fee Payment Reference</button>
+<p class="message" id="feePaymentMessage"></p>
+</form>
+</div>
+<div class="panel">
+<h2>My Withdrawal Requests</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Date</th><th>Requested Payout</th><th>Separate Fee</th><th>Status</th><th>Fee Payment</th></tr></thead>
+<tbody id="withdrawalRows"><tr><td colspan="5">Loading...</td></tr></tbody>
+</table>
+</div>
+</div>
+</div>
+<!-- TRANSACTION HISTORY -->
+<div class="wallet-page" id="walletHistory">
+<div class="panel">
+<h2>Wallet Transaction History</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Date</th><th>Type</th><th>Description</th><th>Amount</th><th>Reference</th></tr></thead>
+<tbody id="transactionRows"><tr><td colspan="5">Loading...</td></tr></tbody>
+</table>
+</div>
+</div>
+</div>
+<!-- ACCOUNT MIGRATION -->
+<div class="wallet-page" id="walletMigration">
+<div class="panel">
+<h2>Account Migration</h2>
+<p class="muted" style="margin-bottom:15px">Submit a request to change your wallet account level. Migration does not convert your wallet currency or automatically transfer money.</p>
+<div class="detail-row"><strong>Current Level:</strong><span id="migrationLevel">Basic</span></div>
+<div class="detail-row"><strong>Migration Fee:</strong><span id="migrationFee">Loading...</span></div>
+<div class="detail-row"><strong>Migrated Withdrawal Limit:</strong><span id="migrationLimit">Loading...</span></div>
+<div class="notice">Confirm the migration fee, recipient and refund policy directly with the administrator before making any payment.</div>
+<form id="migrationForm" style="margin-top:20px">
+<div class="form-group">
+<label for="migrationReference">Migration Fee Payment Reference</label>
+<input type="text" id="migrationReference" maxlength="200" required placeholder="Enter payment reference">
+</div>
+<button class="primary-btn" type="submit" id="migrationButton">Submit Migration Request</button>
+<p class="message" id="migrationMessage"></p>
+</form>
+</div>
+<div class="panel">
+<h2>My Migration Requests</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Date</th><th>Migration Fee</th><th>Payment</th><th>Status</th><th>Admin Note</th></tr></thead>
+<tbody id="migrationRows"><tr><td colspan="5">Loading...</td></tr></tbody>
+</table>
+</div>
+</div>
+</div>
 </section>
 <!-- ACCOUNT SETTINGS -->
 <section class="section" id="account">
-  <h1>Account Settings</h1>
-  <p class="subtitle">Manage your account information.</p>
-  <div class="panel">
-    <h2>Account Information</h2>
-    <div class="detail-row">
-      <strong>Signed-in Email:</strong>
-      <span id="settingsEmail">Loading...</span>
-    </div>
-    <button class="logout-btn" id="settingsLogout">
-      Log Out
-    </button>
-  </div>
+<h1>Account Settings</h1>
+<p class="subtitle">Manage your account information.</p>
+<div class="panel">
+<h2>Account Information</h2>
+<div class="detail-row"><strong>Signed-in Email:</strong><span id="settingsEmail">Loading...</span></div>
+<button class="logout-btn" id="settingsLogout">Log Out</button>
+</div>
 </section>
 </main>
 </div>
@@ -602,602 +355,523 @@ button, input, select {
 // ==========================================
 // SUPABASE CONFIGURATION
 // ==========================================
-const SUPABASE_URL =
-  "https://jtwrktxkkngbxrvifoax.supabase.co";
-const SUPABASE_PUBLISHABLE_KEY =
-  "sb_publishable_7Jdnz6F1e0-OdSVmqIqqUg_LIkD_L0O";
-const PHOTO_BUCKET = "member-photo";
-const MAX_PHOTO_SIZE = 5 * 1024 * 1024;
-const supabaseClient = window.supabase.createClient(
-  SUPABASE_URL,
-  SUPABASE_PUBLISHABLE_KEY
-);
-let currentUser = null;
-let currentPhotoPath = null;
-let cardIsLocked = false;
-let bankDetailsExist = false;
-// ==========================================
-// HELPERS
-// ==========================================
-function displayText(id, value) {
-  const element = document.getElementById(id);
-  if (element) {
-    element.textContent = value ?? "";
-  }
+const SUPABASE_URL="https://jtwrktxkkngbxrvifoax.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY="sb_publishable_7Jdnz6F1e0-OdSVmqIqqUg_LIkD_L0";
+const PHOTO_BUCKET="member-photo";
+const MAX_PHOTO_SIZE=5*1024*1024;
+const supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
+let currentUser=null;
+let currentMember=null;
+let currentPhotoPath=null;
+let cardIsLocked=false;
+let bankDetailsExist=false;
+let currentWallet=null;
+let walletSettings=null;
+let currentWithdrawals=[];
+let currentFeePayments=[];
+let currentMigrations=[];
+function displayText(id,value){
+ const el=document.getElementById(id);
+ if(el) el.textContent=value??"";
 }
-function formatDate(dateValue) {
-  if (!dateValue) return "Not available";
-  const date = new Date(dateValue);
-  if (Number.isNaN(date.getTime())) {
-    return "Not available";
-  }
-  return date.toLocaleDateString("en-GB", {
-    day: "2-digit",
-    month: "long",
-    year: "numeric"
-  });
+function formatDate(value){
+ if(!value)return "Not available";
+ const d=new Date(value);
+ return Number.isNaN(d.getTime())?"Not available":d.toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"numeric"});
 }
-function displayStatus(status) {
-  if (!status) return "Unknown";
-  return status.charAt(0).toUpperCase() +
-    status.slice(1);
+function formatMoney(value){
+ const n=Number(value||0);
+ return "R"+n.toLocaleString("en-ZA",{minimumFractionDigits:2,maximumFractionDigits:2});
 }
-function showMessage(message, success = false) {
-  const element = document.getElementById("cardMessage");
-  element.textContent = message;
-  element.style.color = success ? "green" : "red";
+function displayStatus(status){
+ if(!status)return "Unknown";
+ return String(status).replace(/_/g," ").replace(/\b\w/g,c=>c.toUpperCase());
 }
-function showBankMessage(message, success = false) {
-  const element = document.getElementById("bankMessage");
-  element.textContent = message;
-  element.style.color = success ? "green" : "red";
+function setMessage(id,message,success=false){
+ const el=document.getElementById(id);
+ if(!el)return;
+ el.textContent=message;
+ el.style.color=success?"#168044":"#c62828";
+}
+function safe(value){
+ return String(value??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));
+}
+function setBadge(id,status){
+ const el=document.getElementById(id);
+ if(!el)return;
+ el.textContent=displayStatus(status);
+ el.style.background=status==="verified"||status==="completed"?"#d4edda":status==="rejected"?"#f8d7da":"#fff3cd";
+ el.style.color=status==="verified"||status==="completed"?"#155724":status==="rejected"?"#721c24":"#856404";
 }
 // ==========================================
 // NAVIGATION
 // ==========================================
-document.querySelectorAll(".sidebar button").forEach(button => {
-  button.addEventListener("click", async () => {
-    const target = button.dataset.section;
-    document.querySelectorAll(".section").forEach(section => {
-      section.classList.remove("active");
-    });
-    document.querySelectorAll(".sidebar button").forEach(item => {
-      item.classList.remove("active");
-    });
-    document.getElementById(target).classList.add("active");
-    button.classList.add("active");
-    if (target === "bank" && currentUser) {
-      await loadBankDetails();
-    }
-  });
+document.querySelectorAll(".sidebar button").forEach(button=>{
+ button.addEventListener("click",()=>{
+  document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
+  document.querySelectorAll(".sidebar button").forEach(b=>b.classList.remove("active"));
+  document.getElementById(button.dataset.section).classList.add("active");
+  button.classList.add("active");
+  if(button.dataset.section==="wallet")refreshWallet();
+ });
 });
+document.querySelectorAll("[data-wallet-page]").forEach(button=>{
+ button.addEventListener("click",()=>openWalletPage(button.dataset.walletPage));
+});
+function openWalletPage(page){
+ document.querySelectorAll(".wallet-page").forEach(p=>p.classList.remove("active"));
+ document.querySelectorAll("[data-wallet-page]").forEach(b=>b.classList.remove("active"));
+ const target=document.getElementById(page);
+ if(target)target.classList.add("active");
+ const tab=document.querySelector('[data-wallet-page="'+page+'"]');
+ if(tab)tab.classList.add("active");
+ if(page==="walletWithdraw")loadWithdrawalData();
+ if(page==="walletHistory")loadTransactions();
+ if(page==="walletMigration")loadMigrationData();
+}
+function openBankDetails(){
+ openWalletPage("walletWithdraw");
+ document.getElementById("bankNameInput")?.focus();
+}
 // ==========================================
 // LOGOUT
 // ==========================================
-async function logout() {
-  await supabaseClient.auth.signOut();
-  window.location.href = "login.html";
+async function logout(){
+ await supabaseClient.auth.signOut();
+ window.location.href="login.html";
 }
-document.getElementById("logoutButton")
-  .addEventListener("click", logout);
-document.getElementById("settingsLogout")
-  .addEventListener("click", logout);
+document.getElementById("logoutButton").addEventListener("click",logout);
+document.getElementById("settingsLogout").addEventListener("click",logout);
 // ==========================================
-// PHOTO DISPLAY
+// ID CARD PHOTO
 // ==========================================
-async function displayMemberPhoto(path) {
-  const photo1 = document.getElementById("cardPhoto");
-  const photo2 = document.getElementById("cardPhoto2");
-  const placeholder1 =
-    document.getElementById("cardPhotoPlaceholder");
-  const placeholder2 =
-    document.getElementById("cardPhotoPlaceholder2");
-  if (!path) {
-    photo1.hidden = true;
-    photo2.hidden = true;
-    placeholder1.hidden = false;
-    placeholder2.hidden = false;
-    return;
-  }
-  const { data, error } = await supabaseClient.storage
-    .from(PHOTO_BUCKET)
-    .createSignedUrl(path, 3600);
-  if (error || !data?.signedUrl) {
-    photo1.hidden = true;
-    photo2.hidden = true;
-    placeholder1.hidden = false;
-    placeholder2.hidden = false;
-    console.error("Photo display error:", error);
-    return;
-  }
-  photo1.src = data.signedUrl;
-  photo2.src = data.signedUrl;
-  photo1.hidden = false;
-  photo2.hidden = false;
-  placeholder1.hidden = true;
-  placeholder2.hidden = true;
+async function displayMemberPhoto(path){
+ const p1=document.getElementById("cardPhoto");
+ const p2=document.getElementById("cardPhoto2");
+ const h1=document.getElementById("cardPhotoPlaceholder");
+ const h2=document.getElementById("cardPhotoPlaceholder2");
+ if(!path){
+  p1.hidden=true;p2.hidden=true;h1.hidden=false;h2.hidden=false;return;
+ }
+ const {data,error}=await supabaseClient.storage.from(PHOTO_BUCKET).createSignedUrl(path,3600);
+ if(error||!data?.signedUrl){
+  p1.hidden=true;p2.hidden=true;h1.hidden=false;h2.hidden=false;
+  console.error("Photo display error:",error);return;
+ }
+ p1.src=data.signedUrl;p2.src=data.signedUrl;
+ p1.hidden=false;p2.hidden=false;h1.hidden=true;h2.hidden=true;
 }
-// ==========================================
-// GENDER DISPLAY
-// ==========================================
-function updateGenderDisplay(gender) {
-  const value = gender || "Not selected";
-  displayText("cardGender", value);
-  displayText("cardGender2", value);
-  document.getElementById("genderInput").value =
-    gender || "";
+function updateGenderDisplay(gender){
+ const v=gender||"Not selected";
+ displayText("cardGender",v);displayText("cardGender2",v);
+ document.getElementById("genderInput").value=gender||"";
 }
-// ==========================================
-// CARD LOCK DISPLAY
-// ==========================================
-function updateCardLockDisplay() {
-  const photoInput = document.getElementById("photoInput");
-  const genderInput = document.getElementById("genderInput");
-  const saveButton = document.getElementById("saveCardButton");
-  photoInput.disabled = cardIsLocked;
-  genderInput.disabled = cardIsLocked;
-  saveButton.disabled = cardIsLocked;
-  if (cardIsLocked) {
-    saveButton.textContent = "ID Card Locked";
-    showMessage(
-      "Your ID card is locked. You cannot change its details.",
-      true
-    );
-  } else {
-    saveButton.textContent = "Save ID Card Details";
-    showMessage("Your ID card is not locked yet.", true);
-  }
-  const status = cardIsLocked ? "LOCKED" : "NOT LOCKED";
-  displayText("cardLockStatus", status);
-  displayText("cardLockStatus2", status);
+function updateCardLockDisplay(){
+ document.getElementById("photoInput").disabled=cardIsLocked;
+ document.getElementById("genderInput").disabled=cardIsLocked;
+ document.getElementById("saveCardButton").disabled=cardIsLocked;
+ document.getElementById("saveCardButton").textContent=cardIsLocked?"ID Card Locked":"Save ID Card Details";
+ const status=cardIsLocked?"LOCKED":"NOT LOCKED";
+ displayText("cardLockStatus",status);displayText("cardLockStatus2",status);
 }
-// ==========================================
-// LOAD CARD DETAILS
-// ==========================================
-async function loadCardDetails() {
-  const { data, error } = await supabaseClient
-    .from("member_card_details")
-    .select("gender, photo_path, is_locked, locked_at")
-    .eq("member_id", currentUser.id)
-    .maybeSingle();
-  if (error) {
-    console.error("Card details error:", error);
-    showMessage("Unable to load ID card details.");
-    return;
-  }
-  if (!data) {
-    cardIsLocked = false;
-    currentPhotoPath = null;
-    updateGenderDisplay(null);
-    await displayMemberPhoto(null);
-    updateCardLockDisplay();
-    return;
-  }
-  cardIsLocked = data.is_locked === true;
-  currentPhotoPath = data.photo_path;
-  updateGenderDisplay(data.gender);
-  await displayMemberPhoto(data.photo_path);
-  updateCardLockDisplay();
+async function loadCardDetails(){
+ const {data,error}=await supabaseClient.from("member_card_details").select("gender,photo_path,is_locked,locked_at").eq("member_id",currentUser.id).maybeSingle();
+ if(error){console.error(error);setMessage("cardMessage","Unable to load ID card details.");return;}
+ if(!data){
+  cardIsLocked=false;currentPhotoPath=null;updateGenderDisplay(null);
+  await displayMemberPhoto(null);updateCardLockDisplay();return;
+ }
+ cardIsLocked=data.is_locked===true;
+ currentPhotoPath=data.photo_path;
+ updateGenderDisplay(data.gender);
+ await displayMemberPhoto(data.photo_path);
+ updateCardLockDisplay();
 }
-// ==========================================
-// SAVE PHOTO AND GENDER
-// ==========================================
-document.getElementById("cardDetailsForm")
-  .addEventListener("submit", async function(event) {
-  event.preventDefault();
-  if (cardIsLocked) {
-    alert("Your ID card is locked. You cannot change its details.");
-    return;
+document.getElementById("cardDetailsForm").addEventListener("submit",async e=>{
+ e.preventDefault();
+ if(cardIsLocked){alert("Your ID card is locked.");return;}
+ const button=document.getElementById("saveCardButton");
+ const input=document.getElementById("photoInput");
+ const gender=document.getElementById("genderInput").value;
+ const file=input.files[0];
+ if(!gender){setMessage("cardMessage","Please select your gender.");return;}
+ if(file&&(!file.type.startsWith("image/")||file.size>MAX_PHOTO_SIZE)){
+  setMessage("cardMessage","Choose a valid image not exceeding 5MB.");return;
+ }
+ button.disabled=true;button.textContent="Saving...";
+ let photoPath=currentPhotoPath,uploadedPath=null;
+ try{
+  if(file){
+   const ext=file.name.split(".").pop().toLowerCase();
+   const safeExt=["jpg","jpeg","png","webp"].includes(ext)?ext:"jpg";
+   const filename=currentUser.id+"/"+Date.now()+"-"+crypto.randomUUID()+"."+safeExt;
+   const {data,error}=await supabaseClient.storage.from(PHOTO_BUCKET).upload(filename,file,{contentType:file.type,upsert:false});
+   if(error)throw error;
+   uploadedPath=data.path;photoPath=data.path;
   }
-  const saveButton =
-    document.getElementById("saveCardButton");
-  const photoInput =
-    document.getElementById("photoInput");
-  const gender =
-    document.getElementById("genderInput").value;
-  const file = photoInput.files[0];
-  if (!gender) {
-    showMessage("Please select your gender.");
-    return;
+  const {error}=await supabaseClient.from("member_card_details").upsert({
+   member_id:currentUser.id,gender,photo_path:photoPath,updated_at:new Date().toISOString()
+  },{onConflict:"member_id"});
+  if(error){
+   if(uploadedPath)await supabaseClient.storage.from(PHOTO_BUCKET).remove([uploadedPath]);
+   throw error;
   }
-  if (file) {
-    if (!file.type.startsWith("image/")) {
-      showMessage("Please select a valid image.");
-      return;
-    }
-    if (file.size > MAX_PHOTO_SIZE) {
-      showMessage("Your photograph must not exceed 5MB.");
-      return;
-    }
-  }
-  saveButton.disabled = true;
-  saveButton.textContent = "Saving...";
-  showMessage("Saving your ID card details...");
-  let photoPath = currentPhotoPath;
-  let uploadedPath = null;
-  try {
-    if (file) {
-      const extension =
-        file.name.split(".").pop().toLowerCase();
-      const safeExtension =
-        ["jpg", "jpeg", "png", "webp"].includes(extension)
-          ? extension
-          : "jpg";
-      const fileName =
-        currentUser.id + "/" +
-        Date.now() + "-" +
-        crypto.randomUUID() + "." +
-        safeExtension;
-      const { data: uploadData, error: uploadError } =
-        await supabaseClient.storage
-          .from(PHOTO_BUCKET)
-          .upload(fileName, file, {
-            contentType: file.type,
-            upsert: false
-          });
-      if (uploadError) {
-        throw uploadError;
-      }
-      uploadedPath = uploadData.path;
-      photoPath = uploadData.path;
-    }
-    const { error: databaseError } =
-      await supabaseClient
-        .from("member_card_details")
-        .upsert({
-          member_id: currentUser.id,
-          gender: gender,
-          photo_path: photoPath,
-          updated_at: new Date().toISOString()
-        }, {
-          onConflict: "member_id"
-        });
-    if (databaseError) {
-      if (uploadedPath) {
-        await supabaseClient.storage
-          .from(PHOTO_BUCKET)
-          .remove([uploadedPath]);
-      }
-      throw databaseError;
-    }
-    currentPhotoPath = photoPath;
-    updateGenderDisplay(gender);
-    await displayMemberPhoto(photoPath);
-    photoInput.value = "";
-    showMessage(
-      "Your ID card details have been saved successfully!",
-      true
-    );
-  } catch (error) {
-    console.error("Save card details error:", error);
-    showMessage(
-      "Unable to save your details: " +
-      (error.message || "Please try again.")
-    );
-  } finally {
-    updateCardLockDisplay();
-  }
+  currentPhotoPath=photoPath;
+  updateGenderDisplay(gender);await displayMemberPhoto(photoPath);
+  input.value="";setMessage("cardMessage","Your ID card details have been saved successfully.",true);
+ }catch(err){
+  console.error(err);setMessage("cardMessage","Unable to save: "+(err.message||"Please try again."));
+ }finally{updateCardLockDisplay();}
+});
+async function printCard(cardId){
+ const card=document.getElementById(cardId);
+ if(!card)return;
+ if(!cardIsLocked){
+  const gender=document.getElementById("genderInput").value;
+  if(!gender||!currentPhotoPath){alert("Upload your photograph and select your gender before printing and locking your card.");return;}
+  if(!confirm("Print and lock your ID card? You will not be able to change your photograph or gender afterwards."))return;
+  const {data,error}=await supabaseClient.rpc("lock_my_member_card");
+  if(error||data!==true){console.error(error);alert("Your ID card could not be locked.");return;}
+  cardIsLocked=true;await loadCardDetails();
+ }
+ document.querySelectorAll(".id-card").forEach(c=>c.classList.remove("print-target"));
+ card.classList.add("print-target");document.body.classList.add("printing");window.print();
+}
+window.addEventListener("afterprint",()=>{
+ document.body.classList.remove("printing");
+ document.querySelectorAll(".id-card").forEach(c=>c.classList.remove("print-target"));
 });
 // ==========================================
-// PRINT AND LOCK ID CARD
+// BANK DETAILS — STORED INSIDE WALLET
 // ==========================================
-async function printCard(cardId) {
-  const card = document.getElementById(cardId);
-  if (!card) return;
-  if (!cardIsLocked) {
-    const gender =
-      document.getElementById("genderInput").value;
-    if (!gender || !currentPhotoPath) {
-      alert(
-        "Please upload your photograph and select your gender before printing and locking your card."
-      );
-      return;
-    }
-    const confirmation = confirm(
-      "Are you sure you want to print and lock your ID card? You will not be able to change your photograph or gender afterwards."
-    );
-    if (!confirmation) return;
-    const { data, error } = await supabaseClient.rpc(
-      "lock_my_member_card"
-    );
-    if (error || data !== true) {
-      console.error("Card locking error:", error);
-      alert(
-        "Your ID card could not be locked. Please try again."
-      );
-      return;
-    }
-    cardIsLocked = true;
-    await loadCardDetails();
-  }
-  document.querySelectorAll(".id-card").forEach(item => {
-    item.classList.remove("print-target");
+async function loadBankDetails(){
+ if(!currentUser)return;
+ const {data,error}=await supabaseClient.from("member_bank_details")
+ .select("bank_name,account_name,account_number,bank_code,account_type,verification_status")
+ .eq("member_id",currentUser.id).maybeSingle();
+ if(error){
+  console.error("Bank details error:",error);
+  displayText("withdrawBankStatus","Unable to load");return;
+ }
+ if(!data){
+  bankDetailsExist=false;
+  displayText("withdrawBankStatus","Not submitted");
+  displayText("savedBankName","Not provided");
+  displayText("savedAccountName","Not provided");
+  displayText("savedAccountNumber","Not provided");
+  displayText("savedBranchCode","Not provided");
+  displayText("savedAccountType","Not provided");
+  return;
+ }
+ bankDetailsExist=true;
+ const status=data.verification_status||"pending";
+ displayText("withdrawBankStatus",displayStatus(status));
+ displayText("savedBankName",data.bank_name);
+ displayText("savedAccountName",data.account_name);
+ const number=String(data.account_number||"");
+ displayText("savedAccountNumber",number.length>4?"••••••"+number.slice(-4):"••••");
+ displayText("savedBranchCode",data.bank_code);
+ displayText("savedAccountType",data.account_type);
+}
+// ==========================================
+// LOAD WALLET AND SETTINGS
+// ==========================================
+async function loadWallet(){
+ const {data,error}=await supabaseClient.from("member_wallets")
+ .select("id,member_id,currency_code,balance,account_level,withdrawal_limit")
+ .eq("member_id",currentUser.id).maybeSingle();
+ if(error){console.error("Wallet error:",error);throw error;}
+ currentWallet=data;
+ if(!data){
+  displayText("walletBalance","R0.00");
+  displayText("walletAccountLevel","Account Level: Basic");
+  displayText("migrationLevel","Basic");
+  displayText("walletLimit","R0.00");
+ }else{
+  displayText("walletBalance",formatMoney(data.balance));
+  displayText("walletAccountLevel","Account Level: "+displayStatus(data.account_level||"basic"));
+  displayText("migrationLevel",displayStatus(data.account_level||"basic"));
+  displayText("walletLimit",formatMoney(data.withdrawal_limit));
+ }
+}
+async function loadWalletSettings(){
+ const {data,error}=await supabaseClient.from("wallet_settings")
+ .select("currency_code,currency_symbol,withdrawal_fee,migration_fee,minimum_withdrawal,maximum_withdrawal,migrated_withdrawal_limit")
+ .eq("id",1).maybeSingle();
+ if(error){console.error("Wallet settings error:",error);throw error;}
+ walletSettings=data;
+ displayText("withdrawMinimum",formatMoney(data?.minimum_withdrawal));
+ displayText("withdrawMaximum",formatMoney(data?.maximum_withdrawal));
+ displayText("withdrawFee",formatMoney(data?.withdrawal_fee));
+ displayText("migrationFee",formatMoney(data?.migration_fee));
+ displayText("migrationLimit",formatMoney(data?.migrated_withdrawal_limit));
+}
+// ==========================================
+// WALLET OVERVIEW TOTALS
+// ==========================================
+async function loadWalletTotals(){
+ if(!currentWallet){
+  displayText("walletTotalDeposits",formatMoney(0));
+  displayText("walletTotalWithdrawals",formatMoney(0));return;
+ }
+ const {data,error}=await supabaseClient.from("wallet_transactions")
+ .select("transaction_type,amount")
+ .eq("wallet_id",currentWallet.id);
+ if(error){console.error("Wallet totals error:",error);return;}
+ let deposits=0,withdrawals=0;
+ (data||[]).forEach(t=>{
+  if(t.transaction_type==="credit")deposits+=Number(t.amount||0);
+  if(t.transaction_type==="withdrawal"||t.transaction_type==="debit")withdrawals+=Number(t.amount||0);
+ });
+ displayText("walletTotalDeposits",formatMoney(deposits));
+ displayText("walletTotalWithdrawals",formatMoney(withdrawals));
+}
+// ==========================================
+// WITHDRAWAL REQUESTS
+// ==========================================
+async function loadWithdrawalData(){
+ if(!currentUser)return;
+ const {data,error}=await supabaseClient.from("withdrawal_requests")
+ .select("id,amount,withdrawal_fee,status,created_at")
+ .eq("member_id",currentUser.id).order("created_at",{ascending:false});
+ if(error){console.error(error);displayText("withdrawalRows","Unable to load withdrawals.");return;}
+ currentWithdrawals=data||[];
+ const {data:payments,paymentError}=await supabaseClient.from("withdrawal_fee_payments")
+ .select("id,withdrawal_request_id,payment_status,payment_reference")
+ .eq("member_id",currentUser.id);
+ if(paymentError)console.error(paymentError);
+ currentFeePayments=payments||[];
+ const tbody=document.getElementById("withdrawalRows");
+ if(!currentWithdrawals.length){
+  tbody.innerHTML='<tr><td colspan="5" class="empty-state">No withdrawal requests yet.</td></tr>';
+ }else{
+  tbody.innerHTML=currentWithdrawals.map(w=>{
+   const payment=currentFeePayments.find(p=>p.withdrawal_request_id===w.id);
+   return `<tr>
+   <td>${safe(formatDate(w.created_at))}</td>
+   <td>${safe(formatMoney(w.amount))}</td>
+   <td>${safe(formatMoney(w.withdrawal_fee))}</td>
+   <td>${safe(displayStatus(w.status))}</td>
+   <td>${safe(displayStatus(payment?.payment_status||"not submitted"))}</td>
+   </tr>`;
+  }).join("");
+ }
+ const select=document.getElementById("feeWithdrawalId");
+ const eligible=currentWithdrawals.filter(w=>w.status==="pending"&&!currentFeePayments.some(p=>p.withdrawal_request_id===w.id&&p.payment_status==="verified"));
+ select.innerHTML='<option value="">Select pending withdrawal</option>'+eligible.map(w=>
+  `<option value="${safe(w.id)}">${safe(formatMoney(w.amount))} — ${safe(formatDate(w.created_at))}</option>`
+ ).join("");
+}
+// ==========================================
+// CREATE WITHDRAWAL
+// ==========================================
+document.getElementById("withdrawForm").addEventListener("submit",async e=>{
+ e.preventDefault();
+ const amount=Number(document.getElementById("withdrawAmount").value);
+ const button=document.getElementById("withdrawButton");
+ const message=document.getElementById("withdrawMessage");
+ if(!Number.isFinite(amount)||amount<=0){setMessage("withdrawMessage","Enter a valid withdrawal amount.");return;}
+ if(!currentWallet){setMessage("withdrawMessage","Your wallet has not been created. Contact the administrator.");return;}
+ if(!walletSettings){setMessage("withdrawMessage","Wallet settings are unavailable.");return;}
+ if(!bankDetailsExist){setMessage("withdrawMessage","Please submit your bank details first.");return;}
+ if(document.getElementById("withdrawBankStatus").textContent.toLowerCase()!=="verified"){
+  setMessage("withdrawMessage","Your bank details must be verified before requesting a withdrawal.");return;
+ }
+ const fee=Number(walletSettings.withdrawal_fee||0);
+ const confirmation=confirm(
+  "Please confirm your withdrawal request.\n\nRequested payout: "+formatMoney(amount)+
+  "\nSeparately Payable Withdrawal Fee: "+formatMoney(fee)+
+  "\n\nThe fee is separate and will NOT be deducted from your wallet. Your request will be reviewed by the administrator."
+ );
+ if(!confirmation)return;
+ button.disabled=true;button.textContent="Submitting...";
+ setMessage("withdrawMessage","Submitting your withdrawal request...");
+ try{
+  const {data,error}=await supabaseClient.rpc("member_request_withdrawal",{requested_amount:amount});
+  if(error)throw error;
+  if(data?.success===false)throw new Error(data.message||"Request failed.");
+  setMessage("withdrawMessage",data?.message||"Withdrawal request submitted. Follow the administrator's verified payment instructions for the separate fee.",true);
+  document.getElementById("withdrawAmount").value="";
+  await refreshWallet();
+  await loadWithdrawalData();
+ }catch(err){
+  console.error(err);setMessage("withdrawMessage",err.message||"Unable to submit withdrawal request.");
+ }finally{button.disabled=false;button.textContent="Send Withdrawal Request";}
+});
+// ==========================================
+// SUBMIT FEE PAYMENT REFERENCE
+// ==========================================
+document.getElementById("feePaymentForm").addEventListener("submit",async e=>{
+ e.preventDefault();
+ const requestId=document.getElementById("feeWithdrawalId").value;
+ const reference=document.getElementById("feePaymentReference").value.trim();
+ const button=document.getElementById("feePaymentButton");
+ if(!requestId||!reference){setMessage("feePaymentMessage","Select a withdrawal and enter your payment reference.");return;}
+ if(!confirm("Confirm that this reference belongs to your separately payable withdrawal-fee payment?"))return;
+ button.disabled=true;button.textContent="Submitting...";
+ try{
+  const {data,error}=await supabaseClient.rpc("submit_withdrawal_fee_payment",{
+   p_withdrawal_request_id:requestId,
+   p_payment_reference:reference,
+   p_proof_path:null
   });
-  card.classList.add("print-target");
-  document.body.classList.add("printing");
-  window.print();
+  if(error)throw error;
+  setMessage("feePaymentMessage",data?.message||"Payment reference submitted for administrator verification.",true);
+  document.getElementById("feePaymentReference").value="";
+  await loadWithdrawalData();
+ }catch(err){
+  console.error(err);setMessage("feePaymentMessage",err.message||"Unable to submit payment reference.");
+ }finally{button.disabled=false;button.textContent="Submit Fee Payment Reference";}
+});
+// ==========================================
+// TRANSACTION HISTORY
+// ==========================================
+async function loadTransactions(){
+ const tbody=document.getElementById("transactionRows");
+ if(!currentWallet){
+  tbody.innerHTML='<tr><td colspan="5" class="empty-state">Your wallet has not been created.</td></tr>';return;
+ }
+ const {data,error}=await supabaseClient.from("wallet_transactions")
+ .select("transaction_type,amount,currency_code,description,reference,created_at")
+ .eq("wallet_id",currentWallet.id).order("created_at",{ascending:false});
+ if(error){
+  console.error(error);tbody.innerHTML='<tr><td colspan="5">Unable to load transaction history.</td></tr>';return;
+ }
+ if(!data?.length){
+  tbody.innerHTML='<tr><td colspan="5" class="empty-state">No transactions found.</td></tr>';return;
+ }
+ tbody.innerHTML=data.map(t=>`<tr>
+ <td>${safe(formatDate(t.created_at))}</td>
+ <td>${safe(displayStatus(t.transaction_type))}</td>
+ <td>${safe(t.description||"Wallet transaction")}</td>
+ <td>${safe(formatMoney(t.amount))}</td>
+ <td>${safe(t.reference||"—")}</td>
+ </tr>`).join("");
 }
-window.addEventListener("afterprint", () => {
-  document.body.classList.remove("printing");
-  document.querySelectorAll(".id-card").forEach(item => {
-    item.classList.remove("print-target");
+// ==========================================
+// ACCOUNT MIGRATION
+// ==========================================
+async function loadMigrationData(){
+ if(!currentUser)return;
+ const {data,error}=await supabaseClient.from("account_migration_requests")
+ .select("id,amount,migration_fee,status,payment_status,payment_reference,admin_note,created_at")
+ .eq("member_id",currentUser.id).order("created_at",{ascending:false});
+ const tbody=document.getElementById("migrationRows");
+ if(error){
+  console.error(error);tbody.innerHTML='<tr><td colspan="5">Unable to load migration requests.</td></tr>';return;
+ }
+ currentMigrations=data||[];
+ if(!currentMigrations.length){
+  tbody.innerHTML='<tr><td colspan="5" class="empty-state">No migration requests yet.</td></tr>';
+ }else{
+  tbody.innerHTML=currentMigrations.map(m=>`<tr>
+  <td>${safe(formatDate(m.created_at))}</td>
+  <td>${safe(formatMoney(m.migration_fee))}</td>
+  <td>${safe(displayStatus(m.payment_status))}</td>
+  <td>${safe(displayStatus(m.status))}</td>
+  <td>${safe(m.admin_note||"—")}</td>
+  </tr>`).join("");
+ }
+ const alreadyPending=currentMigrations.some(m=>m.status==="pending"||m.status==="approved");
+ document.getElementById("migrationButton").disabled=alreadyPending||currentWallet?.account_level==="migrated";
+ if(currentWallet?.account_level==="migrated"){
+  setMessage("migrationMessage","Your wallet is already on the migrated account level.",true);
+ }else if(alreadyPending){
+  setMessage("migrationMessage","You already have a migration request awaiting review.");
+ }
+}
+document.getElementById("migrationForm").addEventListener("submit",async e=>{
+ e.preventDefault();
+ const reference=document.getElementById("migrationReference").value.trim();
+ const button=document.getElementById("migrationButton");
+ if(!reference){setMessage("migrationMessage","Enter your payment reference.");return;}
+ if(currentWallet?.account_level==="migrated"){setMessage("migrationMessage","Your account is already migrated.");return;}
+ if(!confirm("Submit this account migration request? Confirm the fee recipient and payment instructions with the administrator before making payment."))return;
+ button.disabled=true;button.textContent="Submitting...";
+ try{
+  const {data,error}=await supabaseClient.rpc("member_request_migration",{submitted_payment_reference:reference});
+  if(error)throw error;
+  if(data?.success===false)throw new Error(data.message||"Migration request failed.");
+  setMessage("migrationMessage",data?.message||"Migration request submitted for administrator review.",true);
+  document.getElementById("migrationReference").value="";
+  await loadMigrationData();
+ }catch(err){
+  console.error(err);setMessage("migrationMessage",err.message||"Unable to submit migration request.");
+ }finally{
+  if(currentWallet?.account_level!=="migrated")button.disabled=false;
+  button.textContent="Submit Migration Request";
+ }
+});
+// ==========================================
+// REFRESH WALLET
+// ==========================================
+async function refreshWallet(){
+ try{
+  await loadWallet();
+  await loadWalletSettings();
+  await loadWalletTotals();
+  await loadBankDetails();
+ }catch(err){
+  console.error("Wallet refresh error:",err);
+ }
+}
+// ==========================================
+// LOAD MEMBER DASHBOARD
+// ==========================================
+async function initializeDashboard(){
+ try{
+  const {data:sessionData,error:sessionError}=await supabaseClient.auth.getSession();
+  if(sessionError||!sessionData.session){window.location.href="login.html";return;}
+  currentUser=sessionData.session.user;
+  const {data:member,error:memberError}=await supabaseClient.from("members")
+   .select("*").eq("id",currentUser.id).single();
+  if(memberError||!member){alert("Unable to load your member account.");await logout();return;}
+  if(member.approval_status!=="approved"){
+   alert("Your membership is not approved yet. Please contact the administrator.");
+   await logout();return;
+  }
+  const {data:verification,error:verificationError}=await supabaseClient.functions.invoke("member_dashboard_access",{
+   method:"POST",body:{}
   });
-});
-// ==========================================
-// LOAD BANK DETAILS
-// ==========================================
-async function loadBankDetails() {
-  if (!currentUser) return;
-  const { data, error } = await supabaseClient
-    .from("member_bank_details")
-    .select(`
-      bank_name,
-      account_name,
-      account_number,
-      bank_code,
-      account_type,
-      verification_status
-    `)
-    .eq("member_id", currentUser.id)
-    .maybeSingle();
-  if (error) {
-    console.error("Bank details loading error:", error);
-    displayText(
-      "bankVerificationStatus",
-      "Unable to load"
-    );
-    displayText(
-      "bankStatusMessage",
-      "Unable to retrieve your bank details. Please refresh the page."
-    );
-    return;
+  if(verificationError||!verification||verification.verified!==true){
+   console.error("Verification error:",verificationError);
+   alert("Your account verification could not be confirmed. Please contact the administrator.");
+   await logout();return;
   }
-  if (!data) {
-    bankDetailsExist = false;
-    displayText("bankVerificationStatus", "Not submitted");
-    displayText(
-      "bankStatusMessage",
-      "Please submit your bank details for administrator verification."
-    );
-    displayText("savedBankName", "Not provided");
-    displayText("savedAccountName", "Not provided");
-    displayText("savedAccountNumber", "Not provided");
-    displayText("savedBranchCode", "Not provided");
-    displayText("savedAccountType", "Not provided");
-    document.getElementById("bankDetailsForm").reset();
-    document.getElementById("saveBankButton").textContent =
-      "Save Bank Details";
-    return;
-  }
-  bankDetailsExist = true;
-  displayText("savedBankName", data.bank_name);
-  displayText("savedAccountName", data.account_name);
-  const accountNumber = String(data.account_number || "");
-  const maskedNumber = accountNumber.length > 4
-    ? "••••••" + accountNumber.slice(-4)
-    : "••••";
-  displayText("savedAccountNumber", maskedNumber);
-  displayText("savedBranchCode", data.bank_code);
-  displayText("savedAccountType", data.account_type);
-  const status = data.verification_status || "pending";
-  displayText(
-    "bankVerificationStatus",
-    displayStatus(status)
-  );
-  const statusBadge =
-    document.getElementById("bankVerificationStatus");
-  if (status === "verified") {
-    statusBadge.style.background = "#d4edda";
-    statusBadge.style.color = "#155724";
-    displayText(
-      "bankStatusMessage",
-      "Your bank details have been verified by the administrator."
-    );
-  } else if (status === "rejected") {
-    statusBadge.style.background = "#f8d7da";
-    statusBadge.style.color = "#721c24";
-    displayText(
-      "bankStatusMessage",
-      "Your bank details were rejected. Please review and update them."
-    );
-  } else {
-    statusBadge.style.background = "#fff3cd";
-    statusBadge.style.color = "#856404";
-    displayText(
-      "bankStatusMessage",
-      "Your bank details are awaiting administrator verification."
-    );
-  }
-  document.getElementById("bankNameInput").value =
-    data.bank_name || "";
-  document.getElementById("accountNameInput").value =
-    data.account_name || "";
-  document.getElementById("accountNumberInput").value =
-    data.account_number || "";
-  document.getElementById("branchCodeInput").value =
-    data.bank_code || "";
-  document.getElementById("accountTypeInput").value =
-    data.account_type || "";
-  document.getElementById("saveBankButton").textContent =
-    "Update Bank Details";
+  currentMember=member;
+  const name=member.full_name||"UK49 Member";
+  const memberId=member.id;
+  const date=formatDate(member.created_at);
+  const status=displayStatus(member.approval_status);
+  const shortId=memberId.slice(0,8).toUpperCase();
+  displayText("welcomeName","Welcome, "+name+"!");
+  displayText("overviewStatus",status);
+  displayText("overviewId",shortId);
+  displayText("overviewDate",date);
+  displayText("cardName",name);
+  displayText("cardName2",name);
+  displayText("cardId",shortId);
+  displayText("cardId2",shortId);
+  displayText("cardDate",date);
+  displayText("cardDate2",date);
+  displayText("cardStatus",status);
+  displayText("cardStatus2",status);
+  displayText("profileName",name);
+  displayText("profileEmail",member.email||currentUser.email);
+  displayText("profilePhone",member.phone);
+  displayText("profileStatus",status);
+  displayText("profileDate",date);
+  displayText("profileId",memberId);
+  displayText("settingsEmail",currentUser.email);
+  await loadCardDetails();
+  await refreshWallet();
+  await loadWithdrawalData();
+  await loadMigrationData();
+ }catch(err){
+  console.error("Dashboard error:",err);
+  alert("Something went wrong while loading your dashboard. Please refresh.");
+ }
 }
-// ==========================================
-// SAVE BANK DETAILS
-// ==========================================
-document.getElementById("bankDetailsForm")
-  .addEventListener("submit", async function(event) {
-  event.preventDefault();
-  const saveButton =
-    document.getElementById("saveBankButton");
-  const bankName =
-    document.getElementById("bankNameInput").value.trim();
-  const accountName =
-    document.getElementById("accountNameInput").value.trim();
-  const accountNumber =
-    document.getElementById("accountNumberInput").value.trim();
-  const branchCode =
-    document.getElementById("branchCodeInput").value.trim();
-  const accountType =
-    document.getElementById("accountTypeInput").value;
-  if (
-    !bankName ||
-    !accountName ||
-    !accountNumber ||
-    !branchCode ||
-    !accountType
-  ) {
-    showBankMessage("Please complete all bank details.");
-    return;
-  }
-  if (!/^\d+$/.test(accountNumber)) {
-    showBankMessage(
-      "Please enter a valid account number using digits only."
-    );
-    return;
-  }
-  if (!/^\d+$/.test(branchCode)) {
-    showBankMessage(
-      "Please enter a valid numeric branch code."
-    );
-    return;
-  }
-  const confirmation = confirm(
-    "Please confirm that these South African bank details are correct. Saving will require administrator verification."
-  );
-  if (!confirmation) return;
-  saveButton.disabled = true;
-  saveButton.textContent = "Saving...";
-  showBankMessage("Submitting your bank details...");
-  try {
-    const { data, error } = await supabaseClient.rpc(
-      "save_member_bank_details",
-      {
-        new_bank_name: bankName,
-        new_account_name: accountName,
-        new_account_number: accountNumber,
-        new_branch_code: branchCode,
-        new_account_type: accountType
-      }
-    );
-    if (error) {
-      throw error;
-    }
-    if (!data || data.success !== true) {
-      throw new Error(
-        data?.message || "Bank details could not be saved."
-      );
-    }
-    showBankMessage(
-      "Bank details submitted successfully. Awaiting administrator verification.",
-      true
-    );
-    await loadBankDetails();
-  } catch (error) {
-    console.error("Bank details saving error:", error);
-    showBankMessage(
-      error.message || "Unable to save bank details."
-    );
-  } finally {
-    saveButton.disabled = false;
-    saveButton.textContent = bankDetailsExist
-      ? "Update Bank Details"
-      : "Save Bank Details";
-  }
-});
-// ==========================================
-// LOAD DASHBOARD
-// ==========================================
-async function initializeDashboard() {
-  try {
-    const { data: sessionData, error: sessionError } =
-      await supabaseClient.auth.getSession();
-    if (sessionError || !sessionData.session) {
-      window.location.href = "login.html";
-      return;
-    }
-    currentUser = sessionData.session.user;
-    const { data: member, error: memberError } =
-      await supabaseClient
-        .from("members")
-        .select("*")
-        .eq("id", currentUser.id)
-        .single();
-    if (memberError || !member) {
-      alert("Unable to load your member account.");
-      await logout();
-      return;
-    }
-    if (member.approval_status !== "approved") {
-      alert(
-        "Your membership is not approved yet. Please contact the administrator."
-      );
-      await logout();
-      return;
-    }
-    const { data: verification, error: verificationError } =
-      await supabaseClient.functions.invoke(
-        "member_dashboard_access",
-        {
-          method: "POST",
-          body: {}
-        }
-      );
-    if (
-      verificationError ||
-      !verification ||
-      verification.verified !== true
-    ) {
-      console.error("Verification error:", verificationError);
-      alert(
-        "Your account verification could not be confirmed. Please contact the administrator."
-      );
-      await logout();
-      return;
-    }
-    const name = member.full_name || "UK49 Member";
-    const memberId = member.id;
-    const date = formatDate(member.created_at);
-    const status = displayStatus(member.approval_status);
-    const shortId = memberId.slice(0, 8).toUpperCase();
-    // Overview.
-    displayText("welcomeName", "Welcome, " + name + "!");
-    displayText("overviewStatus", status);
-    displayText("overviewId", shortId);
-    displayText("overviewDate", date);
-    // ID card.
-    displayText("cardName", name);
-    displayText("cardName2", name);
-    displayText("cardId", shortId);
-    displayText("cardId2", shortId);
-    displayText("cardDate", date);
-    displayText("cardDate2", date);
-    displayText("cardStatus", status);
-    displayText("cardStatus2", status);
-    // Profile.
-    displayText("profileName", name);
-    displayText(
-      "profileEmail",
-      member.email || currentUser.email
-    );
-    displayText("profilePhone", member.phone);
-    displayText("profileStatus", status);
-    displayText("profileDate", date);
-    displayText("profileId", memberId);
-    // Account settings.
-    displayText("settingsEmail", currentUser.email);
-    // Load saved information.
-    await loadCardDetails();
-    await loadBankDetails();
-  } catch (error) {
-    console.error("Dashboard error:", error);
-    alert(
-      "Something went wrong while loading your dashboard. Please refresh."
-    );
-  }
-}
-// ==========================================
-// START DASHBOARD
-// ==========================================
 initializeDashboard();
 </script>
 </body>
