@@ -1,188 +1,1812 @@
-CREATE OR REPLACE FUNCTION public.admin_manage_withdrawal(
-    target_request_id UUID,
-    admin_action TEXT
-)
-RETURNS JSONB
-LANGUAGE plpgsql
-SECURITY DEFINER
-SET search_path TO 'public'
-AS $function$
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UK49 Admin Dashboard</title>
 
-DECLARE
-    request_record public.withdrawal_requests%ROWTYPE;
-    wallet_record public.member_wallets%ROWTYPE;
-    fee_record public.withdrawal_fee_payments%ROWTYPE;
-    admin_id UUID;
-    withdrawal_reference TEXT;
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 
-BEGIN
-    -- Confirm administrator identity.
-    admin_id := auth.uid();
+<style>
+*{box-sizing:border-box}
 
-    IF admin_id IS NULL OR NOT EXISTS (
-        SELECT 1
-        FROM public.admin_users
-        WHERE user_id = admin_id
-    ) THEN
-        RAISE EXCEPTION 'Administrator access required.';
-    END IF;
+body{
+  margin:0;
+  padding:20px;
+  font-family:Arial,sans-serif;
+  background:#f3f5f9;
+  color:#172033;
+}
 
-    IF admin_action NOT IN ('approve', 'reject', 'complete') THEN
-        RAISE EXCEPTION 'Invalid withdrawal action.';
-    END IF;
+.container{max-width:1250px;margin:auto}
 
-    -- Lock the withdrawal request.
-    SELECT *
-    INTO request_record
-    FROM public.withdrawal_requests
-    WHERE id = target_request_id
-    FOR UPDATE;
+header{
+  background:#102b21;
+  color:white;
+  padding:24px;
+  border-radius:14px;
+  margin-bottom:20px;
+}
 
-    IF NOT FOUND THEN
-        RAISE EXCEPTION 'Withdrawal request not found.';
-    END IF;
+header h1{margin:0 0 8px}
+header p{margin:0;color:#d2e8dc}
 
-    -- Reject request.
-    IF admin_action = 'reject' THEN
+.card{
+  background:white;
+  padding:20px;
+  border-radius:12px;
+  margin-bottom:20px;
+  box-shadow:0 2px 10px #0000000a;
+}
 
-        IF request_record.status NOT IN ('pending', 'processing') THEN
-            RAISE EXCEPTION 'This request cannot be rejected.';
-        END IF;
+input,select,button,textarea{
+  padding:12px;
+  border-radius:7px;
+  font-size:14px;
+}
 
-        UPDATE public.withdrawal_requests
-        SET status = 'rejected',
-            updated_at = NOW()
-        WHERE id = target_request_id;
+input,select,textarea{
+  display:block;
+  width:100%;
+  margin:10px 0;
+  border:1px solid #cbd5e1;
+  background:white;
+}
 
-        RETURN jsonb_build_object(
-            'success', true,
-            'message', 'Withdrawal request rejected.'
+textarea{min-height:75px}
+
+button{
+  border:0;
+  cursor:pointer;
+  font-weight:bold;
+  margin:2px;
+}
+
+button:disabled{
+  opacity:.6;
+  cursor:wait;
+}
+
+.primary,.generate{
+  background:#147d50;
+  color:white;
+}
+
+.approve{
+  background:#d8f5e5;
+  color:#12683f;
+}
+
+.reject{
+  background:#ffe0e0;
+  color:#a11c1c;
+}
+
+.secondary{
+  background:#e8edf4;
+  color:#172033;
+}
+
+.check{
+  background:#dceafe;
+  color:#174a83;
+}
+
+.danger{
+  background:#a11c1c;
+  color:white;
+}
+
+#message,#dashboardMessage{
+  margin-top:12px;
+  overflow-wrap:anywhere;
+  line-height:1.5;
+}
+
+.error{color:#b42318}
+.success{color:#147d50}
+
+.stats{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:12px;
+}
+
+.stat{
+  background:#f4f7fa;
+  padding:16px;
+  border-radius:9px;
+}
+
+.stat strong{
+  display:block;
+  font-size:25px;
+  margin-top:8px;
+}
+
+.table-wrap{overflow-x:auto}
+
+table{
+  width:100%;
+  min-width:900px;
+  border-collapse:collapse;
+}
+
+th,td{
+  padding:13px;
+  text-align:left;
+  border-bottom:1px solid #e6eaf0;
+}
+
+th{background:#f6f8fb}
+
+.status{
+  display:inline-block;
+  padding:5px 9px;
+  border-radius:20px;
+  font-size:12px;
+  font-weight:bold;
+}
+
+.pending{
+  background:#fff0c2;
+  color:#785300;
+}
+
+.approved,.completed,.verified{
+  background:#d8f5e5;
+  color:#12683f;
+}
+
+.rejected{
+  background:#ffe0e0;
+  color:#a11c1c;
+}
+
+.processing{
+  background:#dceafe;
+  color:#174a83;
+}
+
+.actions{
+  display:flex;
+  gap:5px;
+  flex-wrap:wrap;
+}
+
+.hidden{display:none!important}
+
+#codePanel{
+  border:1px solid #cbd5e1;
+  background:#f7faf8;
+  border-radius:10px;
+  padding:16px;
+  margin-top:15px;
+}
+
+.small{
+  font-size:13px;
+  color:#64748b;
+  line-height:1.6;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:14px;
+}
+
+.section-title{
+  border-bottom:1px solid #e6eaf0;
+  padding-bottom:10px;
+  margin-bottom:15px;
+}
+
+.money{
+  font-weight:bold;
+  color:#147d50;
+}
+
+.notice{
+  background:#fff8e7;
+  border:1px solid #f1d58b;
+  padding:12px;
+  border-radius:8px;
+  line-height:1.5;
+  font-size:13px;
+}
+
+@media(max-width:650px){
+  body{padding:12px}
+  .stats,.grid{grid-template-columns:1fr}
+  header,.card{padding:16px}
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<header>
+  <h1>UK49 Admin Dashboard</h1>
+  <p>Manage registrations, wallets, withdrawals and migrations.</p>
+</header>
+
+<!-- LOGIN -->
+
+<section class="card" id="loginCard">
+
+  <h2>Administrator Login</h2>
+
+  <form id="loginForm">
+
+    <input id="email" type="email"
+      placeholder="Admin email"
+      autocomplete="username" required>
+
+    <input id="password" type="password"
+      placeholder="Password"
+      autocomplete="current-password" required>
+
+    <button class="primary" type="submit">Sign In</button>
+
+  </form>
+
+  <p id="loginMessage" role="status"></p>
+
+</section>
+
+<!-- DASHBOARD -->
+
+<section id="dashboard" class="hidden">
+
+  <div class="card">
+
+    <button class="secondary" id="refreshButton">
+      Refresh Dashboard
+    </button>
+
+    <button class="secondary" id="logoutButton">
+      Sign Out
+    </button>
+
+    <p id="dashboardMessage" role="status"></p>
+
+    <div id="codePanel" class="hidden">
+
+      <h3>Member Verification</h3>
+
+      <p id="codeMember"></p>
+      <p id="codePhone"></p>
+      <p id="codeExpiry" class="small"></p>
+      <p id="emailStatus" role="status"></p>
+
+    </div>
+
+  </div>
+
+  <!-- REGISTRATION SUMMARY -->
+
+  <div class="card">
+
+    <h2>Registration Summary</h2>
+
+    <div class="stats">
+
+      <div class="stat">
+        Total Members
+        <strong id="totalCount">0</strong>
+      </div>
+
+      <div class="stat">
+        Pending
+        <strong id="pendingCount">0</strong>
+      </div>
+
+      <div class="stat">
+        Approved
+        <strong id="approvedCount">0</strong>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- MEMBERS -->
+
+  <div class="card">
+
+    <h2>Registered Members</h2>
+
+    <div class="table-wrap">
+
+      <table>
+
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Phone</th>
+            <th>Email</th>
+            <th>Status</th>
+            <th>Registered</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+
+        <tbody id="membersTable">
+          <tr><td colspan="6">Loading members...</td></tr>
+        </tbody>
+
+      </table>
+
+    </div>
+
+  </div>
+
+  <!-- WALLET SETTINGS -->
+
+  <div class="card">
+
+    <h2 class="section-title">Wallet Settings</h2>
+
+    <p class="small">
+      Currency: South African Rand (ZAR). All settings start at zero.
+    </p>
+
+    <form id="settingsForm">
+
+      <div class="grid">
+
+        <div>
+          <label>Withdrawal Fee (R)</label>
+          <input id="withdrawalFee" type="number"
+            min="0" step="0.01" required>
+        </div>
+
+        <div>
+          <label>Migration Fee (R)</label>
+          <input id="migrationFee" type="number"
+            min="0" step="0.01" required>
+        </div>
+
+        <div>
+          <label>Minimum Withdrawal (R)</label>
+          <input id="minimumWithdrawal" type="number"
+            min="0" step="0.01" required>
+        </div>
+
+        <div>
+          <label>Maximum Withdrawal (R)</label>
+          <input id="maximumWithdrawal" type="number"
+            min="0" step="0.01" required>
+        </div>
+
+        <div>
+          <label>Migrated Account Withdrawal Limit (R)</label>
+          <input id="migratedLimit" type="number"
+            min="0" step="0.01" required>
+        </div>
+
+      </div>
+
+      <button class="primary" type="submit">
+        Save Wallet Settings
+      </button>
+
+    </form>
+
+    <p id="settingsMessage" role="status"></p>
+
+  </div>
+
+  <!-- MEMBER WALLET ADJUSTMENT -->
+
+  <div class="card">
+
+    <h2 class="section-title">Credit / Debit Member Wallet</h2>
+
+    <form id="adjustmentForm">
+
+      <label>Select Member</label>
+      <select id="adjustMember" required>
+        <option value="">Select a member</option>
+      </select>
+
+      <label>Adjustment Type</label>
+      <select id="adjustmentType" required>
+        <option value="credit">Credit</option>
+        <option value="debit">Debit</option>
+      </select>
+
+      <label>Amount (R)</label>
+      <input id="adjustmentAmount"
+        type="number" min="0.01" step="0.01"
+        placeholder="Enter amount" required>
+
+      <label>Reason</label>
+      <textarea id="adjustmentReason"
+        placeholder="Enter reason for adjustment"
+        required></textarea>
+
+      <button class="primary" type="submit">
+        Submit Adjustment
+      </button>
+
+    </form>
+
+    <p id="adjustmentMessage" role="status"></p>
+
+  </div>
+
+  <!-- MEMBER WALLETS -->
+
+  <div class="card">
+
+    <h2 class="section-title">Member Wallets</h2>
+
+    <div class="table-wrap">
+
+      <table>
+
+        <thead>
+          <tr>
+            <th>Member</th>
+            <th>Wallet Balance</th>
+            <th>Account Level</th>
+            <th>Withdrawal Limit</th>
+            <th>Currency</th>
+          </tr>
+        </thead>
+
+        <tbody id="walletTable">
+          <tr><td colspan="5">Loading wallets...</td></tr>
+        </tbody>
+
+      </table>
+
+    </div>
+
+  </div>
+
+  <!-- WITHDRAWAL FEE VERIFICATION -->
+
+  <div class="card">
+
+    <h2 class="section-title">Withdrawal Fee Payments</h2>
+
+    <div class="notice">
+      Independently confirm that each separate withdrawal-fee
+      payment has actually been received before verifying it.
+      A submitted payment reference alone does not prove payment.
+    </div>
+
+    <div class="table-wrap">
+
+      <table>
+
+        <thead>
+          <tr>
+            <th>Member</th>
+            <th>Withdrawal Amount</th>
+            <th>Separate Fee</th>
+            <th>Payment Reference</th>
+            <th>Payment Status</th>
+            <th>Date</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+
+        <tbody id="withdrawalFeeTable">
+          <tr><td colspan="7">Loading fee payments...</td></tr>
+        </tbody>
+
+      </table>
+
+    </div>
+
+  </div>
+
+  <!-- WITHDRAWALS -->
+
+  <div class="card">
+
+    <h2 class="section-title">Withdrawal Requests</h2>
+
+    <div class="notice">
+      The separate withdrawal fee is not deducted from the member's
+      wallet. The member's payout is the full requested amount.
+      Approve moves a request into processing. Complete should only
+      be used after the actual payout has been sent to the member.
+      Completing a request debits the requested amount from the wallet.
+    </div>
+
+    <div class="table-wrap">
+
+      <table>
+
+        <thead>
+          <tr>
+            <th>Member</th>
+            <th>Amount</th>
+            <th>Separate Fee</th>
+            <th>Full Member Payout</th>
+            <th>Status</th>
+            <th>Date</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+
+        <tbody id="withdrawalTable">
+          <tr><td colspan="7">Loading requests...</td></tr>
+        </tbody>
+
+      </table>
+
+    </div>
+
+  </div>
+
+  <!-- MIGRATIONS -->
+
+  <div class="card">
+
+    <h2 class="section-title">Migration Requests</h2>
+
+    <div class="notice">
+      Verify the member's payment independently before approving
+      migration. Submitting a payment reference does not prove payment.
+      Approval changes the member's account level and withdrawal limit.
+    </div>
+
+    <div class="table-wrap">
+
+      <table>
+
+        <thead>
+          <tr>
+            <th>Member</th>
+            <th>Migration Fee</th>
+            <th>Payment Reference</th>
+            <th>Payment Status</th>
+            <th>Request Status</th>
+            <th>Date</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+
+        <tbody id="migrationTable">
+          <tr><td colspan="7">Loading migration requests...</td></tr>
+        </tbody>
+
+      </table>
+
+    </div>
+
+  </div>
+
+</section>
+
+</div>
+
+<script>
+"use strict";
+
+/* SUPABASE CONFIGURATION */
+
+const SUPABASE_URL =
+  "https://jtwrktxkkngbxrvifoax.supabase.co";
+
+const SUPABASE_KEY =
+  "sb_publishable_7Jdnz6F1e0-OdSVmqIqqUg_LIkD_L0";
+
+const VERIFICATION_FUNCTION = "swift-task";
+
+const client = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
+
+const $ = id => document.getElementById(id);
+
+let memberCache = [];
+let walletCache = [];
+let settingsCache = null;
+
+const loginCard = $("loginCard");
+const dashboard = $("dashboard");
+const loginMessage = $("loginMessage");
+const dashboardMessage = $("dashboardMessage");
+const membersTable = $("membersTable");
+const codePanel = $("codePanel");
+
+/* HELPERS */
+
+function showMessage(element,message,isError=false){
+  element.textContent=message;
+  element.className=isError?"error":"success";
+}
+
+function escapeHTML(value){
+  return String(value??"").replace(/[&<>"']/g,character=>({
+    "&":"&amp;",
+    "<":"&lt;",
+    ">":"&gt;",
+    '"':"&quot;",
+    "'":"&#39;"
+  })[character]);
+}
+
+function money(value){
+  return "R"+Number(value||0).toLocaleString(
+    "en-ZA",
+    {minimumFractionDigits:2,maximumFractionDigits:2}
+  );
+}
+
+function memberName(id){
+  const member=memberCache.find(m=>m.id===id);
+  return member?member.full_name:id;
+}
+
+function statusBadge(status){
+  const safe=escapeHTML(status||"unknown");
+  return `<span class="status ${safe}">${safe}</span>`;
+}
+
+async function requireAdmin(){
+
+  const {
+    data:{user},
+    error
+  }=await client.auth.getUser();
+
+  if(error||!user)return false;
+
+  const {data,error:adminError}=await client
+    .from("admin_users")
+    .select("user_id")
+    .eq("user_id",user.id)
+    .maybeSingle();
+
+  return !adminError&&!!data;
+}
+
+/* ADMIN ACCESS */
+
+async function checkAdmin(){
+
+  const {
+    data:{user},
+    error
+  }=await client.auth.getUser();
+
+  if(error||!user){
+    loginCard.classList.remove("hidden");
+    dashboard.classList.add("hidden");
+    return false;
+  }
+
+  const {data,error:adminError}=await client
+    .from("admin_users")
+    .select("user_id")
+    .eq("user_id",user.id)
+    .maybeSingle();
+
+  if(adminError||!data){
+
+    await client.auth.signOut();
+
+    loginCard.classList.remove("hidden");
+    dashboard.classList.add("hidden");
+
+    showMessage(
+      loginMessage,
+      "This account is not authorized as an administrator.",
+      true
+    );
+
+    return false;
+  }
+
+  loginCard.classList.add("hidden");
+  dashboard.classList.remove("hidden");
+
+  return true;
+}
+
+/* LOGIN */
+
+$("loginForm").addEventListener("submit",async event=>{
+
+  event.preventDefault();
+
+  showMessage(loginMessage,"Signing in...");
+
+  const email=$("email").value.trim();
+  const password=$("password").value;
+
+  const {error}=await client.auth.signInWithPassword({
+    email,
+    password
+  });
+
+  if(error){
+    showMessage(loginMessage,error.message,true);
+    return;
+  }
+
+  if(await checkAdmin()){
+    await loadEverything();
+  }
+
+});
+
+/* LOAD ALL DATA */
+
+async function loadEverything(){
+
+  if(!(await requireAdmin())){
+    await client.auth.signOut();
+    return;
+  }
+
+  await loadMembers();
+  await loadSettings();
+  await loadWallets();
+  await loadWithdrawalFees();
+  await loadWithdrawals();
+  await loadMigrations();
+
+}
+
+/* MEMBERS */
+
+async function loadMembers(){
+
+  showMessage(dashboardMessage,"Loading members...");
+
+  const {data,error}=await client.rpc("admin_get_members");
+
+  if(error){
+
+    showMessage(
+      dashboardMessage,
+      "Could not load members: "+error.message,
+      true
+    );
+
+    return;
+  }
+
+  memberCache=data||[];
+
+  $("totalCount").textContent=memberCache.length;
+
+  $("pendingCount").textContent=
+    memberCache.filter(m=>m.approval_status==="pending").length;
+
+  $("approvedCount").textContent=
+    memberCache.filter(m=>m.approval_status==="approved").length;
+
+  if(!memberCache.length){
+
+    membersTable.innerHTML=
+      '<tr><td colspan="6">No registrations found.</td></tr>';
+
+    return;
+  }
+
+  membersTable.innerHTML=memberCache.map(member=>{
+
+    const id=escapeHTML(member.id);
+    const status=escapeHTML(member.approval_status);
+
+    const date=member.created_at
+      ?new Date(member.created_at).toLocaleString()
+      :"Unknown";
+
+    let actions="";
+
+    if(member.approval_status==="pending"){
+
+      actions=`
+        <div class="actions">
+          <button class="approve"
+            data-id="${id}" data-status="approved">
+            Approve
+          </button>
+
+          <button class="reject"
+            data-id="${id}" data-status="rejected">
+            Reject
+          </button>
+        </div>`;
+
+    }else if(member.approval_status==="approved"){
+
+      actions=`
+        <div class="actions">
+          <button class="generate"
+            data-generate="${id}"
+            data-name="${escapeHTML(member.full_name)}"
+            data-phone="${escapeHTML(member.phone)}">
+            Generate Code
+          </button>
+
+          <button class="check" data-check="${id}">
+            Check Verification
+          </button>
+        </div>`;
+
+    }else{
+
+      actions="Rejected";
+
+    }
+
+    return `
+      <tr>
+        <td>${escapeHTML(member.full_name)}</td>
+        <td>${escapeHTML(member.phone)}</td>
+        <td>${escapeHTML(member.email)}</td>
+        <td>${statusBadge(status)}</td>
+        <td>${escapeHTML(date)}</td>
+        <td>${actions}</td>
+      </tr>`;
+
+  }).join("");
+
+  $("adjustMember").innerHTML=
+    '<option value="">Select a member</option>'+
+    memberCache.map(m=>`
+      <option value="${escapeHTML(m.id)}">
+        ${escapeHTML(m.full_name)} — ${escapeHTML(m.email)}
+      </option>
+    `).join("");
+
+  showMessage(dashboardMessage,"Members loaded successfully.");
+
+}
+
+/* MEMBER APPROVAL AND VERIFICATION */
+
+membersTable.addEventListener("click",async event=>{
+
+  const approvalButton=event.target.closest(
+    "button[data-id][data-status]"
+  );
+
+  if(approvalButton){
+
+    const id=approvalButton.dataset.id;
+    const status=approvalButton.dataset.status;
+
+    if(!confirm(`Are you sure you want to ${status} this member?`))
+      return;
+
+    approvalButton.disabled=true;
+
+    try{
+
+      const {error}=await client.rpc(
+        "admin_update_member_status",
+        {
+          target_member_id:id,
+          new_status:status
+        }
+      );
+
+      if(error)throw error;
+
+      showMessage(dashboardMessage,`Member ${status} successfully.`);
+
+      await loadMembers();
+
+    }catch(error){
+
+      showMessage(
+        dashboardMessage,
+        error.message||"Member update failed.",
+        true
+      );
+
+    }finally{
+
+      approvalButton.disabled=false;
+
+    }
+
+    return;
+  }
+
+  const generateButton=event.target.closest(
+    "button[data-generate]"
+  );
+
+  if(generateButton){
+
+    const id=generateButton.dataset.generate;
+
+    if(!confirm("Generate a new verification code for this member?"))
+      return;
+
+    generateButton.disabled=true;
+    codePanel.classList.add("hidden");
+
+    showMessage(dashboardMessage,"Generating verification code...");
+
+    try{
+
+      const {data,error}=await client.functions.invoke(
+        VERIFICATION_FUNCTION,
+        {
+          body:{
+            action:"generate",
+            member_id:id
+          }
+        }
+      );
+
+      if(error)throw error;
+
+      if(!data||data.error)
+        throw new Error(data?.error||"Empty server response.");
+
+      $("codeMember").textContent=
+        "Member: "+generateButton.dataset.name;
+
+      $("codePhone").textContent=
+        "Registered phone: "+generateButton.dataset.phone;
+
+      const expiry=
+        data.expires_at||data.expire_at||data.expiration;
+
+      $("codeExpiry").textContent=expiry
+        ?"Code expiry: "+new Date(expiry).toLocaleString()
+        :"Expiration was not provided by the server.";
+
+      $("emailStatus").textContent=
+        data.message||"Server response received.";
+
+      codePanel.classList.remove("hidden");
+
+      if(data.email_sent===true){
+
+        showMessage(
+          dashboardMessage,
+          "The server confirmed that the verification email was sent."
         );
 
-    END IF;
+      }else{
 
-    -- Require verified separate fee payment.
-    SELECT *
-    INTO fee_record
-    FROM public.withdrawal_fee_payments
-    WHERE withdrawal_request_id = target_request_id
-      AND member_id = request_record.member_id
-    FOR UPDATE;
-
-    IF NOT FOUND THEN
-        RAISE EXCEPTION
-            'Separate withdrawal fee payment has not been submitted.';
-    END IF;
-
-    IF fee_record.payment_status <> 'verified' THEN
-        RAISE EXCEPTION
-            'The separate withdrawal fee payment must be verified first.';
-    END IF;
-
-    IF fee_record.fee_amount <> request_record.withdrawal_fee THEN
-        RAISE EXCEPTION
-            'Verified fee amount does not match the withdrawal fee.';
-    END IF;
-
-    -- Approve request.
-    IF admin_action = 'approve' THEN
-
-        IF request_record.status <> 'pending' THEN
-            RAISE EXCEPTION 'Only pending requests can be approved.';
-        END IF;
-
-        UPDATE public.withdrawal_requests
-        SET status = 'processing',
-            updated_at = NOW()
-        WHERE id = target_request_id;
-
-        RETURN jsonb_build_object(
-            'success', true,
-            'message', 'Fee verified. Withdrawal moved to processing.'
+        showMessage(
+          dashboardMessage,
+          "Code generated, but email delivery was not confirmed.",
+          true
         );
 
-    END IF;
+      }
 
-    -- Complete withdrawal.
-    IF admin_action = 'complete' THEN
+    }catch(error){
 
-        IF request_record.status <> 'processing' THEN
-            RAISE EXCEPTION
-                'Only processing withdrawals can be completed.';
-        END IF;
+      showMessage(
+        dashboardMessage,
+        error.message||"Code generation failed.",
+        true
+      );
 
-        withdrawal_reference :=
-            'withdrawal:' || target_request_id::TEXT;
+    }finally{
 
-        -- Check whether this withdrawal was already recorded.
-        IF EXISTS (
-            SELECT 1
-            FROM public.wallet_transactions
-            WHERE reference = withdrawal_reference
-        ) THEN
-            RAISE EXCEPTION
-                'This withdrawal already has a wallet transaction. No additional debit was made.';
-        END IF;
+      generateButton.disabled=false;
 
-        -- Lock member wallet.
-        SELECT *
-        INTO wallet_record
-        FROM public.member_wallets
-        WHERE id = request_record.wallet_id
-        FOR UPDATE;
+    }
 
-        IF NOT FOUND THEN
-            RAISE EXCEPTION 'Member wallet not found.';
-        END IF;
+    return;
+  }
 
-        -- Check balance.
-        IF wallet_record.balance < request_record.amount THEN
-            RAISE EXCEPTION
-                'Insufficient wallet balance to complete withdrawal.';
-        END IF;
+  const checkButton=event.target.closest(
+    "button[data-check]"
+  );
 
-        -- Deduct the full withdrawal amount.
-        UPDATE public.member_wallets
-        SET balance = balance - request_record.amount,
-            updated_at = NOW()
-        WHERE id = request_record.wallet_id;
+  if(checkButton){
 
-        -- Record the debit exactly once.
-        INSERT INTO public.wallet_transactions (
-            wallet_id,
-            transaction_type,
-            amount,
-            currency_code,
-            description,
-            reference
-        )
-        VALUES (
-            request_record.wallet_id,
-            'withdrawal',
-            request_record.amount,
-            wallet_record.currency_code,
-            'Completed withdrawal. Request ID: '
-                || target_request_id::TEXT,
-            withdrawal_reference
-        );
+    const id=checkButton.dataset.check;
+    checkButton.disabled=true;
 
-        -- Mark request completed.
-        UPDATE public.withdrawal_requests
-        SET status = 'completed',
-            updated_at = NOW()
-        WHERE id = target_request_id;
+    showMessage(dashboardMessage,"Checking verification status...");
 
-        RETURN jsonb_build_object(
-            'success', true,
-            'message', 'Withdrawal completed successfully.',
-            'amount_debited', request_record.amount,
-            'separately_paid_fee', fee_record.fee_amount,
-            'member_payout', request_record.amount,
-            'currency', wallet_record.currency_code
-        );
+    try{
 
-    END IF;
+      const {data,error}=await client.functions.invoke(
+        VERIFICATION_FUNCTION,
+        {
+          body:{
+            action:"status",
+            member_id:id
+          }
+        }
+      );
 
-END;
+      if(error)throw error;
 
-$function$;
+      if(!data||data.error)
+        throw new Error(data?.error||"Empty server response.");
+
+      showMessage(
+        dashboardMessage,
+        data.verified
+          ?"This member has verified their account."
+          :data.expired
+            ?"The verification code has expired."
+            :"This member has not completed verification."
+      );
+
+    }catch(error){
+
+      showMessage(
+        dashboardMessage,
+        error.message||"Verification check failed.",
+        true
+      );
+
+    }finally{
+
+      checkButton.disabled=false;
+
+    }
+
+  }
+
+});
+
+/* WALLET SETTINGS */
+
+async function loadSettings(){
+
+  const {data,error}=await client
+    .from("wallet_settings")
+    .select("*")
+    .eq("id",1)
+    .maybeSingle();
+
+  if(error){
+
+    showMessage(
+      $("settingsMessage"),
+      "Could not load settings: "+error.message,
+      true
+    );
+
+    return;
+  }
+
+  if(!data){
+
+    showMessage(
+      $("settingsMessage"),
+      "Wallet settings row was not found. Create the row with id 1.",
+      true
+    );
+
+    return;
+  }
+
+  settingsCache=data;
+
+  $("withdrawalFee").value=data.withdrawal_fee??0;
+  $("migrationFee").value=data.migration_fee??0;
+  $("minimumWithdrawal").value=data.minimum_withdrawal??0;
+  $("maximumWithdrawal").value=data.maximum_withdrawal??0;
+  $("migratedLimit").value=data.migrated_withdrawal_limit??0;
+
+}
+
+$("settingsForm").addEventListener("submit",async event=>{
+
+  event.preventDefault();
+
+  if(!(await requireAdmin()))return;
+
+  const values=[
+    Number($("withdrawalFee").value),
+    Number($("migrationFee").value),
+    Number($("minimumWithdrawal").value),
+    Number($("maximumWithdrawal").value),
+    Number($("migratedLimit").value)
+  ];
+
+  if(values.some(v=>!Number.isFinite(v)||v<0)){
+    showMessage($("settingsMessage"),"Enter valid non-negative amounts.",true);
+    return;
+  }
+
+  if(values[2]>0&&values[3]>0&&values[2]>values[3]){
+    showMessage(
+      $("settingsMessage"),
+      "Minimum withdrawal cannot exceed maximum withdrawal.",
+      true
+    );
+    return;
+  }
+
+  const button=event.submitter;
+  if(button)button.disabled=true;
+
+  try{
+
+    const {data,error}=await client.rpc(
+      "admin_update_wallet_settings",
+      {
+        new_withdrawal_fee:values[0],
+        new_migration_fee:values[1],
+        new_minimum_withdrawal:values[2],
+        new_maximum_withdrawal:values[3],
+        new_migrated_withdrawal_limit:values[4]
+      }
+    );
+
+    if(error)throw error;
+
+    showMessage(
+      $("settingsMessage"),
+      data?.message||"Wallet settings saved successfully."
+    );
+
+    await loadSettings();
+
+  }catch(error){
+
+    showMessage(
+      $("settingsMessage"),
+      "Could not save settings: "+error.message,
+      true
+    );
+
+  }finally{
+
+    if(button)button.disabled=false;
+
+  }
+
+});
+
+/* CREDIT AND DEBIT */
+
+$("adjustmentForm").addEventListener("submit",async event=>{
+
+  event.preventDefault();
+
+  if(!(await requireAdmin()))return;
+
+  const memberId=$("adjustMember").value;
+  const type=$("adjustmentType").value;
+  const amount=Number($("adjustmentAmount").value);
+  const reason=$("adjustmentReason").value.trim();
+
+  if(!memberId||!["credit","debit"].includes(type)||
+     !Number.isFinite(amount)||amount<=0||!reason){
+
+    showMessage(
+      $("adjustmentMessage"),
+      "Complete all fields with valid information.",
+      true
+    );
+
+    return;
+  }
+
+  if(!confirm(
+    `${type.toUpperCase()} ${money(amount)} ${type==="credit"?"to":"from"} this member's wallet?`
+  ))return;
+
+  try{
+
+    const {data,error}=await client.rpc(
+      "admin_wallet_adjust",
+      {
+        target_member_id:memberId,
+        adjustment_type:type,
+        adjustment_amount:amount,
+        adjustment_reason:reason
+      }
+    );
+
+    if(error)throw error;
+
+    showMessage(
+      $("adjustmentMessage"),
+      data?.message||"Wallet adjustment completed."
+    );
+
+    $("adjustmentForm").reset();
+
+    await loadWallets();
+
+  }catch(error){
+
+    showMessage(
+      $("adjustmentMessage"),
+      "Adjustment failed: "+error.message,
+      true
+    );
+
+  }
+
+});
+
+/* MEMBER WALLETS */
+
+async function loadWallets(){
+
+  const {data,error}=await client
+    .from("member_wallets")
+    .select("id,member_id,currency_code,balance,account_level,withdrawal_limit")
+    .order("created_at",{ascending:false});
+
+  if(error){
+
+    $("walletTable").innerHTML=
+      `<tr><td colspan="5">${escapeHTML(error.message)}</td></tr>`;
+
+    return;
+  }
+
+  walletCache=data||[];
+
+  if(!walletCache.length){
+
+    $("walletTable").innerHTML=
+      '<tr><td colspan="5">No wallets found.</td></tr>';
+
+    return;
+  }
+
+  $("walletTable").innerHTML=walletCache.map(wallet=>`
+
+    <tr>
+      <td>${escapeHTML(memberName(wallet.member_id))}</td>
+      <td class="money">${money(wallet.balance)}</td>
+      <td>${escapeHTML(wallet.account_level)}</td>
+      <td>${money(wallet.withdrawal_limit)}</td>
+      <td>${escapeHTML(wallet.currency_code)}</td>
+    </tr>
+
+  `).join("");
+
+}
+
+/* WITHDRAWAL FEE PAYMENTS */
+
+async function loadWithdrawalFees(){
+
+  const table=$("withdrawalFeeTable");
+
+  const {data,error}=await client
+    .from("withdrawal_fee_payments")
+    .select("*")
+    .order("created_at",{ascending:false});
+
+  if(error){
+
+    table.innerHTML=
+      `<tr><td colspan="7">${escapeHTML(error.message)}</td></tr>`;
+
+    return;
+  }
+
+  const payments=data||[];
+
+  if(!payments.length){
+
+    table.innerHTML=
+      '<tr><td colspan="7">No withdrawal fee payments submitted.</td></tr>';
+
+    return;
+  }
+
+  const requestIds=payments.map(p=>p.withdrawal_request_id);
+
+  const {data:requests,error:requestError}=await client
+    .from("withdrawal_requests")
+    .select("id,amount")
+    .in("id",requestIds);
+
+  if(requestError){
+
+    table.innerHTML=
+      `<tr><td colspan="7">${escapeHTML(requestError.message)}</td></tr>`;
+
+    return;
+  }
+
+  const requestMap=new Map(
+    (requests||[]).map(r=>[r.id,r])
+  );
+
+  table.innerHTML=payments.map(payment=>{
+
+    const request=requestMap.get(payment.withdrawal_request_id);
+
+    let actions="Already reviewed";
+
+    if(payment.payment_status==="pending"){
+
+      actions=`
+        <div class="actions">
+
+          <button class="approve"
+            data-fee-id="${escapeHTML(payment.id)}"
+            data-fee-action="verify">
+            Verify Payment
+          </button>
+
+          <button class="reject"
+            data-fee-id="${escapeHTML(payment.id)}"
+            data-fee-action="reject">
+            Reject Payment
+          </button>
+
+        </div>`;
+    }
+
+    return `
+      <tr>
+        <td>${escapeHTML(memberName(payment.member_id))}</td>
+
+        <td>${money(request?.amount)}</td>
+
+        <td class="money">${money(payment.fee_amount)}</td>
+
+        <td>${escapeHTML(payment.payment_reference)}</td>
+
+        <td>${statusBadge(payment.payment_status)}</td>
+
+        <td>${escapeHTML(
+          new Date(payment.created_at).toLocaleString()
+        )}</td>
+
+        <td>${actions}</td>
+      </tr>`;
+
+  }).join("");
+
+}
+
+/* REVIEW WITHDRAWAL FEE PAYMENT */
+
+$("withdrawalFeeTable").addEventListener("click",async event=>{
+
+  const button=event.target.closest(
+    "button[data-fee-id][data-fee-action]"
+  );
+
+  if(!button)return;
+
+  if(!(await requireAdmin())){
+    showMessage(dashboardMessage,"Administrator access required.",true);
+    return;
+  }
+
+  const id=button.dataset.feeId;
+  const action=button.dataset.feeAction;
+
+  const confirmed=confirm(
+    action==="verify"
+      ?"Have you independently confirmed that this separate withdrawal-fee payment was received?"
+      :"Are you sure you want to reject this fee payment?"
+  );
+
+  if(!confirmed)return;
+
+  let note=prompt("Enter an optional administrator note:");
+
+  if(note===null)note="";
+
+  button.disabled=true;
+
+  try{
+
+    const {data,error}=await client.rpc(
+      "admin_review_withdrawal_fee",
+      {
+        p_payment_id:id,
+        p_action:action,
+        p_admin_note:note
+      }
+    );
+
+    if(error)throw error;
+
+    showMessage(
+      dashboardMessage,
+      data?.message||"Fee payment reviewed successfully."
+    );
+
+    await loadWithdrawalFees();
+    await loadWithdrawals();
+
+  }catch(error){
+
+    showMessage(
+      dashboardMessage,
+      "Fee verification failed: "+error.message,
+      true
+    );
+
+  }finally{
+
+    button.disabled=false;
+
+  }
+
+});
+
+/* WITHDRAWAL REQUESTS */
+
+async function loadWithdrawals(){
+
+  const table=$("withdrawalTable");
+
+  const {data,error}=await client
+    .from("withdrawal_requests")
+    .select("*")
+    .order("created_at",{ascending:false});
+
+  if(error){
+
+    table.innerHTML=
+      `<tr><td colspan="7">${escapeHTML(error.message)}</td></tr>`;
+
+    return;
+  }
+
+  const requests=data||[];
+
+  if(!requests.length){
+
+    table.innerHTML=
+      '<tr><td colspan="7">No withdrawal requests found.</td></tr>';
+
+    return;
+  }
+
+  table.innerHTML=requests.map(request=>{
+
+    const payout=Number(request.amount);
+    const id=escapeHTML(request.id);
+    const status=request.status;
+
+    let actions="";
+
+    if(status==="pending"){
+
+      actions=`
+        <button class="approve"
+          data-withdraw="${id}" data-action="approve">
+          Approve
+        </button>
+
+        <button class="reject"
+          data-withdraw="${id}" data-action="reject">
+          Reject
+        </button>`;
+
+    }else if(status==="processing"){
+
+      actions=`
+        <button class="primary"
+          data-withdraw="${id}" data-action="complete">
+          Complete Payout
+        </button>
+
+        <button class="reject"
+          data-withdraw="${id}" data-action="reject">
+          Reject
+        </button>`;
+
+    }
+
+    return `
+      <tr>
+        <td>${escapeHTML(memberName(request.member_id))}</td>
+        <td>${money(request.amount)}</td>
+        <td>${money(request.withdrawal_fee)}</td>
+        <td class="money">${money(payout)}</td>
+        <td>${statusBadge(status)}</td>
+        <td>${escapeHTML(new Date(request.created_at).toLocaleString())}</td>
+        <td><div class="actions">${actions||"No actions"}</div></td>
+      </tr>`;
+
+  }).join("");
+
+}
+
+/* WITHDRAWAL ACTIONS */
+
+$("withdrawalTable").addEventListener("click",async event=>{
+
+  const button=event.target.closest("button[data-withdraw]");
+  if(!button)return;
+
+  if(!(await requireAdmin())){
+    showMessage(dashboardMessage,"Administrator access required.",true);
+    return;
+  }
+
+  const id=button.dataset.withdraw;
+  const action=button.dataset.action;
+
+  const warning=action==="complete"
+    ?"Only continue if the actual payout has already been sent to the member. This action debits the wallet."
+    :`Are you sure you want to ${action} this withdrawal request?`;
+
+  if(!confirm(warning))return;
+
+  button.disabled=true;
+
+  try{
+
+    const {data,error}=await client.rpc(
+      "admin_manage_withdrawal",
+      {
+        target_request_id:id,
+        admin_action:action
+      }
+    );
+
+    if(error)throw error;
+
+    showMessage(
+      dashboardMessage,
+      data?.message||`Withdrawal ${action} action completed.`
+    );
+
+    await loadWithdrawalFees();
+    await loadWithdrawals();
+    await loadWallets();
+
+  }catch(error){
+
+    showMessage(
+      dashboardMessage,
+      "Withdrawal action failed: "+error.message,
+      true
+    );
+
+  }finally{
+
+    button.disabled=false;
+
+  }
+
+});
+
+/* MIGRATION REQUESTS */
+
+async function loadMigrations(){
+
+  const table=$("migrationTable");
+
+  const {data,error}=await client
+    .from("account_migration_requests")
+    .select("*")
+    .order("created_at",{ascending:false});
+
+  if(error){
+
+    table.innerHTML=
+      `<tr><td colspan="7">${escapeHTML(error.message)}</td></tr>`;
+
+    return;
+  }
+
+  const requests=data||[];
+
+  if(!requests.length){
+
+    table.innerHTML=
+      '<tr><td colspan="7">No migration requests found.</td></tr>';
+
+    return;
+  }
+
+  table.innerHTML=requests.map(request=>{
+
+    const id=escapeHTML(request.id);
+
+    let actions="";
+
+    if(request.status==="pending"&&
+       request.payment_status==="unverified"){
+
+      actions=`
+        <button class="check"
+          data-migration="${id}" data-action="verify">
+          Verify Payment
+        </button>
+
+        <button class="reject"
+          data-migration="${id}" data-action="reject">
+          Reject
+        </button>`;
+
+    }else if(request.status==="pending"&&
+             request.payment_status==="verified"){
+
+      actions=`
+        <button class="approve"
+          data-migration="${id}" data-action="approve">
+          Approve Migration
+        </button>
+
+        <button class="reject"
+          data-migration="${id}" data-action="reject">
+          Reject
+        </button>`;
+
+    }
+
+    return `
+      <tr>
+        <td>${escapeHTML(memberName(request.member_id))}</td>
+        <td>${money(request.migration_fee)}</td>
+        <td>${escapeHTML(request.payment_reference||"Not supplied")}</td>
+        <td>${statusBadge(request.payment_status)}</td>
+        <td>${statusBadge(request.status)}</td>
+        <td>${escapeHTML(new Date(request.created_at).toLocaleString())}</td>
+        <td><div class="actions">${actions||"No actions"}</div></td>
+      </tr>`;
+
+  }).join("");
+
+}
+
+/* MIGRATION ACTIONS */
+
+$("migrationTable").addEventListener("click",async event=>{
+
+  const button=event.target.closest("button[data-migration]");
+  if(!button)return;
+
+  if(!(await requireAdmin())){
+    showMessage(dashboardMessage,"Administrator access required.",true);
+    return;
+  }
+
+  const id=button.dataset.migration;
+  const action=button.dataset.action;
+
+  let note=null;
+
+  if(action==="verify"){
+
+    if(!confirm(
+      "Have you independently confirmed that the migration payment was received?"
+    ))return;
+
+    note=prompt("Optional payment verification note:")||null;
+
+  }else if(action==="approve"){
+
+    if(!confirm(
+      "Approve migration? The member's account level and withdrawal limit will change."
+    ))return;
+
+    note=prompt("Optional approval note:")||null;
+
+  }else if(action==="reject"){
+
+    if(!confirm("Reject this migration request?"))return;
+
+    note=prompt("Reason for rejection:")||null;
+
+  }
+
+  button.disabled=true;
+
+  try{
+
+    const {data,error}=await client.rpc(
+      "admin_manage_migration",
+      {
+        target_request_id:id,
+        admin_action:action,
+        review_note:note
+      }
+    );
+
+    if(error)throw error;
+
+    showMessage(
+      dashboardMessage,
+      data?.message||`Migration ${action} action completed.`
+    );
+
+    await loadMigrations();
+    await loadWallets();
+
+  }catch(error){
+
+    showMessage(
+      dashboardMessage,
+      "Migration action failed: "+error.message,
+      true
+    );
+
+  }finally{
+
+    button.disabled=false;
+
+  }
+
+});
+
+/* REFRESH */
+
+$("refreshButton").addEventListener("click",async()=>{
+
+  if(await requireAdmin()){
+    await loadEverything();
+    showMessage(dashboardMessage,"Dashboard refreshed.");
+  }
+
+});
+
+/* LOGOUT */
+
+$("logoutButton").addEventListener("click",async()=>{
+
+  await client.auth.signOut();
+
+  codePanel.classList.add("hidden");
+  dashboard.classList.add("hidden");
+  loginCard.classList.remove("hidden");
+
+  $("password").value="";
+
+  showMessage(loginMessage,"You have signed out.");
+
+});
+
+/* AUTH EVENTS */
+
+client.auth.onAuthStateChange(event=>{
+
+  if(event==="SIGNED_OUT"){
+
+    codePanel.classList.add("hidden");
+    dashboard.classList.add("hidden");
+    loginCard.classList.remove("hidden");
+
+  }
+
+});
+
+/* START */
+
+(async function start(){
+
+  try{
+
+    if(await checkAdmin()){
+      await loadEverything();
+    }
+
+  }catch(error){
+
+    console.error(error);
+
+    showMessage(
+      loginMessage,
+      "Dashboard initialization failed: "+error.message,
+      true
+    );
+
+  }
+
+})();
+</script>
+
+</body>
+</html>
