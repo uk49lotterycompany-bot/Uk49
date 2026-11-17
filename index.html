@@ -5,8 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Create your UK49 membership account.">
   <title>UK49 | Create Account</title>
+
   <style>
     * { box-sizing: border-box; }
+
     :root {
       --green: #087f5b;
       --dark-green: #056344;
@@ -15,6 +17,7 @@
       --muted: #687a72;
       --border: #dce7e1;
     }
+
     body {
       margin: 0;
       font-family: Arial, Helvetica, sans-serif;
@@ -22,43 +25,52 @@
       color: var(--text);
       min-height: 100vh;
     }
+
     header {
       padding: 22px;
       text-align: center;
       background: white;
       border-bottom: 1px solid var(--border);
     }
+
     .logo {
       font-size: 30px;
       font-weight: 900;
       letter-spacing: 2px;
       color: var(--green);
     }
+
     .logo span { color: #e2a52e; }
+
     .tagline {
       margin: 7px 0 0;
       color: var(--muted);
       font-size: 13px;
     }
+
     main {
       width: 100%;
       max-width: 460px;
       margin: 35px auto;
       padding: 0 18px;
     }
+
     .welcome {
       text-align: center;
       margin-bottom: 24px;
     }
+
     .welcome h1 {
       font-size: 27px;
       margin-bottom: 10px;
     }
+
     .welcome p {
       color: var(--muted);
       font-size: 14px;
       line-height: 1.6;
     }
+
     .card {
       background: white;
       padding: 26px 22px;
@@ -66,20 +78,25 @@
       border-radius: 18px;
       box-shadow: 0 10px 35px rgba(20,60,40,.06);
     }
+
     .card h2 { margin: 0 0 8px; }
+
     .description {
       margin-bottom: 24px;
       color: var(--muted);
       font-size: 13px;
       line-height: 1.5;
     }
+
     .form-group { margin-bottom: 18px; }
+
     label {
       display: block;
       margin-bottom: 8px;
       font-size: 13px;
       font-weight: bold;
     }
+
     input {
       width: 100%;
       padding: 14px;
@@ -89,23 +106,12 @@
       color: var(--text);
       font-size: 15px;
     }
+
     input:focus {
       outline: 2px solid rgba(8,127,91,.15);
       border-color: var(--green);
     }
-    .password-wrapper { position: relative; }
-    .password-wrapper input { padding-right: 75px; }
-    .toggle-password {
-      position: absolute;
-      right: 12px;
-      top: 50%;
-      transform: translateY(-50%);
-      border: none;
-      background: transparent;
-      color: var(--green);
-      font-weight: bold;
-      cursor: pointer;
-    }
+
     .primary-button {
       width: 100%;
       padding: 15px;
@@ -117,11 +123,14 @@
       font-weight: bold;
       cursor: pointer;
     }
+
     .primary-button:hover { background: var(--dark-green); }
+
     .primary-button:disabled {
       opacity: .6;
       cursor: wait;
     }
+
     .notice {
       display: none;
       margin: 17px 0;
@@ -131,21 +140,19 @@
       line-height: 1.6;
       overflow-wrap: anywhere;
     }
-    .notice.info {
-      display: block;
-      background: #edf5ff;
-      color: #174a83;
-    }
+
     .notice.error {
       display: block;
       background: #fff0f0;
       color: #a11b1b;
     }
+
     .notice.success {
       display: block;
       background: #eaf8ef;
       color: #17663a;
     }
+
     .security-note {
       margin-top: 20px;
       padding: 13px;
@@ -155,15 +162,18 @@
       font-size: 12px;
       line-height: 1.6;
     }
+
     .login-link {
       margin-top: 20px;
       text-align: center;
       font-size: 14px;
     }
+
     .login-link a {
       color: var(--green);
       font-weight: bold;
     }
+
     footer {
       padding: 20px 10px 30px;
       text-align: center;
@@ -171,6 +181,7 @@
       font-size: 12px;
       line-height: 1.8;
     }
+
     @media (max-width: 480px) {
       main { margin: 25px auto; }
       .card { padding: 23px 18px; }
@@ -178,20 +189,28 @@
     }
   </style>
 </head>
+
 <body>
+
   <header>
     <div class="logo">UK<span>49</span></div>
     <p class="tagline">Your membership starts here</p>
   </header>
+
   <main>
+
     <section class="welcome">
       <h1>Welcome to UK49</h1>
-      <p>Create your account to get started. Enter your details below.</p>
+      <p>Create your account to get started.</p>
     </section>
+
     <section class="card">
-      <h2>Sign Up Details</h2>
-      <p class="description">Please provide your correct information.</p>
+
+      <h2>Sign Up</h2>
+      <p class="description">Enter your details below.</p>
+
       <form id="signupForm">
+
         <div class="form-group">
           <label for="fullName">Full Name</label>
           <input
@@ -203,6 +222,7 @@
             required
           >
         </div>
+
         <div class="form-group">
           <label for="phone">Phone Number</label>
           <input
@@ -214,6 +234,7 @@
             required
           >
         </div>
+
         <div class="form-group">
           <label for="email">Email Address</label>
           <input
@@ -225,126 +246,145 @@
             required
           >
         </div>
-        <div class="form-group">
-          <label for="password">Create Password</label>
-          <div class="password-wrapper">
-            <input
-              id="password"
-              type="password"
-              autocomplete="new-password"
-              placeholder="At least 12 characters"
-              minlength="12"
-              maxlength="128"
-              required
-            >
-            <button
-              id="togglePassword"
-              class="toggle-password"
-              type="button"
-            >Show</button>
-          </div>
-        </div>
-        <div id="notice" class="notice" role="status"
-          aria-live="polite"></div>
+
+        <div id="notice" class="notice"
+          role="status" aria-live="polite"></div>
+
         <button id="submitButton" class="primary-button" type="submit">
           Create Account
         </button>
+
       </form>
+
       <div class="security-note">
-        🔒 Protect your information. Never share your password or
-        verification code with another person.
+        🔒 After signing up, check your email and click the confirmation
+        link to continue.
       </div>
+
       <div class="login-link">
         Already registered?
         <a href="login.html">Login here</a>
       </div>
+
     </section>
+
   </main>
+
   <footer>
     <p>&copy; <span id="year"></span> UK49.</p>
     <p>Use only legitimate and authorized services.</p>
   </footer>
-  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
   <script>
     const SUPABASE_URL =
       "https://jtwrktxkkngbxrvifoax.supabase.co";
+
     const SUPABASE_PUBLISHABLE_KEY =
-      "sb_publishable_7Jdnz6F1e0-OdSVmqIqqUg_LIkD_L0O";
+      "sb_publishable_7Jdnz6F1e0-OdSVmqIqqUg_LIkD_L0";
+
     const supabaseClient = window.supabase.createClient(
       SUPABASE_URL,
       SUPABASE_PUBLISHABLE_KEY
     );
+
     document.getElementById("year").textContent =
       new Date().getFullYear();
+
     const form = document.getElementById("signupForm");
     const notice = document.getElementById("notice");
-    const passwordInput = document.getElementById("password");
-    const togglePassword = document.getElementById("togglePassword");
     const submitButton = document.getElementById("submitButton");
+
     function showNotice(message, type) {
       notice.className = "notice " + type;
       notice.textContent = message;
     }
-    togglePassword.addEventListener("click", function () {
-      const shouldShow = passwordInput.type === "password";
-      passwordInput.type = shouldShow ? "text" : "password";
-      togglePassword.textContent = shouldShow ? "Hide" : "Show";
-    });
-    form.addEventListener("submit", async function (event) {
+
+    // Generate a temporary password that the member never sees.
+    function generateTemporaryPassword() {
+      const bytes = new Uint8Array(32);
+      crypto.getRandomValues(bytes);
+
+      return Array.from(bytes)
+        .map(byte => byte.toString(16).padStart(2, "0"))
+        .join("") + "Aa1!";
+    }
+
+    form.addEventListener("submit", async function(event) {
       event.preventDefault();
+
+      const fullName =
+        document.getElementById("fullName").value.trim();
+
+      const phone =
+        document.getElementById("phone").value.trim();
+
+      const email =
+        document.getElementById("email").value.trim().toLowerCase();
+
+      if (!fullName || !phone || !email) {
+        showNotice("Please complete all fields.", "error");
+        return;
+      }
+
       if (!window.supabase || !window.supabase.createClient) {
         showNotice(
-          "The signup service could not load. Check your internet connection and refresh the page.",
+          "Signup service is unavailable. Refresh the page and try again.",
           "error"
         );
         return;
       }
-      const fullName = document.getElementById("fullName").value.trim();
-      const phone = document.getElementById("phone").value.trim();
-      const email = document.getElementById("email").value.trim();
-      const password = passwordInput.value;
-      if (!fullName || !phone || !email || !password) {
-        showNotice("Please complete every field.", "error");
-        return;
-      }
+
       submitButton.disabled = true;
-      submitButton.textContent = "Creating account...";
+      submitButton.textContent = "Please wait...";
+
       try {
-        const { data, error } = await supabaseClient.auth.signUp({
-          email: email,
-          password: password,
-          options: {
-            data: {
-              full_name: fullName,
-              phone: phone
+        const temporaryPassword = generateTemporaryPassword();
+
+        const { data, error } =
+          await supabaseClient.auth.signUp({
+            email: email,
+            password: temporaryPassword,
+
+            options: {
+              emailRedirectTo:
+                "https://uk49lotterycompany-bot.github.io/Uk49/verify.html",
+
+              data: {
+                full_name: fullName,
+                phone: phone
+              }
             }
-          }
-        });
+          });
+
         if (error) throw error;
+
         if (!data.user) {
-          throw new Error("No account was returned. Please try again.");
+          throw new Error("Account creation failed. Please try again.");
         }
-        sessionStorage.setItem("uk49_verification_email", email);
+
         showNotice(
-          "Registration successful! Your account must be approved by the administrator before you can verify it. Redirecting...",
+          "Your registration was received. Check your email and click the confirmation link to continue.",
           "success"
         );
+
         form.reset();
-        togglePassword.textContent = "Show";
-        setTimeout(function () {
-          window.location.href = "verify.html";
-        }, 2000);
+
       } catch (error) {
         console.error("UK49 signup error:", error);
+
         showNotice(
           error.message || "Registration failed. Please try again.",
           "error"
         );
+
       } finally {
         submitButton.disabled = false;
         submitButton.textContent = "Create Account";
       }
     });
   </script>
+
 </body>
 </html>
