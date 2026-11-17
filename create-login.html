@@ -55,7 +55,7 @@
       box-shadow: 0 10px 35px rgba(20,60,40,.06);
     }
 
-    h1, h2 { text-align: center; }
+    h1 { text-align: center; }
 
     .description {
       color: var(--muted);
@@ -96,7 +96,7 @@
 
     button:disabled {
       opacity: .6;
-      cursor: wait;
+      cursor: not-allowed;
     }
 
     .notice {
@@ -224,6 +224,8 @@
   document.getElementById("year").textContent =
     new Date().getFullYear();
 
+  let verifiedSession = false;
+
   function showNotice(text, type) {
     notice.className = "notice " + type;
     notice.textContent = text;
@@ -233,20 +235,31 @@
     const { data, error } = await client.auth.getUser();
 
     if (error || !data.user) {
+      verifiedSession = false;
+      button.disabled = true;
+
       showNotice(
-        "Please confirm your email using the link sent to your inbox.",
+        "Please confirm your email using the link sent to your inbox. If you have already confirmed it, open the confirmation link again.",
         "error"
       );
-      button.disabled = true;
+
       return false;
     }
 
     if (!data.user.email_confirmed_at) {
-      showNotice("Please confirm your email first.", "error");
+      verifiedSession = false;
       button.disabled = true;
+
+      showNotice(
+        "Please confirm your email before creating your login.",
+        "error"
+      );
+
       return false;
     }
 
+    verifiedSession = true;
+    button.disabled = false;
     return true;
   }
 
@@ -254,7 +267,7 @@
     event.preventDefault();
 
     const username =
-      document.getElementById("username").value.trim();
+      document.getElementById("username").value.trim().toLowerCase();
 
     const password =
       document.getElementById("password").value;
@@ -262,7 +275,7 @@
     const confirmPassword =
       document.getElementById("confirmPassword").value;
 
-    if (!/^[A-Za-z0-9_]{3,30}$/.test(username)) {
+    if (!/^[a-zA-Z0-9_]{3,30}$/.test(username)) {
       showNotice(
         "Username must be 3–30 characters. Use letters, numbers or underscores.",
         "error"
@@ -289,35 +302,48 @@
     try {
       const verified = await checkVerifiedSession();
 
-      if (!verified) return;
-
-      // Save the username. The database prevents duplicates.
-      const { error: usernameError } = await client
-        .from("member_usernames")
-        .insert({
-          user_id: (await client.auth.getUser()).data.user.id,
-          username: username
-        });
-
-      if (usernameError) {
-        if (usernameError.code === "23505") {
-          throw new Error(
-            "This username is already taken. Choose another one."
-          );
-        }
-
-        throw usernameError;
+      if (!verified) {
+        return;
       }
 
-      // Set the member's permanent password.
+      const { data: userData, error: userError } =
+        await client.auth.getUser();
+
+      if (userError || !userData.user) {
+        throw new Error("Your session has expired. Please confirm your email again.");
+      }
+
+      const userId = userData.user.id;
+
+      // First, save the permanent password.
       const { error: passwordError } =
         await client.auth.updateUser({
           password: password
         });
 
       if (passwordError) {
+        throw new Error(passwordError.message);
+      }
+
+      // Then save the username.
+      // The database's unique index prevents duplicate usernames.
+      const { error: usernameError } = await client
+        .from("member_usernames")
+        .insert({
+          user_id: userId,
+          username: username
+        });
+
+      if (usernameError) {
+        if (usernameError.code === "23505") {
+          throw new Error(
+            "This username is already taken. Your password has been saved. Please choose another username and submit again."
+          );
+        }
+
         throw new Error(
-          "Username saved, but password could not be saved. Please try again."
+          "Your password was saved, but your username could not be saved. Please try again. " +
+          usernameError.message
         );
       }
 
@@ -342,8 +368,11 @@
       );
 
     } finally {
-      button.disabled = false;
       button.textContent = "Save My Login";
+
+      if (verifiedSession) {
+        button.disabled = false;
+      }
     }
   });
 
