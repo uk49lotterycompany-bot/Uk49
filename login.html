@@ -5,8 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="Sign in to your UK49 membership account.">
   <title>UK49 | Member Login</title>
+
   <style>
     * { box-sizing: border-box; }
+
     :root {
       --green: #087f5b;
       --dark-green: #056344;
@@ -15,6 +17,7 @@
       --muted: #687a72;
       --border: #dce7e1;
     }
+
     body {
       margin: 0;
       font-family: Arial, Helvetica, sans-serif;
@@ -22,38 +25,46 @@
       color: var(--text);
       min-height: 100vh;
     }
+
     header {
       padding: 22px;
       text-align: center;
       background: white;
       border-bottom: 1px solid var(--border);
     }
+
     .logo {
       font-size: 30px;
       font-weight: 900;
       letter-spacing: 2px;
       color: var(--green);
     }
+
     .logo span { color: #e2a52e; }
+
     main {
       max-width: 440px;
       margin: 45px auto;
       padding: 0 18px;
     }
+
     .intro {
       text-align: center;
       margin-bottom: 24px;
     }
+
     .intro h1 {
       font-size: 27px;
       margin-bottom: 10px;
     }
+
     .intro p,
     .description {
       color: var(--muted);
       font-size: 14px;
       line-height: 1.6;
     }
+
     .card {
       background: white;
       padding: 26px 22px;
@@ -61,18 +72,23 @@
       border-radius: 18px;
       box-shadow: 0 10px 35px rgba(20,60,40,.06);
     }
+
     .card h2 { margin-top: 0; }
+
     .description {
       font-size: 13px;
       margin-bottom: 24px;
     }
+
     .form-group { margin-bottom: 18px; }
+
     label {
       display: block;
       margin-bottom: 8px;
       font-size: 13px;
       font-weight: bold;
     }
+
     input {
       width: 100%;
       padding: 14px;
@@ -81,14 +97,12 @@
       background: #fcfefd;
       font-size: 15px;
     }
+
     input:focus {
       outline: 2px solid rgba(8,127,91,.15);
       border-color: var(--green);
     }
-    button {
-      cursor: pointer;
-      font-weight: bold;
-    }
+
     .primary {
       width: 100%;
       padding: 15px;
@@ -97,12 +111,17 @@
       background: var(--green);
       color: white;
       font-size: 15px;
+      font-weight: bold;
+      cursor: pointer;
     }
+
     .primary:hover { background: var(--dark-green); }
+
     .primary:disabled {
       opacity: .6;
       cursor: wait;
     }
+
     .notice {
       display: none;
       margin: 17px 0;
@@ -113,31 +132,37 @@
       overflow-wrap: anywhere;
       white-space: pre-wrap;
     }
+
     .notice.info {
       display: block;
       background: #edf5ff;
       color: #174a83;
     }
+
     .notice.error {
       display: block;
       background: #fff0f0;
       color: #a11b1b;
     }
+
     .notice.success {
       display: block;
       background: #eaf8ef;
       color: #17663a;
     }
+
     .links {
       text-align: center;
       font-size: 13px;
       line-height: 2;
       margin-top: 18px;
     }
+
     a {
       color: var(--green);
       font-weight: bold;
     }
+
     footer {
       padding: 20px 10px 30px;
       text-align: center;
@@ -146,192 +171,214 @@
     }
   </style>
 </head>
+
 <body>
-  <header>
-    <div class="logo">UK<span>49</span></div>
-    <p>Welcome back to your membership</p>
-  </header>
-  <main>
-    <section class="intro">
-      <h1>Member Login</h1>
-      <p>
-        Sign in with the email address and password
-        you registered with.
-      </p>
-    </section>
-    <section class="card">
-      <h2>Sign In</h2>
-      <p class="description">
-        Enter your account details below.
-      </p>
-      <form id="loginForm">
-        <div class="form-group">
-          <label for="email">Email Address</label>
-          <input
-            id="email"
-            type="email"
-            autocomplete="email"
-            maxlength="254"
-            required
-          >
-        </div>
-        <div class="form-group">
-          <label for="password">Password</label>
-          <input
-            id="password"
-            type="password"
-            autocomplete="current-password"
-            required
-          >
-        </div>
-        <div
-          id="notice"
-          class="notice"
-          role="status"
-          aria-live="polite"
-        ></div>
-        <button
-          id="loginButton"
-          class="primary"
-          type="submit"
+
+<header>
+  <div class="logo">UK<span>49</span></div>
+  <p>Welcome back to your membership</p>
+</header>
+
+<main>
+
+  <section class="intro">
+    <h1>Member Login</h1>
+    <p>Enter your username and password to continue.</p>
+  </section>
+
+  <section class="card">
+
+    <h2>Sign In</h2>
+
+    <p class="description">
+      Enter your account details below.
+    </p>
+
+    <form id="loginForm">
+
+      <div class="form-group">
+        <label for="username">Username</label>
+        <input
+          id="username"
+          type="text"
+          autocomplete="username"
+          maxlength="30"
+          placeholder="Enter your username"
+          required
         >
-          Sign In
-        </button>
-      </form>
-      <div class="links">
-        <p><a href="register.html">Create an account</a></p>
-        <p><a href="index.html">Return to the homepage</a></p>
       </div>
-    </section>
-  </main>
-  <footer>
-    &copy; <span id="year"></span> UK49.
-  </footer>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script>
-    const SUPABASE_URL =
-      "https://jtwrktxkkngbxrvifoax.supabase.co";
-    const SUPABASE_PUBLISHABLE_KEY =
-      "sb_publishable_7Jdnz6F1e0-OdSVmqIqqUg_LIkD_L0O";
-    const form = document.getElementById("loginForm");
-    const notice = document.getElementById("notice");
-    const button = document.getElementById("loginButton");
-    document.getElementById("year").textContent =
-      new Date().getFullYear();
-    function showNotice(message, type) {
-      notice.className = "notice " + type;
-      notice.textContent = message;
-    }
-    if (!window.supabase) {
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input
+          id="password"
+          type="password"
+          autocomplete="current-password"
+          maxlength="128"
+          placeholder="Enter your password"
+          required
+        >
+      </div>
+
+      <div id="notice" class="notice"
+        role="status" aria-live="polite"></div>
+
+      <button id="loginButton" class="primary" type="submit">
+        Sign In
+      </button>
+
+    </form>
+
+    <div class="links">
+      <p><a href="index.html">Create an account</a></p>
+      <p><a href="index.html">Return to homepage</a></p>
+    </div>
+
+  </section>
+
+</main>
+
+<footer>
+  &copy; <span id="year"></span> UK49.
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+  const SUPABASE_URL =
+    "https://jtwrktxkkngbxrvifoax.supabase.co";
+
+  const SUPABASE_PUBLISHABLE_KEY =
+    "sb_publishable_7Jdnz6F1e0-OdSVmqIqqUg_LIkD_L0";
+
+  const client = window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_PUBLISHABLE_KEY
+  );
+
+  const form = document.getElementById("loginForm");
+  const notice = document.getElementById("notice");
+  const button = document.getElementById("loginButton");
+
+  document.getElementById("year").textContent =
+    new Date().getFullYear();
+
+  function showNotice(message, type) {
+    notice.className = "notice " + type;
+    notice.textContent = message;
+  }
+
+  form.addEventListener("submit", async function(event) {
+    event.preventDefault();
+
+    if (!navigator.onLine) {
       showNotice(
-        "The sign-in service could not load. Refresh the page and try again.",
+        "Check your internet connection and try again.",
         "error"
       );
-      button.disabled = true;
-    } else {
-      const client = window.supabase.createClient(
-        SUPABASE_URL,
-        SUPABASE_PUBLISHABLE_KEY
-      );
-      form.addEventListener("submit", async (event) => {
-        event.preventDefault();
-        if (!navigator.onLine) {
-          showNotice(
-            "Check your internet connection and try again.",
-            "error"
-          );
-          return;
-        }
-        button.disabled = true;
-        button.textContent = "Signing in...";
-        try {
-          const email =
-            document.getElementById("email").value.trim();
-          const password =
-            document.getElementById("password").value;
-          // Step 1: Sign in.
-          const { data, error } =
-            await client.auth.signInWithPassword({
-              email,
-              password
-            });
-          if (error) {
-            throw new Error(error.message);
-          }
-          if (!data.user) {
-            throw new Error(
-              "Sign-in failed. Please try again."
-            );
-          }
-          // Step 2: Check approval and email verification.
-          showNotice(
-            "Login successful. Checking your account...",
-            "info"
-          );
-          const { data: access, error: accessError } =
-            await client.functions.invoke(
-              "member_dashboard_access",
-              { method: "POST" }
-            );
-          if (accessError) {
-            console.error(
-              "Dashboard access check failed:",
-              accessError
-            );
-            let details =
-              accessError.message || "Unknown error";
-            if (accessError.context) {
-              try {
-                const response =
-                  await accessError.context.clone();
-                const body = await response.text();
-                if (body) {
-                  details +=
-                    "\nServer response: " + body;
-                }
-              } catch (readError) {
-                console.error(
-                  "Could not read server response:",
-                  readError
-                );
-              }
-            }
-            showNotice(
-              "Access check failed:\n" + details,
-              "error"
-            );
-            button.disabled = false;
-            button.textContent = "Sign In";
-            return;
-          }
-          if (!access || access.verified !== true) {
-            throw new Error(
-              access?.error ||
-              access?.message ||
-              "Your account is not yet approved or verified."
-            );
-          }
-          // Step 3: Open the dashboard only when approved
-          // and email verification has been completed.
-          showNotice(
-            "Account confirmed! Opening your dashboard...",
-            "success"
-          );
-          button.textContent = "Opening dashboard...";
-          window.location.replace("member.html");
-        } catch (error) {
-          console.error("Login error:", error);
-          showNotice(
-            error instanceof Error
-              ? error.message
-              : "Unable to complete login. Please try again.",
-            "error"
-          );
-          button.disabled = false;
-          button.textContent = "Sign In";
-        }
-      });
+      return;
     }
-  </script>
+
+    const username =
+      document.getElementById("username").value.trim();
+
+    const password =
+      document.getElementById("password").value;
+
+    button.disabled = true;
+    button.textContent = "Signing in...";
+
+    try {
+
+      // Step 1: Check username and password.
+      const { data, error } = await client.functions.invoke(
+        "login-with-username",
+        {
+          body: {
+            username,
+            password
+          }
+        }
+      );
+
+      if (error) {
+        console.error("Username login function error:", error);
+        throw new Error(
+          "Unable to reach the login service. Please try again."
+        );
+      }
+
+      if (!data || !data.session ||
+          !data.session.access_token ||
+          !data.session.refresh_token) {
+        throw new Error(
+          data?.error || "Invalid username or password."
+        );
+      }
+
+      // Step 2: Establish the Supabase session.
+      const { error: sessionError } =
+        await client.auth.setSession({
+          access_token: data.session.access_token,
+          refresh_token: data.session.refresh_token
+        });
+
+      if (sessionError) throw sessionError;
+
+      showNotice(
+        "Login successful. Checking your account...",
+        "info"
+      );
+
+      // Step 3: Check verification and administrator approval.
+      const { data: access, error: accessError } =
+        await client.functions.invoke(
+          "member_dashboard_access"
+        );
+
+      if (accessError) {
+        console.error("Access check error:", accessError);
+        await client.auth.signOut();
+
+        throw new Error(
+          "We could not check your account approval. Please try again."
+        );
+      }
+
+      if (!access || access.verified !== true) {
+        await client.auth.signOut();
+
+        throw new Error(
+          access?.error ||
+          access?.message ||
+          "Your account is waiting for administrator approval."
+        );
+      }
+
+      // Step 4: Open the member dashboard.
+      showNotice(
+        "Your account is approved. Opening your dashboard...",
+        "success"
+      );
+
+      button.textContent = "Opening dashboard...";
+
+      window.location.replace("member.html");
+
+    } catch (error) {
+
+      console.error("UK49 login error:", error);
+
+      showNotice(
+        error.message || "Unable to sign in. Please try again.",
+        "error"
+      );
+
+      button.disabled = false;
+      button.textContent = "Sign In";
+    }
+  });
+</script>
+
 </body>
 </html>
