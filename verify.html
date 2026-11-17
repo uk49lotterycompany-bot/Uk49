@@ -4,9 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>UK49 | Verify Account</title>
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
   <style>
     * { box-sizing: border-box; }
+
     body {
       margin: 0;
       min-height: 100vh;
@@ -18,6 +21,7 @@
       background: linear-gradient(135deg, #071b35, #123e67);
       color: #fff;
     }
+
     .card {
       width: 100%;
       max-width: 420px;
@@ -27,23 +31,28 @@
       box-shadow: 0 12px 35px rgba(0, 0, 0, 0.35);
       text-align: center;
     }
+
     .logo {
       color: #ffd166;
       font-size: 32px;
       font-weight: bold;
       margin-bottom: 15px;
     }
+
     h2 { margin-bottom: 12px; }
+
     p {
       color: #cbd5e1;
       line-height: 1.6;
       font-size: 14px;
     }
+
     #message {
       margin-top: 20px;
       line-height: 1.6;
       font-size: 14px;
     }
+
     .loader {
       width: 35px;
       height: 35px;
@@ -53,9 +62,11 @@
       border-radius: 50%;
       animation: spin 1s linear infinite;
     }
+
     @keyframes spin {
       to { transform: rotate(360deg); }
     }
+
     a {
       color: #ffd166;
       display: inline-block;
@@ -63,98 +74,170 @@
     }
   </style>
 </head>
+
 <body>
+
   <main class="card">
+
     <div class="logo">UK49</div>
-<h2>Email Confirmation</h2>
-<p>Please wait while we confirm your email address.</p>
-<div class="loader" id="loader"></div>
-<div id="message" role="status" aria-live="polite">
-  Checking your email confirmation...
-</div>
-<a id="loginLink" href="login.html" hidden>
-  Back to Login
-</a>
+
+    <h2>Email Confirmation</h2>
+
+    <p>Please wait while we confirm your email address.</p>
+
+    <div class="loader" id="loader"></div>
+
+    <div id="message" role="status" aria-live="polite">
+      Checking your email confirmation...
+    </div>
+
+    <a id="loginLink" href="login.html" hidden>
+      Back to Login
+    </a>
+
   </main>
+
   <script>
     const SUPABASE_URL =
       "https://jtwrktxkkngbxrvifoax.supabase.co";
+
     const SUPABASE_PUBLISHABLE_KEY =
       "sb_publishable_7Jdnz6F1e0-OdSVmqIqqUg_LIkD_L0";
+
     const client = window.supabase.createClient(
       SUPABASE_URL,
       SUPABASE_PUBLISHABLE_KEY
     );
+
     const message = document.getElementById("message");
     const loader = document.getElementById("loader");
     const loginLink = document.getElementById("loginLink");
+
     async function confirmEmail() {
       try {
         const url = new URL(window.location.href);
         const params = url.searchParams;
-        // Handle errors returned by Supabase.
+
+        // Check for errors returned by Supabase.
         const callbackError =
           params.get("error_description") ||
           params.get("error");
+
         if (callbackError) {
           throw new Error(callbackError);
         }
+
         // Handle PKCE confirmation links.
         const code = params.get("code");
+
         if (code) {
           const { error } =
             await client.auth.exchangeCodeForSession(code);
+
           if (error) throw error;
         }
+
         // Handle token-hash confirmation links.
         const tokenHash = params.get("token_hash");
         const type = params.get("type");
+
         if (tokenHash && type) {
           const { error } = await client.auth.verifyOtp({
             token_hash: tokenHash,
             type: type
           });
+
           if (error) throw error;
         }
-        // Check that a valid session exists.
+
+        // Check for an authenticated session.
         const { data: sessionData, error: sessionError } =
           await client.auth.getSession();
+
         if (sessionError) throw sessionError;
+
         if (!sessionData.session) {
           throw new Error(
             "We could not establish your verified session. Please open the confirmation link from your email again."
           );
         }
-        // Confirm the user's email is verified.
+
+        // Confirm the user's email.
         const { data: userData, error: userError } =
           await client.auth.getUser();
+
         if (userError) throw userError;
+
         const user = userData.user;
+
         if (!user || !user.email_confirmed_at) {
           throw new Error(
             "Your email has not been confirmed. Please use the confirmation link sent to your email."
           );
         }
+
         message.textContent =
-          "Your email has been confirmed successfully! Taking you to the next step...";
+          "Email confirmed. Recording your verification...";
+
+        // Record email verification in the existing database table.
+        const { data: verificationData, error: verificationError } =
+          await client.functions.invoke(
+            "record-email-verification",
+            {
+              method: "POST"
+            }
+          );
+
+        if (verificationError) {
+          console.error(
+            "Email verification recording error:",
+            verificationError
+          );
+
+          throw new Error(
+            "Your email was confirmed, but we could not record your verification. Please try again or contact support."
+          );
+        }
+
+        if (!verificationData || verificationData.verified !== true) {
+          throw new Error(
+            verificationData?.error ||
+            "Your email verification could not be recorded."
+          );
+        }
+
         // Remove confirmation parameters from the address bar.
         window.history.replaceState(
           {},
           document.title,
           window.location.pathname
         );
+
+        message.textContent =
+          "Your email has been confirmed and recorded successfully! Taking you to the next step...";
+
+        loader.style.display = "none";
+
+        // Continue to username and password creation.
         setTimeout(function() {
           window.location.replace("create-login.html");
-        }, 1500);
+        }, 1800);
+
       } catch (error) {
         console.error("UK49 email confirmation error:", error);
+
         loader.style.display = "none";
+
         message.textContent =
-          error.message || "Confirmation failed. Please try again.";
+          error.message ||
+          "Confirmation failed. Please try again.";
+
         loginLink.hidden = false;
       }
     }
+
     confirmEmail();
   </script>
+
 </body>
 </html>
