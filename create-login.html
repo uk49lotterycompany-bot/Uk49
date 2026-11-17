@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>UK49 | Create Login</title>
+
+  <style>
+    * { box-sizing: border-box; }
+
+    :root {
+      --green: #087f5b;
+      --dark-green: #056344;
+      --background: #f3f7f5;
+      --text: #172b24;
+      --muted: #687a72;
+      --border: #dce7e1;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: var(--background);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    header {
+      padding: 22px;
+      text-align: center;
+      background: white;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .logo {
+      font-size: 30px;
+      font-weight: 900;
+      color: var(--green);
+      letter-spacing: 2px;
+    }
+
+    .logo span { color: #e2a52e; }
+
+    main {
+      max-width: 440px;
+      margin: 45px auto;
+      padding: 0 18px;
+    }
+
+    .card {
+      background: white;
+      padding: 26px 22px;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      box-shadow: 0 10px 35px rgba(20,60,40,.06);
+    }
+
+    h1, h2 { text-align: center; }
+
+    .description {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.6;
+      text-align: center;
+    }
+
+    .form-group { margin-top: 18px; }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 13px;
+      font-weight: bold;
+    }
+
+    input {
+      width: 100%;
+      padding: 14px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font-size: 15px;
+    }
+
+    button {
+      width: 100%;
+      padding: 15px;
+      margin-top: 22px;
+      border: none;
+      border-radius: 10px;
+      background: var(--green);
+      color: white;
+      font-size: 15px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:disabled {
+      opacity: .6;
+      cursor: wait;
+    }
+
+    .notice {
+      display: none;
+      margin-top: 18px;
+      padding: 13px;
+      border-radius: 9px;
+      font-size: 13px;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+    }
+
+    .notice.error {
+      display: block;
+      background: #fff0f0;
+      color: #a11b1b;
+    }
+
+    .notice.success {
+      display: block;
+      background: #eaf8ef;
+      color: #17663a;
+    }
+
+    footer {
+      text-align: center;
+      color: var(--muted);
+      font-size: 12px;
+      padding: 20px;
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <div class="logo">UK<span>49</span></div>
+</header>
+
+<main>
+  <section class="card">
+
+    <h1>Create Your Login</h1>
+
+    <p class="description">
+      Your email is confirmed. Choose a username and password
+      to use whenever you log in.
+    </p>
+
+    <form id="createForm">
+
+      <div class="form-group">
+        <label for="username">Choose Username</label>
+        <input
+          id="username"
+          type="text"
+          minlength="3"
+          maxlength="30"
+          pattern="[A-Za-z0-9_]+"
+          placeholder="Example: uk49member"
+          autocomplete="username"
+          required
+        >
+      </div>
+
+      <div class="form-group">
+        <label for="password">Choose Password</label>
+        <input
+          id="password"
+          type="password"
+          minlength="12"
+          maxlength="128"
+          placeholder="At least 12 characters"
+          autocomplete="new-password"
+          required
+        >
+      </div>
+
+      <div class="form-group">
+        <label for="confirmPassword">Confirm Password</label>
+        <input
+          id="confirmPassword"
+          type="password"
+          minlength="12"
+          maxlength="128"
+          placeholder="Enter your password again"
+          autocomplete="new-password"
+          required
+        >
+      </div>
+
+      <div id="notice" class="notice" role="status"></div>
+
+      <button id="saveButton" type="submit">
+        Save My Login
+      </button>
+
+    </form>
+
+  </section>
+</main>
+
+<footer>
+  &copy; <span id="year"></span> UK49.
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+  const SUPABASE_URL =
+    "https://jtwrktxkkngbxrvifoax.supabase.co";
+
+  const SUPABASE_PUBLISHABLE_KEY =
+    "sb_publishable_7Jdnz6F1e0-OdSVmqIqqUg_LIkD_L0";
+
+  const client = window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_PUBLISHABLE_KEY
+  );
+
+  const form = document.getElementById("createForm");
+  const notice = document.getElementById("notice");
+  const button = document.getElementById("saveButton");
+
+  document.getElementById("year").textContent =
+    new Date().getFullYear();
+
+  function showNotice(text, type) {
+    notice.className = "notice " + type;
+    notice.textContent = text;
+  }
+
+  async function checkVerifiedSession() {
+    const { data, error } = await client.auth.getUser();
+
+    if (error || !data.user) {
+      showNotice(
+        "Please confirm your email using the link sent to your inbox.",
+        "error"
+      );
+      button.disabled = true;
+      return false;
+    }
+
+    if (!data.user.email_confirmed_at) {
+      showNotice("Please confirm your email first.", "error");
+      button.disabled = true;
+      return false;
+    }
+
+    return true;
+  }
+
+  form.addEventListener("submit", async function(event) {
+    event.preventDefault();
+
+    const username =
+      document.getElementById("username").value.trim();
+
+    const password =
+      document.getElementById("password").value;
+
+    const confirmPassword =
+      document.getElementById("confirmPassword").value;
+
+    if (!/^[A-Za-z0-9_]{3,30}$/.test(username)) {
+      showNotice(
+        "Username must be 3–30 characters. Use letters, numbers or underscores.",
+        "error"
+      );
+      return;
+    }
+
+    if (password.length < 12) {
+      showNotice(
+        "Your password must contain at least 12 characters.",
+        "error"
+      );
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      showNotice("Your passwords do not match.", "error");
+      return;
+    }
+
+    button.disabled = true;
+    button.textContent = "Saving...";
+
+    try {
+      const verified = await checkVerifiedSession();
+
+      if (!verified) return;
+
+      // Save the username. The database prevents duplicates.
+      const { error: usernameError } = await client
+        .from("member_usernames")
+        .insert({
+          user_id: (await client.auth.getUser()).data.user.id,
+          username: username
+        });
+
+      if (usernameError) {
+        if (usernameError.code === "23505") {
+          throw new Error(
+            "This username is already taken. Choose another one."
+          );
+        }
+
+        throw usernameError;
+      }
+
+      // Set the member's permanent password.
+      const { error: passwordError } =
+        await client.auth.updateUser({
+          password: password
+        });
+
+      if (passwordError) {
+        throw new Error(
+          "Username saved, but password could not be saved. Please try again."
+        );
+      }
+
+      showNotice(
+        "Your username and password have been created successfully. You can now log in.",
+        "success"
+      );
+
+      form.reset();
+
+      setTimeout(async function() {
+        await client.auth.signOut();
+        window.location.replace("login.html");
+      }, 2500);
+
+    } catch (error) {
+      console.error("Create login error:", error);
+
+      showNotice(
+        error.message || "Unable to save your login details.",
+        "error"
+      );
+
+    } finally {
+      button.disabled = false;
+      button.textContent = "Save My Login";
+    }
+  });
+
+  checkVerifiedSession();
+</script>
+
+</body>
+</html>
