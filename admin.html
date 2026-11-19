@@ -1854,7 +1854,19 @@ $("createMemberForm").addEventListener("submit", async (event) => {
             }
         );
 
-        if (error) throw error;
+        if (error) {
+            let message = error.message || "Could not create member account.";
+
+            if (error.context) {
+                try {
+                    const details = await error.context.json();
+                    message = details.error || message;
+                } catch (_) {}
+            }
+
+            throw new Error(message);
+        }
+
         if (data?.error) throw new Error(data.error);
 
         showMessage(
@@ -1866,16 +1878,15 @@ $("createMemberForm").addEventListener("submit", async (event) => {
         await loadMembers();
 
     } catch (error) {
-    let message = error.message || "Could not create member account.";
+        showMessage(
+            $("createMemberMessage"),
+            error.message || "Could not create member account.",
+            true
+        );
 
-    if (error.context) {
-        try {
-            const details = await error.context.json();
-            message = details.error || message;
-        } catch (_) {}
+    } finally {
+        button.disabled = false;
     }
-
-    showMessage($("createMemberMessage"), message, true);
 });
 </script>
 
