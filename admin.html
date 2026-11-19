@@ -1866,14 +1866,16 @@ $("createMemberForm").addEventListener("submit", async (event) => {
         await loadMembers();
 
     } catch (error) {
-        showMessage(
-            $("createMemberMessage"),
-            error.message || "Could not create member account.",
-            true
-        );
-    } finally {
-        button.disabled = false;
+    let message = error.message || "Could not create member account.";
+
+    if (error.context) {
+        try {
+            const details = await error.context.json();
+            message = details.error || message;
+        } catch (_) {}
     }
+
+    showMessage($("createMemberMessage"), message, true);
 });
 </script>
 
