@@ -302,11 +302,19 @@
       );
 
       if (error) {
-        console.error("Username login function error:", error);
-        throw new Error(
-          "Unable to reach the login service. Please try again."
-        );
-      }
+  console.error("Username login function error:", error);
+
+  let message = error.message || "Login service error.";
+
+  if (error.context) {
+    try {
+      const details = await error.context.json();
+      message = details.error || details.message || message;
+    } catch (_) {}
+  }
+
+  throw new Error(message);
+}
 
       if (!data || !data.session ||
           !data.session.access_token ||
