@@ -1827,6 +1827,54 @@ client.auth.onAuthStateChange(event=>{
   }
 
 })();
+  // CREATE MEMBER ACCOUNT
+$("createMemberForm").addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    if (!(await requireAdmin())) {
+        showMessage($("createMemberMessage"), "Administrator access required.", true);
+        return;
+    }
+
+    const button = event.submitter;
+    button.disabled = true;
+
+    showMessage($("createMemberMessage"), "Creating member account...");
+
+    try {
+        const { data, error } = await client.functions.invoke(
+            "create-member-account",
+            {
+                body: {
+                    full_name: $("newMemberName").value.trim(),
+                    phone: $("newMemberPhone").value.trim(),
+                    username: $("newMemberUsername").value.trim(),
+                    password: $("newMemberPassword").value
+                }
+            }
+        );
+
+        if (error) throw error;
+        if (data?.error) throw new Error(data.error);
+
+        showMessage(
+            $("createMemberMessage"),
+            "Member account created successfully. Username: " + data.username
+        );
+
+        $("createMemberForm").reset();
+        await loadMembers();
+
+    } catch (error) {
+        showMessage(
+            $("createMemberMessage"),
+            error.message || "Could not create member account.",
+            true
+        );
+    } finally {
+        button.disabled = false;
+    }
+});
 </script>
 
 </body>
