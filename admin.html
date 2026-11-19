@@ -285,7 +285,28 @@ th{background:#f6f8fb}
     </div>
 
   </div>
+<!-- CREATE NEW MEMBER -->
+<div class="card">
+  <h2 class="section-title">Create New Member</h2>
 
+  <form id="createMemberForm">
+    <label>Full Name</label>
+    <input id="newMemberName" type="text" placeholder="Enter full name" required>
+
+    <label>Phone Number</label>
+    <input id="newMemberPhone" type="tel" placeholder="Enter phone number" required>
+
+    <label>Username</label>
+    <input id="newMemberUsername" type="text" placeholder="Create username" required>
+
+    <label>Permanent Password</label>
+    <input id="newMemberPassword" type="password" minlength="8" placeholder="At least 8 characters" required>
+
+    <button class="primary" type="submit">Create Member Account</button>
+  </form>
+
+  <p id="createMemberMessage" role="status"></p>
+</div>
   <!-- REGISTRATION SUMMARY -->
 
   <div class="card">
