@@ -930,7 +930,7 @@ async function loadWithdrawalData(){
 
  currentWithdrawals=data||[];
 
- const {data:payments,paymentError}=await supabaseClient.from("withdrawal_fee_payments")
+ const {data:payments,error:paymentError}=await supabaseClient.from("withdrawal_fee_payments")
  .select("id,withdrawal_request_id,payment_status,payment_reference")
  .eq("member_id",currentUser.id);
 
